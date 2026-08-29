@@ -10,12 +10,8 @@ let ready = false;
 let contentReady = false;
 let authReady = false;
 
-// Keep the public website independent from the rest of the application schema.
-// A failure in an unrelated HR/PPC table must never prevent the homepage content
-// from loading or being published.
 export async function ensureContentTable() {
   if (contentReady) return;
-  if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is not configured in the production environment.');
   await sql`CREATE TABLE IF NOT EXISTS site_content (
     id INT PRIMARY KEY DEFAULT 1,
     data JSONB NOT NULL DEFAULT '{}'::jsonb,
@@ -26,7 +22,6 @@ export async function ensureContentTable() {
 
 export async function ensureAuthTables() {
   if (authReady) return;
-  if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is not configured in the production environment.');
   await sql`CREATE TABLE IF NOT EXISTS auth (
     id INT PRIMARY KEY DEFAULT 1,
     user_name TEXT NOT NULL,
@@ -51,10 +46,9 @@ export async function ensureAuthTables() {
   const rows = await sql`SELECT id, user_name, pass_hash FROM auth WHERE id = 1`;
   if (!rows.length) {
     const u = process.env.ADMIN_USER || 'admin';
-    const pw = process.env.ADMIN_PASS || 'changeme123';
-    await sql`INSERT INTO auth (id, user_name, pass_hash) VALUES (1, ${u}, ${hash(pw)})`;
+    const p = process.env.ADMIN_PASS || 'changeme123';
+    await sql`INSERT INTO auth (id, user_name, pass_hash) VALUES (1, ${u}, ${hash(p)})`;
   }
-
   const uCount = await sql`SELECT count(*)::int AS n FROM users`;
   if (!uCount[0] || uCount[0].n === 0) {
     const legacy = (await sql`SELECT user_name, pass_hash FROM auth WHERE id = 1`)[0];
@@ -70,7 +64,6 @@ export async function ensureAuthTables() {
   }
   authReady = true;
 }
-
 export async function ensureTables() {
   if (ready) return;
   await sql`CREATE TABLE IF NOT EXISTS site_content (
@@ -193,6 +186,8 @@ export async function ensureTables() {
               ON CONFLICT (username) DO NOTHING`;
   }
   ready = true;
+  contentReady = true;
+  authReady = true;
 }
 
 export async function tokenUser(token) {

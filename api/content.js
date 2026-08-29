@@ -22,8 +22,7 @@ export default async function handler(req, res) {
       return res.status(200).json({
         ok: true,
         data: rows.length ? rows[0].data : null,
-        updatedAt: rows.length ? rows[0].updated_at : null,
-        source: 'database'
+        updatedAt: rows.length ? rows[0].updated_at : null
       });
     }
 
@@ -34,37 +33,32 @@ export default async function handler(req, res) {
       if (!user) return res.status(401).json({ ok: false, error: 'Not signed in.' });
       if (user.role !== 'developer') return res.status(403).json({ ok: false, error: 'Developer access required.' });
 
-      await ensureContentTable();
       const body = readBody(req);
-      if (!body.data || typeof body.data !== 'object') {
+      if (!body.data || typeof body.data !== 'object' || Array.isArray(body.data)) {
         return res.status(400).json({ ok: false, error: 'No valid content data supplied.' });
       }
-
       const json = JSON.stringify(body.data);
       if (Buffer.byteLength(json, 'utf8') > 3.5 * 1024 * 1024) {
         return res.status(413).json({ ok: false, error: 'Content is larger than the 3.5 MB publish limit.' });
       }
 
+      await ensureContentTable();
       const rows = await sql`
         INSERT INTO site_content (id, data, updated_at)
         VALUES (1, ${json}::jsonb, now())
-        ON CONFLICT (id) DO UPDATE
-          SET data = EXCLUDED.data, updated_at = now()
+        ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data, updated_at = now()
         RETURNING updated_at
       `;
-      return res.status(200).json({
-        ok: true,
-        savedAt: rows[0]?.updated_at || new Date().toISOString(),
-        source: 'database'
-      });
-    }
 
+      // Read it back from the database. This prevents a false "Published" message.
+      const verify = await sql`SELECT updated_at FROM site_content WHERE id = 1`;
+      if (!verify.length) throw new Error('Database did not retain the published content.');
+
+      return res.status(200).json({ ok: true, savedAt: verify[0].updated_at || rows[0]?.updated_at });
+    }
     return res.status(405).json({ ok: false, error: 'Use GET or POST' });
   } catch (e) {
     console.error('CONTENT ERROR:', e);
-    return res.status(500).json({
-      ok: false,
-      error: e?.message || 'Database/content service failed.'
-    });
+    return res.status(500).json({ ok: false, error: e?.message || 'Database/content service failed.' });
   }
 }

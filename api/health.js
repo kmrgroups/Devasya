@@ -1,26 +1,13 @@
-// Lightweight production diagnostics for the website/content connection.
 import { sql, ensureContentTable, ensureAuthTables, cors } from './_db.js';
-
-export default async function handler(req, res) {
+export default async function handler(req,res){
   cors(res);
-  res.setHeader('Cache-Control', 'no-store');
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'GET') return res.status(405).json({ ok:false, error:'Use GET' });
-
-  const out = { ok:false, databaseUrlConfigured:!!process.env.DATABASE_URL, contentTable:false, contentRecord:false };
-  try {
+  res.setHeader('Cache-Control','no-store, max-age=0');
+  if(req.method==='OPTIONS') return res.status(200).end();
+  try{
+    if(!process.env.DATABASE_URL) return res.status(500).json({ok:false,databaseUrlConfigured:false,error:'DATABASE_URL is not configured in Vercel.'});
     await ensureContentTable();
-    out.contentTable = true;
-    const rows = await sql`SELECT updated_at FROM site_content WHERE id = 1`;
-    out.contentRecord = rows.length > 0;
-    out.updatedAt = rows.length ? rows[0].updated_at : null;
-    // Verify auth schema separately without exposing any credentials.
     await ensureAuthTables();
-    out.authTable = true;
-    out.ok = true;
-    return res.status(200).json(out);
-  } catch (e) {
-    out.error = e?.message || 'Database check failed.';
-    return res.status(500).json(out);
-  }
+    const c=await sql`SELECT id, updated_at FROM site_content WHERE id=1`;
+    return res.status(200).json({ok:true,databaseUrlConfigured:true,contentTable:true,contentRecord:!!c.length,updatedAt:c[0]?.updated_at||null});
+  }catch(e){return res.status(500).json({ok:false,databaseUrlConfigured:!!process.env.DATABASE_URL,error:e?.message||'Database error'});}
 }
