@@ -2217,8 +2217,9 @@
 
   /* ---------- CLOUD ---------- */
   async function api(path,opts={}){
-    const o=Object.assign({headers:{'Content-Type':'application/json'}},opts);
-    if(token) o.headers['X-Auth-Token']=token;
+    const headers=Object.assign({'Content-Type':'application/json'},opts.headers||{});
+    if(token) headers['X-Auth-Token']=token;
+    const o=Object.assign({},opts,{headers,cache:'no-store'});
     const res=await fetch(API+path,o);
     let j={}; try{ j=await res.json(); }catch(e){}
     if(!res.ok) throw new Error(j.error||('HTTP '+res.status));
@@ -2226,8 +2227,10 @@
   }
   async function loadContent(){
     try{
-      const j=await api('/api/content');
+      const j=await api('/api/content?ts='+Date.now());
       cloudOK=true;
+      const bar=document.getElementById('offline-bar');
+      if(bar) bar.classList.remove('show');
       if(j.data && Object.keys(j.data).length){
         data=Object.assign({},DEFAULTS,j.data);
         data.social=Object.assign({},DEFAULTS.social,j.data.social||{});
@@ -2260,8 +2263,13 @@
     }catch(e){
       cloudOK=false;
       const bar=document.getElementById('offline-bar');
-      bar.textContent='Not connected to the database — showing default content. Changes cannot be published.';
-      bar.classList.add('show');
+      if(bar){
+        bar.innerHTML='Database connection failed — showing default content. <b>'+esc(e.message||'Unknown error')+'</b> <button type=\"button\" id=\"content-retry\" style=\"margin-left:8px;padding:5px 10px;border:0;border-radius:6px;cursor:pointer;\">Retry</button>';
+        bar.classList.add('show');
+        const retry=document.getElementById('content-retry');
+        if(retry) retry.onclick=async()=>{retry.disabled=true; retry.textContent='Retrying…'; await loadContent(); render();};
+      }
+      console.error('Public content load failed:',e);
     }
   }
   async function publish(){
@@ -2274,8 +2282,10 @@
     }
     btn.textContent='Publishing…'; btn.disabled=true;
     try{
-      await api('/api/content',{method:'POST',body:JSON.stringify({data})});
-      dirty=false; toast('Published — everyone sees this now');
+      const saved=await api('/api/content',{method:'POST',body:JSON.stringify({data})});
+      dirty=false;
+      if(saved.savedAt) setText('content-stamp','Content updated '+new Date(saved.savedAt).toLocaleString());
+      toast('Published — database updated successfully');
     }catch(e){
       toast(/413/.test(e.message)
         ? 'Too large to publish. Replace your biggest photos with smaller ones and try again.'
