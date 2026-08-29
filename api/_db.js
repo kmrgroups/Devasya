@@ -19,6 +19,56 @@ export async function ensureTables() {
     data JSONB NOT NULL,
     created_at TIMESTAMPTZ DEFAULT now()
   )`;
+  await sql`CREATE TABLE IF NOT EXISTS hr_employees (
+    emp_id TEXT PRIMARY KEY,
+    data JSONB NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT now()
+  )`;
+  await sql`CREATE TABLE IF NOT EXISTS hr_attendance (
+    id TEXT PRIMARY KEY,
+    emp_id TEXT NOT NULL,
+    day DATE NOT NULL,
+    data JSONB NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT now()
+  )`;
+  await sql`CREATE INDEX IF NOT EXISTS hr_att_emp_day ON hr_attendance (emp_id, day)`;
+  await sql`CREATE TABLE IF NOT EXISTS hr_leave (
+    leave_id TEXT PRIMARY KEY,
+    emp_id TEXT NOT NULL,
+    data JSONB NOT NULL,
+    status TEXT NOT NULL DEFAULT 'Pending',
+    created_at TIMESTAMPTZ DEFAULT now()
+  )`;
+  await sql`CREATE TABLE IF NOT EXISTS hr_training (
+    rec_id TEXT PRIMARY KEY,
+    kind TEXT NOT NULL,
+    data JSONB NOT NULL,
+    status TEXT DEFAULT 'Open',
+    created_at TIMESTAMPTZ DEFAULT now()
+  )`;
+  await sql`CREATE TABLE IF NOT EXISTS hr_items (
+    item_id TEXT PRIMARY KEY,
+    kind TEXT NOT NULL,
+    data JSONB NOT NULL,
+    status TEXT DEFAULT 'Open',
+    owner TEXT DEFAULT '',
+    due DATE,
+    created_at TIMESTAMPTZ DEFAULT now()
+  )`;
+  await sql`CREATE INDEX IF NOT EXISTS hr_items_kind ON hr_items (kind, status)`;
+  await sql`CREATE TABLE IF NOT EXISTS hr_payruns (
+    run_id TEXT PRIMARY KEY,
+    period TEXT NOT NULL,
+    data JSONB NOT NULL,
+    status TEXT NOT NULL DEFAULT 'Draft',
+    created_at TIMESTAMPTZ DEFAULT now()
+  )`;
+  await sql`CREATE TABLE IF NOT EXISTS hr_audit (
+    id BIGSERIAL PRIMARY KEY,
+    who TEXT, what TEXT, ref TEXT,
+    before_val JSONB, after_val JSONB,
+    reason TEXT, at TIMESTAMPTZ DEFAULT now()
+  )`;
   await sql`CREATE TABLE IF NOT EXISTS ppc_orders (
     ref TEXT PRIMARY KEY,
     data JSONB NOT NULL,

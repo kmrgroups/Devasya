@@ -99,6 +99,21 @@
   nav.links a.pipeline{background:var(--navy);color:#fff;border-color:transparent;box-shadow:0 4px 0 var(--navy-deep);}
   nav.links a.pipeline:hover{color:var(--gold-light);box-shadow:0 7px 0 var(--navy-deep);}
   .nav-cta{flex:0 0 auto;}
+  body.booting::after{content:'';position:fixed;top:0;left:0;height:3px;width:100%;z-index:999;
+    background:linear-gradient(90deg,var(--sky) 0%,var(--gold) 50%,var(--sky) 100%);
+    background-size:200% 100%;animation:bootbar 1.1s linear infinite;}
+  @keyframes bootbar{0%{background-position:0% 0}100%{background-position:-200% 0}}
+  .ops-wrap{position:relative;display:inline-block;}
+  .ops-caret{font-size:9px;opacity:.75;margin-left:2px;}
+  .ops-menu{position:fixed;min-width:265px;max-width:90vw;background:var(--white);
+    border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 18px 44px rgba(11,42,91,.2);
+    padding:7px;z-index:200;display:none;}
+  .ops-menu.open{display:block;}
+  .ops-menu a{display:block;padding:11px 13px;border-radius:var(--radius-sm);text-align:left;
+    border:none;background:none;min-width:0;height:auto;}
+  .ops-menu a:hover{background:var(--sky-wash);}
+  .ops-menu a b{display:block;font-family:var(--body);font-size:var(--fs-body);color:var(--navy);font-weight:600;}
+  .ops-menu a span{display:block;font-family:var(--mono);font-size:var(--fs-micro);color:var(--ink-soft);margin-top:2px;}
 
   /* ---- HERO ---- */
   .hero{position:relative;overflow:hidden;padding:calc(var(--section-pad)*.95) 0 0;
@@ -329,6 +344,44 @@
   #ppc-page{position:fixed;inset:0;z-index:150;background:var(--paper);overflow-y:auto;display:none;}
   #staff-page.open{display:block;}
   #ppc-page.open{display:block;}
+  #hr-page{position:fixed;inset:0;z-index:150;background:var(--paper);overflow-y:auto;display:none;}
+  #hr-page.open{display:block;}
+  .hr-tab{font-family:var(--mono);font-size:var(--fs-micro);letter-spacing:.05em;text-transform:uppercase;padding:12px 18px;color:var(--ink-soft);border:none;background:none;border-bottom:2px solid transparent;white-space:nowrap;}
+.att-t{width:100%;border-collapse:collapse;font-size:10px;background:var(--white);}
+  .att-t th{background:var(--navy);color:#fff;padding:5px 3px;font-family:var(--mono);font-size:9px;font-weight:500;position:sticky;top:0;}
+  .att-t th.wo{background:#41567E;} .att-t th.hol{background:var(--gold-deep);}
+  .att-t th.nm,.att-t td.nm{text-align:left;min-width:150px;padding-left:8px;}
+  .att-t td{padding:2px;border-bottom:1px solid var(--line);text-align:center;}
+  .att-t td.wo{background:#EEF1F6;color:var(--ink-soft);} .att-t td.hol{background:#FFF6E0;color:var(--gold-deep);}
+  .att-t td.lv{background:#F3EDFF;color:#5B2BB8;font-weight:600;}
+  .att-t select{border:1px solid var(--line);border-radius:3px;font-size:10px;padding:2px;width:38px;background:var(--white);}
+  .sk-t td.sk{font-family:var(--mono);font-weight:700;font-size:10px;padding:6px 3px;}
+  .sk-t td.sk.green{background:#E6F7F0;color:var(--ok);}
+  .sk-t td.sk.amber{background:#FFF6E0;color:var(--gold-deep);}
+  .sk-t td.sk.red{background:#FDECEA;color:#B03A2E;}
+  .sk-t td.sk.na{background:#F6F8FB;color:var(--ink-soft);}
+  .sk-t th.rot{font-size:8.5px;max-width:88px;white-space:normal;line-height:1.25;padding:6px 3px;vertical-align:bottom;}
+  .att-t input.at-ot{width:52px;border:1px solid var(--line);border-radius:4px;padding:3px;font-size:10px;text-align:right;font-family:var(--mono);}
+.tower-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:16px;}
+  .tower-card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px;box-shadow:var(--shadow-sm);cursor:pointer;transition:box-shadow .2s,transform .2s;}
+  .tower-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+  .tower-card h4{font-family:var(--mono);font-size:var(--fs-micro);letter-spacing:.08em;text-transform:uppercase;
+    color:var(--gold-deep);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--line);}
+  .tw-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;font-size:var(--fs-micro);color:var(--ink-mid);}
+  .tw-row b{font-family:var(--mono);font-size:var(--fs-body);color:var(--navy);}
+  .tw-row b.good{color:var(--ok);} .tw-row b.warn{color:var(--gold-deep);} .tw-row b.bad{color:#B03A2E;}
+  .tower-alerts{display:flex;flex-direction:column;gap:7px;margin-bottom:18px;}
+  .t-alert{display:flex;align-items:center;gap:12px;background:var(--white);border:1px solid var(--line);
+    border-left:4px solid var(--line);border-radius:var(--radius-sm);padding:11px 15px;cursor:pointer;transition:background .15s;}
+  .t-alert:hover{background:var(--paper);}
+  .t-alert.red{border-left-color:#B03A2E;} .t-alert.amber{border-left-color:var(--gold);}
+  .t-alert .dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto;}
+  .t-alert.red .dot{background:#B03A2E;} .t-alert.amber .dot{background:var(--gold);}
+  .t-alert b{display:block;font-size:var(--fs-body);color:var(--navy);}
+  .t-alert span:not(.dot):not(.go){display:block;font-size:var(--fs-micro);color:var(--ink-soft);margin-top:1px;}
+  .t-alert .go{margin-left:auto;color:var(--ink-soft);font-size:15px;}
+  .hr-tab.active{color:var(--navy);border-bottom-color:var(--gold);background:var(--white);}
   .staff-bar{position:sticky;top:0;z-index:5;background:var(--navy);color:#fff;padding:0 var(--gutter);height:var(--bar-h);display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:3px solid var(--gold);}
   .staff-bar h2{color:#fff;font-size:calc(var(--font-base)*1.15);}
   .staff-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;}
@@ -760,45 +813,13 @@
       <button class="login-cancel" id="code-cancel">Back to sign in</button>
     </div>
     <div class="login-body" id="forgot-panel">
-
-      <!-- step 1: who are you -->
-      <div id="fp-step1">
-        <div class="field-hint" style="margin-top:0;margin-bottom:14px;">We will email a 6-digit code to the address saved on your account.</div>
-        <label>Username or Email</label>
-        <input type="text" id="fp-who" autocomplete="username">
-        <button class="btn btn-primary" id="fp-send">Email me a code</button>
-        <div class="field-hint" style="margin-top:14px;">
-          No email on your account? <a href="#" id="fp-use-recovery" style="color:var(--gold-light)">Use the recovery code instead</a>
-        </div>
-      </div>
-
-      <!-- step 2: code and new password -->
-      <div id="fp-step2" style="display:none;">
-        <div class="field-hint" style="margin-top:0;margin-bottom:14px;" id="fp-note">Enter the code we sent you.</div>
-        <label>6-Digit Code</label>
-        <input type="text" id="fp-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="text-align:center;letter-spacing:.4em;font-size:20px;">
-        <label>New Password</label>
-        <div class="pw-wrap"><input type="password" id="fp-pass" autocomplete="new-password"><button type="button" class="pw-eye" data-for="fp-pass"></button></div>
-        <button class="btn btn-primary" id="fp-verify">Set Password &amp; Sign In</button>
-        <div class="field-hint" style="margin-top:12px;">
-          <a href="#" id="fp-resend" style="color:var(--gold-light)">Send the code again</a>
-        </div>
-      </div>
-
-      <!-- fallback: recovery code -->
-      <div id="fp-step3" style="display:none;">
-        <div class="field-hint" style="margin-top:0;margin-bottom:14px;">Enter the recovery code set when the site was deployed (the <code>ADMIN_RECOVERY_CODE</code> value in Vercel), then choose new sign-in details.</div>
-        <label>Recovery Code</label>
-        <div class="pw-wrap"><input type="password" id="forgot-code" autocomplete="off"><button type="button" class="pw-eye" data-for="forgot-code"></button></div>
-        <label>New Username</label><input type="text" id="forgot-user" autocomplete="username">
-        <label>New Password</label>
-        <div class="pw-wrap"><input type="password" id="forgot-pass" autocomplete="new-password"><button type="button" class="pw-eye" data-for="forgot-pass"></button></div>
-        <button class="btn btn-primary" id="forgot-btn">Reset &amp; Sign In</button>
-        <div class="field-hint" style="margin-top:12px;">
-          <a href="#" id="fp-use-email" style="color:var(--gold-light)">Email me a code instead</a>
-        </div>
-      </div>
-
+      <div class="field-hint" style="margin-top:0;margin-bottom:14px;">Enter the recovery code your developer set up when the site was deployed (the <code>ADMIN_RECOVERY_CODE</code> value in Vercel), then choose new sign-in details.</div>
+      <label>Recovery Code</label>
+      <div class="pw-wrap"><input type="password" id="forgot-code" autocomplete="off"><button type="button" class="pw-eye" data-for="forgot-code"></button></div>
+      <label>New Username</label><input type="text" id="forgot-user" autocomplete="username">
+      <label>New Password</label>
+      <div class="pw-wrap"><input type="password" id="forgot-pass" autocomplete="new-password"><button type="button" class="pw-eye" data-for="forgot-pass"></button></div>
+      <button class="btn btn-primary" id="forgot-btn">Reset &amp; Sign In</button>
       <div class="login-err" id="forgot-err"></div>
       <button class="login-cancel" id="forgot-cancel">Back to sign in</button>
     </div>
@@ -859,6 +880,291 @@
     </div>
     <div id="ppc-load" style="margin-bottom:22px;"></div>
     <div id="ppc-list"></div>
+  </div>
+</div>
+
+<div id="hr-page">
+  <div class="staff-bar">
+    <div><h2>HR &amp; People</h2><span class="t-micro" id="hr-brand" style="color:var(--gold-light)">IRONVALE</span></div>
+    <div class="staff-actions">
+      <button id="hr-refresh">Refresh</button>
+      <button id="hr-admin">Site Admin</button>
+      <button id="hr-back">View Website</button>
+      <button class="gold" id="hr-logout">Sign Out</button>
+    </div>
+  </div>
+  <div class="staff-body">
+    <div class="admin-tabs" style="margin-bottom:20px;border-radius:var(--radius-sm);">
+      <button class="hr-tab active" data-hrtab="tower">Control Tower</button>
+      <button class="hr-tab" data-hrtab="people">Employees</button>
+      <button class="hr-tab" data-hrtab="attendance">Attendance</button>
+      <button class="hr-tab" data-hrtab="leave">Leave</button>
+      <button class="hr-tab" data-hrtab="payroll">Payroll</button>
+      <button class="hr-tab" data-hrtab="skills">Skill Matrix</button>
+      <button class="hr-tab" data-hrtab="training">Training</button>
+      <button class="hr-tab" data-hrtab="policies">Policies</button>
+      <button class="hr-tab" data-hrtab="tasks">DWM &amp; Tasks</button>
+      <button class="hr-tab" data-hrtab="kpi">KPI &amp; Performance</button>
+      <button class="hr-tab" data-hrtab="audit-ready">Audit Readiness</button>
+      <button class="hr-tab" data-hrtab="statutory">Statutory Settings</button>
+      <button class="hr-tab" data-hrtab="audit">Audit Trail</button>
+    </div>
+
+    <div class="hr-panel" data-hrpanel="tower">
+      <div id="tower-alerts"></div>
+      <div id="tower-grid"></div>
+      <div class="field-hint" style="margin-top:16px;">Every figure here is read live from the records in this
+        system. Click any card to open the tab it comes from.</div>
+    </div>
+
+    <div class="hr-panel" data-hrpanel="people" style="display:none;">
+      <div class="kpi-row" id="hr-kpi-row"></div>
+      <div class="qb" style="margin-bottom:18px;">
+        <h4>Add Employee</h4>
+        <div class="cs-row four">
+          <div><label>Employee ID</label><input type="text" id="ne-empId"></div>
+          <div><label>Name</label><input type="text" id="ne-name"></div>
+          <div><label>Department</label><input type="text" id="ne-department"></div>
+          <div><label>Designation</label><input type="text" id="ne-designation"></div>
+        </div>
+        <div class="cs-row four" style="margin-top:10px;">
+          <div><label>Date of Joining</label><input type="date" id="ne-doj"></div>
+          <div><label>Annual CTC</label><input type="text" id="ne-ctc" class="num"></div>
+          <div><label>Grade</label><input type="text" id="ne-grade"></div>
+          <div><label>Shift</label><input type="text" id="ne-shift" value="General"></div>
+        </div>
+        <button class="mini-btn gold" id="ne-create" style="margin-top:12px;">Add Employee</button>
+        <div class="field-hint" id="ne-msg" style="margin-top:8px;"></div>
+      </div>
+      <div id="hr-emp-list"></div>
+    </div>
+
+    <div class="hr-panel" data-hrpanel="attendance" style="display:none;">
+      <div class="qb" style="margin-bottom:18px;">
+        <h4>Attendance Sheet</h4>
+        <div class="cs-row four">
+          <div><label>Period</label><input type="month" id="at-period"></div>
+          <div style="align-self:end;"><button class="mini-btn" id="at-load">Load Sheet</button></div>
+          <div style="align-self:end;"><button class="mini-btn gold" id="at-fill">Mark all working days Present</button></div>
+          <div style="align-self:end;"><button class="mini-btn green" id="at-save">Save Attendance</button></div>
+        </div>
+        <div class="field-hint" id="at-msg" style="margin-top:8px;">Weekly offs and holidays are excluded
+          automatically. Approved leave is applied from the Leave tab. Anything left unmarked counts as absent.</div>
+      </div>
+      <div id="hr-att-grid"></div>
+    </div>
+
+    <div class="hr-panel" data-hrpanel="leave" style="display:none;">
+      <div class="qb" style="margin-bottom:18px;">
+        <h4>Apply for Leave</h4>
+        <div class="cs-row four">
+          <div><label>Employee</label><select id="lv-emp" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);"></select></div>
+          <div><label>Type</label><select id="lv-type" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);"></select></div>
+          <div><label>From</label><input type="date" id="lv-from"></div>
+          <div><label>To</label><input type="date" id="lv-to"></div>
+        </div>
+        <div class="cs-row" style="margin-top:10px;"><div style="grid-column:1/-1;">
+          <label>Reason</label><input type="text" id="lv-reason"></div></div>
+        <button class="mini-btn gold" id="lv-apply" style="margin-top:12px;">Submit Request</button>
+        <div class="field-hint" id="lv-msg" style="margin-top:8px;"></div>
+      </div>
+      <div id="hr-leave-bal"></div>
+      <div id="hr-leave-list"></div>
+    </div>
+
+    <div class="hr-panel" data-hrpanel="payroll" style="display:none;">
+      <div class="warn-box" style="margin-bottom:16px;"><b>Every pay run is a draft until you approve it.</b>
+        Check the exception list before approving. Once approved a run is locked and cannot be edited or
+        deleted — raise a correction run instead. Confirm the figures on the Statutory Settings tab are
+        current before the first run of any financial year.</div>
+      <div class="qb" style="margin-bottom:18px;">
+        <h4>New Pay Run</h4>
+        <div class="cs-row four">
+          <div><label>Period</label><input type="month" id="pr-period"></div>
+          <div><label>Days in Period</label><input type="text" id="pr-days" class="num" value="30"></div>
+          <div style="grid-column:span 2;align-self:end;">
+            <button class="mini-btn gold" id="pr-create">Create Draft Run</button></div>
+        </div>
+        <div class="field-hint" id="pr-msg" style="margin-top:8px;"></div>
+      </div>
+      <div id="hr-payrun-list"></div>
+    </div>
+
+    <div class="hr-panel" data-hrpanel="skills" style="display:none;">
+      <div class="info-box">A person's <b>required</b> level comes from the standard set for their role.
+        Their <b>actual</b> level is assessed by a named person on a date — that record is the evidence an
+        IATF auditor asks for. Gaps here drive training need automatically.</div>
+      <div class="kpi-row" id="skill-kpi"></div>
+      <div class="qb" style="margin-bottom:16px;">
+        <h4>Role Standards — what each role must be able to do</h4>
+        <div class="cs-row four">
+          <div><label>Role / Designation</label><input type="text" id="rc-role" placeholder="CNC Operator"></div>
+          <div><label>Competency</label><select id="rc-comp" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);"></select></div>
+          <div><label>Required Level</label><select id="rc-level" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);"></select></div>
+          <div style="align-self:end;"><button class="mini-btn gold" id="rc-add">Add Standard</button></div>
+        </div>
+        <div id="rc-list" style="margin-top:12px;"></div>
+      </div>
+      <div class="cs-row" style="margin-bottom:12px;"><div>
+        <label>Filter by department</label>
+        <select id="sm-dept" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);"></select></div></div>
+      <div id="skill-matrix"></div>
+      <div id="emp-assess"></div>
+    </div>
+
+    <div class="hr-panel" data-hrpanel="training" style="display:none;">
+      <div class="kpi-row" id="train-kpi"></div>
+      <div class="qb" style="margin-bottom:16px;">
+        <h4>Training Need Identification (§17)</h4>
+        <div class="field-hint" style="margin-bottom:10px;">Generated from live competency gaps. Review, then
+          schedule the ones you accept — nothing is scheduled automatically.</div>
+        <button class="mini-btn ai" id="tni-run">Generate TNI from current gaps</button>
+        <div id="tni-list" style="margin-top:12px;"></div>
+      </div>
+      <div class="qb" style="margin-bottom:16px;">
+        <h4>Schedule a Training Session (§18)</h4>
+        <div class="cs-row four">
+          <div><label>Course</label><select id="ts-course" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);"></select></div>
+          <div><label>Trainer</label><input type="text" id="ts-trainer"></div>
+          <div><label>Date</label><input type="date" id="ts-date"></div>
+          <div><label>Evaluate after (days)</label><input type="text" id="ts-eval" class="num" value="30"></div>
+        </div>
+        <div class="cs-row" style="margin-top:10px;"><div style="grid-column:1/-1;">
+          <label>Participants</label>
+          <select id="ts-emps" multiple size="5" style="width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);"></select>
+          <div class="field-hint">Ctrl-click or Cmd-click to select several.</div></div></div>
+        <button class="mini-btn gold" id="ts-create" style="margin-top:12px;">Schedule Session</button>
+        <div class="field-hint" id="ts-msg" style="margin-top:8px;"></div>
+      </div>
+      <div id="train-sessions"></div>
+    </div>
+
+    <div class="hr-panel" data-hrpanel="policies" style="display:none;">
+      <div class="info-box">Policies are version-controlled. Publishing a revision supersedes the previous
+        one and clears acknowledgements, so everyone must read the current version. Superseded versions stay
+        readable as evidence but are never presented as current.</div>
+      <div class="kpi-row" id="pol-kpi"></div>
+      <div class="qb" style="margin-bottom:16px;">
+        <h4>New Policy or Revision</h4>
+        <div class="cs-row four">
+          <div><label>Title</label><input type="text" id="pl-title" placeholder="Attendance Policy"></div>
+          <div><label>Category</label><input type="text" id="pl-cat" placeholder="HR / Safety / Quality"></div>
+          <div><label>Version</label><input type="text" id="pl-ver" value="1.0"></div>
+          <div><label>Effective From</label><input type="date" id="pl-eff"></div>
+        </div>
+        <div class="cs-row four" style="margin-top:10px;">
+          <div><label>Applies To</label><input type="text" id="pl-applies" placeholder="All employees / a department"></div>
+          <div><label>Owner</label><input type="text" id="pl-owner"></div>
+          <div><label>Next Review</label><input type="date" id="pl-review"></div>
+          <div><label>Supersedes</label><select id="pl-supersedes" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);"></select></div>
+        </div>
+        <div class="cs-row" style="margin-top:10px;"><div style="grid-column:1/-1;">
+          <label>Policy Text</label><textarea id="pl-body" rows="6"></textarea></div></div>
+        <button class="mini-btn gold" id="pl-create" style="margin-top:12px;">Save as Draft</button>
+        <div class="field-hint" id="pl-msg" style="margin-top:8px;"></div>
+      </div>
+      <div id="pol-list"></div>
+    </div>
+
+    <div class="hr-panel" data-hrpanel="tasks" style="display:none;">
+      <div class="kpi-row" id="task-kpi"></div>
+      <div class="qb" style="margin-bottom:16px;">
+        <h4>New Task</h4>
+        <div class="cs-row four">
+          <div><label>Description</label><input type="text" id="tk-desc"></div>
+          <div><label>Owner</label><select id="tk-owner" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);"></select></div>
+          <div><label>Priority</label><select id="tk-pri" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+            <option>Normal</option><option>High</option><option>Critical</option></select></div>
+          <div><label>Due</label><input type="date" id="tk-due"></div>
+        </div>
+        <div class="cs-row four" style="margin-top:10px;">
+          <div><label>Source</label><select id="tk-src" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+            <option>DWM</option><option>Meeting</option><option>Audit finding</option><option>Quality issue</option>
+            <option>Production issue</option><option>Maintenance</option><option>Customer complaint</option>
+            <option>KPI gap</option><option>Training</option><option>Management review</option></select></div>
+          <div style="grid-column:span 3;"><label>Department</label><input type="text" id="tk-dept"></div>
+        </div>
+        <button class="mini-btn gold" id="tk-create" style="margin-top:12px;">Create Task</button>
+        <div class="field-hint" id="tk-msg" style="margin-top:8px;"></div>
+      </div>
+      <div class="cs-row" style="margin-bottom:12px;"><div>
+        <label>Show</label>
+        <select id="tk-filter" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+          <option value="open">Open tasks</option><option value="today">Due today or overdue</option>
+          <option value="mine">My tasks</option><option value="all">Everything</option></select></div></div>
+      <div id="task-list"></div>
+    </div>
+
+    <div class="hr-panel" data-hrpanel="kpi" style="display:none;">
+      <div class="info-box">KPIs cascade Company → Department → Role → Employee. Where a figure already exists
+        elsewhere in this system it is pulled in automatically and marked <b>auto</b>; everything else is entered
+        by a person and marked <b>manual</b>, so you always know which numbers are measured and which are asserted.</div>
+      <div class="kpi-row" id="kpi-kpi"></div>
+
+      <div class="qb" style="margin-bottom:16px;">
+        <h4>Define a KPI</h4>
+        <div class="cs-row four">
+          <div><label>KPI Name</label><input type="text" id="kp-name" placeholder="On-time delivery"></div>
+          <div><label>Level</label><select id="kp-level" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+            <option>Company</option><option>Department</option><option>Role</option><option>Employee</option></select></div>
+          <div><label>Applies To</label><input type="text" id="kp-owner" placeholder="Blank = whole company"></div>
+          <div><label>Category</label><select id="kp-cat" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+            <option>Production</option><option>Quality</option><option>Delivery</option><option>HR</option>
+            <option>Safety</option><option>Cost</option></select></div>
+        </div>
+        <div class="cs-row four" style="margin-top:10px;">
+          <div><label>Target</label><input type="text" id="kp-target" class="num"></div>
+          <div><label>Unit</label><input type="text" id="kp-unit" placeholder="% / nos / PPM"></div>
+          <div><label>Better When</label><select id="kp-dir" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+            <option value="higher">Higher is better</option><option value="lower">Lower is better</option></select></div>
+          <div><label>Source</label><select id="kp-src" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+            <option value="manual">Manual entry</option>
+            <option value="otd">Auto — on-time delivery from PPC orders</option>
+            <option value="attrition">Auto — attrition from employee records</option>
+            <option value="absentee">Auto — absenteeism from attendance</option>
+            <option value="training">Auto — training completion</option>
+            <option value="competency">Auto — competency achievement</option>
+            <option value="tasks">Auto — task closure rate</option></select></div>
+        </div>
+        <button class="mini-btn gold" id="kp-add" style="margin-top:12px;">Add KPI</button>
+        <div class="field-hint" id="kp-msg" style="margin-top:8px;"></div>
+      </div>
+      <div id="kpi-list"></div>
+
+      <div class="qb" style="margin-top:20px;">
+        <h4>Performance Appraisal (§21)</h4>
+        <div class="cs-row four">
+          <div><label>Employee</label><select id="ap-emp" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);"></select></div>
+          <div><label>Period</label><input type="text" id="ap-period" placeholder="FY 2026-27"></div>
+          <div style="align-self:end;"><button class="mini-btn gold" id="ap-create">Start Appraisal</button></div>
+        </div>
+        <div class="field-hint" id="ap-msg" style="margin-top:8px;"></div>
+      </div>
+      <div id="appraisal-list"></div>
+    </div>
+
+    <div class="hr-panel" data-hrpanel="audit-ready" style="display:none;">
+      <div class="info-box"><b>What an auditor asks for, and whether you can produce it.</b> Every line below is
+        computed from records already in this system — nothing here is a self-assessment or a claim.
+        Green means the evidence exists and can be shown. This is not a certification statement.</div>
+      <div class="kpi-row" id="ar-kpi"></div>
+      <div id="ar-summary"></div>
+      <div id="ar-detail"></div>
+    </div>
+
+    <div class="hr-panel" data-hrpanel="statutory" style="display:none;">
+      <div class="warn-box" style="margin-bottom:16px;"><b>These figures are not legal advice.</b>
+        They are starting placeholders. Every rate below must be checked against current law and your
+        state's rules by your CA or payroll advisor before any payroll is approved. Record who checked
+        them and when, so the review is evidenced rather than assumed.</div>
+      <div id="hr-statutory"></div>
+    </div>
+
+    <div class="hr-panel" data-hrpanel="audit" style="display:none;">
+      <div class="info-box">Every employee change and every payroll approval is recorded here with who,
+        what and when. This history cannot be edited from the application.</div>
+      <div id="hr-audit-list"></div>
+    </div>
   </div>
 </div>
 
@@ -1636,6 +1942,7 @@
       <div class="toggle-row"><span>RFQ Tracking</span><div class="switch on" data-toggle="track"></div></div>
       <div class="toggle-row"><span>“RFQ Pipeline” button in menu</span><div class="switch on" id="pipebtn-switch"></div></div>
       <div class="toggle-row"><span>“Production Planning” button in menu</span><div class="switch on" id="ppcbtn-switch"></div></div>
+      <div class="toggle-row"><span>“HR &amp; People” button in menu</span><div class="switch on" id="hrbtn-switch"></div></div>
       <div class="field" style="margin-top:30px;"><label>Your Own Sections</label></div>
       <div id="list-custom"></div>
       <button type="button" class="add-btn solid" id="add-custom">+ Create New Section</button>
@@ -1657,7 +1964,7 @@
   const DEFAULTS=Object.assign({
     brandName:"IRONVALE",brandSuffix:"MANUFACTURING",
     sky:"#3FA9E0",navy:"#0B2A5B",gold:"#C2932E",glow:"#69C2ED",chatA:"#7B3FF2",chatB:"#4B1FA8",
-    showBrandText:true,logoGlow:true,logoDataUrl:"",heroBannerDataUrl:"",showPipeBtn:true,showPPCBtn:true,
+    showBrandText:true,logoGlow:true,logoDataUrl:"",heroBannerDataUrl:"",showPipeBtn:true,showPPCBtn:true,showHRBtn:true,
     heroVisual:"orb",heroVideoDataUrl:"",heroVideoUrl:"",heroSignatureImg:"",heroVideoCaption:"Watch our film",
     social:{youtube:"",instagram:"",facebook:"",linkedin:"",twitter:"",whatsapp:""},
     mapEmbed:"",mapLink:"",showMap:true,
@@ -1695,6 +2002,82 @@
     ],
     /* ---- PPC: Part Master, each with its own BOM and Routing ---- */
     parts:[],
+
+    /* ---- HR: statutory rules. EVERY rate is editable with an effective date.
+       Nothing here is a legal interpretation baked into code — the figures below
+       are only starting placeholders and MUST be checked against current law and
+       your own CA's advice before any payroll is approved. ---- */
+    statutory:{
+      effectiveFrom:"2026-04-01",
+      lastReviewedBy:"", lastReviewedOn:"",
+      pf:{enabled:true, employeePct:12, employerPct:12, wageCeiling:15000, applyCeiling:true,
+          epsPct:8.33, epsCeiling:15000, edliPct:0.5, adminPct:0.5, note:"EPF & MP Act"},
+      esi:{enabled:true, employeePct:0.75, employerPct:3.25, grossLimit:21000, note:"ESI Act"},
+      pt:{enabled:true, state:"Karnataka",
+          slabs:[{upTo:24999, amount:0},{upTo:999999999, amount:200}], note:"State professional tax"},
+      tds:{enabled:true, mode:"manual", note:"Per-employee monthly figure from your CA or payroll advisor"},
+      lwf:{enabled:false, employee:0, employer:0, note:"Labour Welfare Fund, where applicable"},
+      ot:{multiplier:2, basisComponents:"basic+da", note:"Factories Act overtime multiplier"},
+      gratuity:{accrualPct:4.81, note:"Provision only — payable per Gratuity Act on exit"},
+      bonus:{accrualPct:8.33, wageCeiling:21000, note:"Provision only — Payment of Bonus Act"}
+    },
+    /* ---- HR: competency framework (§15) ----
+       Levels are configurable; the defaults follow the common 0–4 scale. ---- */
+    competencyLevels:[
+      {level:0,label:"No knowledge"},{level:1,label:"Awareness"},{level:2,label:"Basic"},
+      {level:3,label:"Competent"},{level:4,label:"Expert / can train others"}
+    ],
+    competencies:[
+      {id:"cmp1",name:"CNC Turning — setting & operation",category:"Technical"},
+      {id:"cmp2",name:"CNC Milling — setting & operation",category:"Technical"},
+      {id:"cmp3",name:"Drawing reading & GD&T",category:"Technical"},
+      {id:"cmp4",name:"Measuring instruments & gauges",category:"Quality"},
+      {id:"cmp5",name:"In-process inspection",category:"Quality"},
+      {id:"cmp6",name:"Machine safety & LOTO",category:"Safety"},
+      {id:"cmp7",name:"5S & shop floor discipline",category:"Behavioural"},
+      {id:"cmp8",name:"Problem solving / 8D",category:"Functional"}
+    ],
+    /* Required level per role — the standard a person in that role must reach */
+    roleCompetency:[],
+    /* Training catalogue (§18) */
+    trainingCatalogue:[
+      {id:"trn1",title:"CNC Programming Basics",type:"Technical",mode:"Internal",hours:16,
+       competencyIds:["cmp1","cmp2"],trainer:"",validityMonths:0},
+      {id:"trn2",title:"GD&T and Drawing Interpretation",type:"Technical",mode:"Internal",hours:8,
+       competencyIds:["cmp3"],trainer:"",validityMonths:0},
+      {id:"trn3",title:"Machine Safety & Lockout/Tagout",type:"Safety",mode:"Internal",hours:4,
+       competencyIds:["cmp6"],trainer:"",validityMonths:12}
+    ],
+    trainers:[],
+    /* §19 how effectiveness is judged */
+    effectivenessMethods:["Test score","Supervisor evaluation","Practical demonstration",
+      "KPI improvement","Reduction in rejections","On-job observation"],
+
+    /* ---- HR: leave rules, shifts and holiday calendar (§9, §10, §26) ---- */
+    leavePolicy:{
+      types:[
+        {code:"CL", name:"Casual Leave", annualDays:12, paid:true, carryForward:false, maxCarry:0},
+        {code:"SL", name:"Sick Leave", annualDays:12, paid:true, carryForward:false, maxCarry:0},
+        {code:"EL", name:"Earned Leave", annualDays:15, paid:true, carryForward:true, maxCarry:30},
+        {code:"LOP", name:"Loss of Pay", annualDays:0, paid:false, carryForward:false, maxCarry:0},
+        {code:"CO", name:"Comp Off", annualDays:0, paid:true, carryForward:true, maxCarry:12}
+      ],
+      weekOff:[0], /* 0 = Sunday */
+      lateGraceMin:10, halfDayAfterMin:120,
+      note:"Leave rules are company policy — check them against your standing orders."
+    },
+    shifts:[
+      {code:"GEN", name:"General", start:"09:00", end:"17:30", breakMin:30},
+      {code:"A", name:"Shift A", start:"06:00", end:"14:00", breakMin:30},
+      {code:"B", name:"Shift B", start:"14:00", end:"22:00", breakMin:30},
+      {code:"C", name:"Shift C", start:"22:00", end:"06:00", breakMin:30}
+    ],
+    holidays:[],
+    salaryStructure:{
+      /* percentages of monthly CTC used when creating a new employee's structure */
+      basicPct:50, daPct:0, hraPct:20, conveyance:1600, special:0,
+      note:"Starting template only — each employee's structure can be edited individually."
+    },
 
     /* ---- COMPANY PROFILE (drives every generated document) ---- */
     company:{
@@ -1861,6 +2244,16 @@
         data.labourGrades=j.data.labourGrades||DEFAULTS.labourGrades;
         data.materials=j.data.materials||DEFAULTS.materials;
         data.parts=j.data.parts||DEFAULTS.parts;
+        data.statutory=Object.assign({},DEFAULTS.statutory,j.data.statutory||{});
+        data.leavePolicy=Object.assign({},DEFAULTS.leavePolicy,j.data.leavePolicy||{});
+        data.competencies=j.data.competencies||DEFAULTS.competencies;
+        data.competencyLevels=j.data.competencyLevels||DEFAULTS.competencyLevels;
+        data.roleCompetency=j.data.roleCompetency||DEFAULTS.roleCompetency;
+        data.trainingCatalogue=j.data.trainingCatalogue||DEFAULTS.trainingCatalogue;
+        data.effectivenessMethods=j.data.effectivenessMethods||DEFAULTS.effectivenessMethods;
+        data.shifts=j.data.shifts||DEFAULTS.shifts;
+        data.holidays=j.data.holidays||DEFAULTS.holidays;
+        data.salaryStructure=Object.assign({},DEFAULTS.salaryStructure,j.data.salaryStructure||{});
         data.sections=Object.assign({},DEFAULTS.sections,j.data.sections||{});
       }
       if(j.updatedAt) setText('content-stamp','Content updated '+new Date(j.updatedAt).toLocaleDateString());
@@ -1931,20 +2324,55 @@
   }
   function renderNav(){
     const it=navItems();
+
+    /* Staff modules live behind one "Operations" dropdown so the public menu
+       stays short as more modules are added. */
+    const ops=[];
+    if(data.showPipeBtn) ops.push(['pipeline','RFQ Pipeline','Enquiries, quotations and costing']);
+    if(data.showPPCBtn)  ops.push(['ppc','Production Planning','Orders, capacity and scheduling']);
+    if(data.showHRBtn)   ops.push(['hr','HR &amp; People','Employees, payroll and compliance']);
+
     let html=it.map(([h,t])=>`<a href="${h}">${esc(t)}</a>`).join('');
-    if(data.showPipeBtn) html+=`<a href="#" class="pipeline" id="nav-pipeline">RFQ Pipeline</a>`;
-    if(data.showPPCBtn) html+=`<a href="#" class="pipeline" id="nav-ppc">Production Planning</a>`;
+    if(ops.length){
+      html+=`<div class="ops-wrap" id="ops-wrap">
+        <a href="#" class="pipeline ops-btn" id="ops-btn">Operations <span class="ops-caret">▾</span></a>
+        <div class="ops-menu" id="ops-menu">
+          ${ops.map(([t,label,desc])=>`<a href="#" data-ops="${t}"><b>${label}</b><span>${desc}</span></a>`).join('')}
+        </div></div>`;
+    }
     document.getElementById('main-nav').innerHTML=html;
+
     document.getElementById('foot-links').innerHTML=it.map(([h,t])=>`<a href="${h}">${esc(t)}</a>`).join('')
-      +`<a href="#" id="foot-pipeline">RFQ Pipeline</a><a href="#" id="foot-ppc">Production Planning</a>`;
-    const np=document.getElementById('nav-pipeline');
-    if(np) np.addEventListener('click',e=>{e.preventDefault();requestLogin('pipeline');});
-    const fp=document.getElementById('foot-pipeline');
-    if(fp) fp.addEventListener('click',e=>{e.preventDefault();requestLogin('pipeline');});
-    const nq=document.getElementById('nav-ppc');
-    if(nq) nq.addEventListener('click',e=>{e.preventDefault();requestLogin('ppc');});
-    const fq=document.getElementById('foot-ppc');
-    if(fq) fq.addEventListener('click',e=>{e.preventDefault();requestLogin('ppc');});
+      +ops.map(([t,label])=>`<a href="#" data-ops="${t}">${label}</a>`).join('');
+
+    /* one handler serves the dropdown and the footer */
+    document.querySelectorAll('[data-ops]').forEach(a=>a.addEventListener('click',e=>{
+      e.preventDefault();
+      const menu=document.getElementById('ops-menu');
+      if(menu) menu.classList.remove('open');
+      requestLogin(a.dataset.ops);
+    }));
+
+    const btn=document.getElementById('ops-btn'), menu=document.getElementById('ops-menu');
+    if(btn&&menu){
+      /* The nav strip scrolls horizontally and clips its children, so the menu
+         is positioned against the viewport instead of inside that box. */
+      const place=()=>{
+        const r=btn.getBoundingClientRect();
+        menu.style.top=(r.bottom+8)+'px';
+        menu.style.left=Math.max(8,Math.min(r.left,window.innerWidth-285))+'px';
+      };
+      btn.addEventListener('click',e=>{
+        e.preventDefault(); e.stopPropagation();
+        place(); menu.classList.toggle('open');
+      });
+      window.addEventListener('resize',()=>{ if(menu.classList.contains('open')) place(); });
+      window.addEventListener('scroll',()=>{ if(menu.classList.contains('open')) place(); },true);
+      document.addEventListener('click',ev=>{
+        if(!menu.contains(ev.target)&&ev.target!==btn) menu.classList.remove('open');
+      });
+      document.addEventListener('keydown',ev=>{ if(ev.key==='Escape') menu.classList.remove('open'); });
+    }
   }
   function renderCustomSections(){
     document.getElementById('custom-sections').innerHTML=data.customSections.map(s=>{
@@ -2078,32 +2506,32 @@
     document.getElementById('ticker-track').innerHTML=data.ticker.concat(data.ticker).map(t=>`<span class="ticker-item">${esc(t)}</span>`).join('');
     setText('d-cap-title',data.capTitle);
     document.getElementById('cap-grid').innerHTML=data.capabilities.map(c=>`
-      <div class="cap-card"><div class="card-media ${c.img?'':'empty'}">${c.img?`<img src="${c.img}" alt="${esc(c.title)}">`:''}</div>
+      <div class="cap-card"><div class="card-media ${c.img?'':'empty'}">${c.img?`<img src="${c.img}" loading="lazy" decoding="async" alt="${esc(c.title)}">`:''}</div>
       <div class="cap-body"><h3 class="t-card-title">${esc(c.title)}</h3><p class="t-body">${esc(c.desc)}</p></div></div>`).join('');
     setText('d-process-title',data.processTitle);
     document.getElementById('process-list').innerHTML=data.process.map((p,i)=>`
-      <div class="process-row"><div class="process-media ${p.img?'':'empty'}">${p.img?`<img src="${p.img}" alt="${esc(p.title)}">`:''}</div>
+      <div class="process-row"><div class="process-media ${p.img?'':'empty'}">${p.img?`<img src="${p.img}" loading="lazy" decoding="async" alt="${esc(p.title)}">`:''}</div>
       <div class="process-num">${String(i+1).padStart(2,'0')}</div>
       <div><h3 class="t-card-title">${esc(p.title)}</h3><p class="t-body" style="margin-top:6px;">${esc(p.desc)}</p></div></div>`).join('');
     document.getElementById('stats-grid').innerHTML=data.stats.map(s=>`
       <div class="stat"><div class="val">${esc(s.value)}</div><div class="lbl">${esc(s.label)}</div></div>`).join('');
     setText('d-gallery-title',data.galleryTitle);
     document.getElementById('gallery-grid').innerHTML=data.gallery.length?data.gallery.map(g=>`
-      <div class="g-item"><div class="g-media">${g.img?`<img src="${g.img}" alt="${esc(g.caption)}">`:''}</div>
+      <div class="g-item"><div class="g-media">${g.img?`<img src="${g.img}" alt="${esc(g.caption)}" loading="lazy" decoding="async">`:''}</div>
       ${g.caption?`<div class="g-cap">${esc(g.caption)}</div>`:''}</div>`).join('')
       :'<p class="empty-note">No gallery images yet.</p>';
     setText('d-industries-title',data.industriesTitle);
     document.getElementById('industries-grid').innerHTML=data.industries.map(i=>`
-      <div class="ind-card ${i.img?'':'empty'}">${i.img?`<img src="${i.img}" alt="${esc(i.label)}">`:''}
+      <div class="ind-card ${i.img?'':'empty'}">${i.img?`<img src="${i.img}" loading="lazy" decoding="async" alt="${esc(i.label)}">`:''}
       <div class="ind-overlay"></div><div class="ind-label">${esc(i.label)}</div></div>`).join('');
     setText('d-certs-title',data.certsTitle);
     const cs=document.getElementById('d-certs-sub'); cs.textContent=data.certsSub; cs.style.display=data.certsSub?'':'none';
     document.getElementById('cert-grid').innerHTML=data.certs.map(c=>`
-      <div class="cert-card"><div class="cert-thumb ${c.img?'':'empty'}">${c.img?`<img src="${c.img}" alt="${esc(c.label)}">`:''}</div>
+      <div class="cert-card"><div class="cert-thumb ${c.img?'':'empty'}">${c.img?`<img src="${c.img}" loading="lazy" decoding="async" alt="${esc(c.label)}">`:''}</div>
       <h3 class="t-card-title">${esc(c.label)}</h3>${c.note?`<span class="t-label" style="margin-top:5px;">${esc(c.note)}</span>`:''}</div>`).join('');
     setText('d-founders-title',data.foundersTitle);
     document.getElementById('founders-grid').innerHTML=data.founders.map(f=>`
-      <div class="founder-card"><div class="founder-photo ${f.photo?'':'empty'}">${f.photo?`<img src="${f.photo}" alt="${esc(f.name)}">`:''}</div>
+      <div class="founder-card"><div class="founder-photo ${f.photo?'':'empty'}">${f.photo?`<img src="${f.photo}" loading="lazy" decoding="async" alt="${esc(f.name)}">`:''}</div>
       <div class="founder-body"><h3 class="t-card-title">${esc(f.name)}</h3><span class="founder-role">${esc(f.role)}</span>
       <p class="t-body">${esc(f.bio)}</p></div></div>`).join('');
     renderCustomSections();
@@ -2673,6 +3101,1772 @@ Reply with ONLY this JSON, no commentary or code fences:
   }
 
   /* ---- the planning calculation itself: pure arithmetic on your own data ---- */
+  function openPayslipsPdf(r){
+    const run=r.data||r, t=runTotals(run), co=CO();
+    const w=window.open('','_blank');
+    if(!w){ toast('Allow pop-ups for this site.'); return; }
+    const logo=documentLogo();
+    const slips=t.slips.map(sl=>`
+      <div class="slip">
+        <div class="sh">${logo?`<img src="${logo}">`:''}
+          <div><div class="co">${esc(co.legalName||co.displayName||data.brandName)}</div>
+          <div class="ad">${esc(companyAddressLines().join(', '))}</div></div>
+          <div class="pd">PAYSLIP<br><b>${esc(run.period)}</b></div></div>
+        <table class="meta"><tr><td><b>${esc(sl.name)}</b> (${esc(sl.empId)})</td>
+          <td>${esc(sl.department||'')}</td>
+          <td>Paid days ${sl.payableDays}/${sl.totalDays}${sl.lopDays?` · LOP ${sl.lopDays}`:''}</td></tr></table>
+        <table class="amt"><thead><tr><th>Earnings</th><th class="r">Amount</th><th>Deductions</th><th class="r">Amount</th></tr></thead>
+          <tbody>
+          <tr><td>Basic</td><td class="r">${sl.earnings.basic}</td><td>Provident Fund</td><td class="r">${sl.deductions.pf}</td></tr>
+          <tr><td>DA</td><td class="r">${sl.earnings.da}</td><td>ESI</td><td class="r">${sl.deductions.esi}</td></tr>
+          <tr><td>HRA</td><td class="r">${sl.earnings.hra}</td><td>Professional Tax</td><td class="r">${sl.deductions.pt}</td></tr>
+          <tr><td>Conveyance</td><td class="r">${sl.earnings.conveyance}</td><td>TDS</td><td class="r">${sl.deductions.tds}</td></tr>
+          <tr><td>Special Allowance</td><td class="r">${sl.earnings.special}</td><td>Other</td><td class="r">${sl.deductions.other}</td></tr>
+          <tr><td>Overtime${sl.otHours?` (${sl.otHours} hrs)`:''}</td><td class="r">${sl.earnings.ot}</td><td></td><td></td></tr>
+          <tr><td>Incentive</td><td class="r">${sl.earnings.incentive}</td><td></td><td></td></tr>
+          <tr class="tot"><td><b>Gross Earnings</b></td><td class="r"><b>${sl.gross}</b></td>
+            <td><b>Total Deductions</b></td><td class="r"><b>${sl.totalDeductions}</b></td></tr></tbody></table>
+        <div class="net">NET PAY &nbsp; ₹${sl.net.toLocaleString()}</div>
+        <div class="foot">Employer contributions (not deducted from you): PF ${sl.employer.pf} · EPS ${sl.employer.eps}
+          · EDLI ${sl.employer.edli} · ESI ${sl.employer.esi}<br>
+          Statutory rates effective from ${esc(sl.rulesEffectiveFrom||'not recorded')}.
+          Computer-generated payslip — no signature required.</div>
+      </div>`).join('');
+    w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Payslips ${esc(run.period)}</title>
+    <style>@page{size:A4;margin:10mm;} *{box-sizing:border-box;}
+    body{font-family:Arial,sans-serif;font-size:9pt;color:#12233f;margin:0;}
+    .slip{border:1pt solid #ccd6e5;border-radius:3px;padding:12px;margin-bottom:12px;page-break-inside:avoid;}
+    .sh{display:flex;gap:12px;align-items:center;border-bottom:1.5pt solid #0B2A5B;padding-bottom:8px;}
+    .sh img{max-height:40px;max-width:110px;object-fit:contain;}
+    .co{font-size:12pt;font-weight:800;color:#0B2A5B;} .ad{font-size:7.5pt;color:#41567E;}
+    .pd{margin-left:auto;text-align:right;font-size:8pt;color:#8E6A19;letter-spacing:1pt;}
+    table{width:100%;border-collapse:collapse;} .meta td{padding:6px 4px;font-size:8.5pt;border-bottom:.6pt solid #e2e9f2;}
+    .amt{margin-top:8px;} .amt th{background:#0B2A5B;color:#fff;font-size:7.5pt;text-align:left;padding:5px;text-transform:uppercase;}
+    .amt td{padding:4px 5px;border-bottom:.6pt solid #eef2f7;} .r{text-align:right;}
+    .tot td{border-top:1pt solid #b9c6d8;background:#f4f7fb;}
+    .net{margin-top:8px;background:#0B2A5B;color:#fff;padding:8px 12px;border-radius:3px;font-size:11pt;font-weight:800;text-align:right;}
+    .foot{margin-top:8px;font-size:7pt;color:#8894ab;line-height:1.5;}
+    .noprint{text-align:center;padding:14px;background:#0B2A5B;color:#fff;}
+    .noprint button{background:#E0B44E;color:#0B2A5B;border:none;padding:10px 24px;border-radius:100px;font-weight:700;cursor:pointer;margin:0 4px;}
+    @media print{.noprint{display:none;}}</style></head><body>
+    <div class="noprint"><button onclick="window.print()">Save as PDF / Print</button>
+    <button onclick="window.close()" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4);">Close</button>
+    <div style="font-size:11px;opacity:.85;margin-top:9px;">In the print dialog choose <b>Save as PDF</b> and untick <b>Headers and footers</b>.</div></div>
+    ${slips}</body></html>`);
+    w.document.close();
+  }
+
+  /* ================= CONTROL TOWER & ALERTS (§31, §32) =================
+     Management sees status first, not a table of employees. Every number is
+     read live from records elsewhere in the system — nothing is stored here,
+     so it can never drift out of step with the underlying data. */
+  function towerData(){
+    const active=hrEmployees.filter(e=>e.status!=='Exited');
+    const period=new Date().toISOString().slice(0,7);
+    const today=new Date(); today.setHours(0,0,0,0);
+
+    /* workforce */
+    let present=0, onLeave=0, absent=0;
+    const todayKey=dayKey(today);
+    active.forEach(e=>{
+      const rec=hrAttendance.find(a=>a.empId===e.empId&&a.day===todayKey);
+      const lv=leaveDaysFor(e.empId,period)[todayKey];
+      if(rec&&rec.status==='Present') present++;
+      else if(lv) onLeave++;
+      else if(rec&&rec.status==='Absent') absent++;
+    });
+
+    /* competency */
+    let reqTotal=0, reqMet=0, criticalGaps=0;
+    active.forEach(e=>competencyGaps(e).forEach(g=>{
+      reqTotal++; if(g.gap===0) reqMet++; if(g.status==='red') criticalGaps++;
+    }));
+
+    /* training */
+    const sessions=hrTraining.filter(r=>r.kind==='session');
+    const completed=sessions.filter(r=>(r.data||r).completedOn);
+    const effPending=completed.filter(r=>!(r.data||r).effectivenessDone);
+    const overdueEval=effectivenessDue();
+
+    /* policies */
+    const pols=itemsOf('policy').filter(p=>p.status==='Published');
+    const ackPending=pols.reduce((t,p)=>t+Math.max(0,active.length-((p.data||p).acknowledgements||[]).length),0);
+    const reviewOverdue=pols.filter(p=>{const d=p.data||p;return d.reviewOn&&new Date(d.reviewOn)<=new Date();});
+
+    /* tasks */
+    const tasks=itemsOf('task');
+    const openTasks=tasks.filter(t=>t.status!=='Completed');
+    const overdueTasks=openTasks.filter(t=>t.due&&new Date(t.due)<today);
+    const blockedTasks=openTasks.filter(t=>t.status==='Blocked');
+
+    /* payroll */
+    const draftRuns=hrPayruns.filter(r=>r.status!=='Approved');
+    const lastRun=hrPayruns.find(r=>r.status==='Approved');
+    const noStructure=active.filter(e=>grossMonthly(e)<=0);
+
+    /* KPIs */
+    const kpis=itemsOf('kpi').map(k=>{
+      const d=k.data||k;
+      const auto=d.source&&d.source!=='manual'?autoKpiValue(d.source):null;
+      const actual=auto?auto.value:(d.actual===''||d.actual===undefined?null:num(d.actual));
+      return {d,actual,st:kpiStatus(d,actual)};
+    });
+    const kpiBelow=kpis.filter(k=>k.st.cls==='no');
+
+    /* probation & anniversaries */
+    const probationEnding=active.filter(e=>{
+      if(!e.doj||e.status!=='Probation') return false;
+      const end=new Date(e.doj); end.setMonth(end.getMonth()+6);
+      const days=(end-today)/86400000;
+      return days>=0&&days<=30;
+    });
+
+    return {active,present,onLeave,absent,reqTotal,reqMet,criticalGaps,
+      sessions,completed,effPending,overdueEval,pols,ackPending,reviewOverdue,
+      tasks,openTasks,overdueTasks,blockedTasks,draftRuns,lastRun,noStructure,
+      kpis,kpiBelow,probationEnding,
+      competencyPct:reqTotal?Math.round(reqMet/reqTotal*100):null};
+  }
+
+  function towerAlerts(t){
+    const a=[];
+    const push=(level,title,detail,tab)=>a.push({level,title,detail,tab});
+    if(t.criticalGaps) push('red','Critical competency gaps',
+      t.criticalGaps+' role requirement(s) are two or more levels short','skills');
+    if(t.overdueEval.length) push('red','Training effectiveness overdue',
+      t.overdueEval.length+' session(s) past their evaluation date','training');
+    if(t.overdueTasks.length) push('red','Overdue tasks',
+      t.overdueTasks.length+' task(s) past their due date','tasks');
+    if(t.blockedTasks.length) push('red','Blocked tasks',
+      t.blockedTasks.length+' task(s) blocked and not moving','tasks');
+    if(t.noStructure.length) push('red','Employees without a salary structure',
+      t.noStructure.length+' person/people cannot be paid correctly','people');
+    if(!ST().lastReviewedBy) push('red','Statutory rates never reviewed',
+      'No reviewer recorded against PF, ESI, PT or TDS figures','statutory');
+    if(t.reviewOverdue.length) push('amber','Policies due for review',
+      t.reviewOverdue.length+' policy/policies past their review date','policies');
+    if(t.ackPending) push('amber','Policy acknowledgements outstanding',
+      t.ackPending+' acknowledgement(s) not yet recorded','policies');
+    if(t.effPending.length) push('amber','Training effectiveness pending',
+      t.effPending.length+' completed session(s) awaiting a verdict','training');
+    if(t.kpiBelow.length) push('amber','KPIs below target',
+      t.kpiBelow.map(k=>k.d.name).slice(0,3).join(', ')+(t.kpiBelow.length>3?'…':''),'kpi');
+    if(t.probationEnding.length) push('amber','Probation ending within 30 days',
+      t.probationEnding.map(e=>e.name).join(', '),'people');
+    if(t.draftRuns.length) push('amber','Payroll draft not approved',
+      t.draftRuns.length+' pay run(s) still in draft','payroll');
+    if(t.absent) push('amber','Absent today',t.absent+' person/people marked absent','attendance');
+    return a;
+  }
+
+  function renderTower(){
+    const alertHost=document.getElementById('tower-alerts'), grid=document.getElementById('tower-grid');
+    if(!grid) return;
+    const t=towerData();
+    const alerts=towerAlerts(t);
+    const reds=alerts.filter(x=>x.level==='red');
+
+    alertHost.innerHTML=alerts.length?`
+      <div class="feas-banner ${reds.length?'no':'unk'}">
+        <div class="feas-title">${reds.length?'🔴 '+reds.length+' ITEM(S) NEED ATTENTION NOW':'🟡 '+alerts.length+' ITEM(S) TO REVIEW'}</div>
+        <div class="feas-line">Click any line to go straight to it.</div></div>
+      <div class="tower-alerts">${alerts.map(x=>`<div class="t-alert ${x.level}" data-goto="${x.tab}">
+        <span class="dot"></span><div><b>${esc(x.title)}</b><span>${esc(x.detail)}</span></div>
+        <span class="go">→</span></div>`).join('')}</div>`
+      :`<div class="feas-banner go"><div class="feas-title">🟢 NOTHING OUTSTANDING</div>
+        <div class="feas-line">No overdue tasks, no critical gaps, no pending acknowledgements.</div></div>`;
+
+    const card=(title,items,tab)=>`<div class="tower-card" data-goto="${tab}">
+      <h4>${title}</h4>${items.map(([k,v,cls])=>
+        `<div class="tw-row"><span>${k}</span><b class="${cls||''}">${v}</b></div>`).join('')}</div>`;
+
+    grid.innerHTML=`<div class="tower-grid">
+      ${card('Workforce',[
+        ['Active employees',t.active.length],
+        ['Present today',t.present],
+        ['On leave',t.onLeave],
+        ['Absent',t.absent,t.absent?'bad':'']],'attendance')}
+      ${card('Competency',[
+        ['Requirements met',(t.competencyPct===null?'—':t.competencyPct+'%'),t.competencyPct!==null&&t.competencyPct<80?'warn':'good'],
+        ['Requirements tracked',t.reqTotal],
+        ['Critical gaps',t.criticalGaps,t.criticalGaps?'bad':'good']],'skills')}
+      ${card('Training',[
+        ['Sessions held',t.completed.length],
+        ['Effectiveness pending',t.effPending.length,t.effPending.length?'warn':'good'],
+        ['Evaluation overdue',t.overdueEval.length,t.overdueEval.length?'bad':'good']],'training')}
+      ${card('Compliance',[
+        ['Published policies',t.pols.length],
+        ['Acknowledgements pending',t.ackPending,t.ackPending?'warn':'good'],
+        ['Reviews overdue',t.reviewOverdue.length,t.reviewOverdue.length?'bad':'good']],'policies')}
+      ${card('Tasks &amp; DWM',[
+        ['Open',t.openTasks.length],
+        ['Overdue',t.overdueTasks.length,t.overdueTasks.length?'bad':'good'],
+        ['Blocked',t.blockedTasks.length,t.blockedTasks.length?'bad':'good']],'tasks')}
+      ${card('Payroll',[
+        ['Drafts awaiting approval',t.draftRuns.length,t.draftRuns.length?'warn':'good'],
+        ['Last approved run',t.lastRun?esc(t.lastRun.period):'none'],
+        ['Missing salary structure',t.noStructure.length,t.noStructure.length?'bad':'good']],'payroll')}
+      ${card('KPIs',[
+        ['Defined',t.kpis.length],
+        ['On target',t.kpis.filter(k=>k.st.cls==='go').length,'good'],
+        ['Below target',t.kpiBelow.length,t.kpiBelow.length?'bad':'good']],'kpi')}
+      ${card('Audit Readiness',(()=>{
+        const c=auditChecks();
+        return [['Evidence available',c.filter(x=>x.level==='green').length,'good'],
+          ['Partial',c.filter(x=>x.level==='amber').length,'warn'],
+          ['Missing',c.filter(x=>x.level==='red').length,c.some(x=>x.level==='red')?'bad':'good']];
+      })(),'audit-ready')}
+    </div>`;
+
+    document.querySelectorAll('[data-goto]').forEach(el=>el.addEventListener('click',()=>{
+      const tab=document.querySelector(`.hr-tab[data-hrtab="${el.dataset.goto}"]`);
+      if(tab) tab.click();
+    }));
+  }
+
+  /* ================= KPI ENGINE (§20) =================
+     Where a KPI can be measured from data already in the system it is, and the
+     figure is labelled 'auto'. Anything else is entered by a person and labelled
+     'manual'. The distinction is shown on screen so nobody mistakes an asserted
+     number for a measured one. */
+  function autoKpiValue(source){
+    const active=hrEmployees.filter(e=>e.status!=='Exited');
+    const period=new Date().toISOString().slice(0,7);
+    switch(source){
+      case 'otd': {
+        const done=(poOrders||[]).filter(o=>o.status==='Completed'||o.status==='Dispatched');
+        if(!done.length) return null;
+        const onTime=done.filter(o=>{const p=planOrder(o); return !p.error&&p.feasible!==false;}).length;
+        return {value:Math.round(onTime/done.length*100), basis:onTime+' of '+done.length+' orders'};
+      }
+      case 'attrition': {
+        const exited=hrEmployees.filter(e=>e.status==='Exited').length;
+        const total=hrEmployees.length;
+        if(!total) return null;
+        return {value:Math.round(exited/total*1000)/10, basis:exited+' exits of '+total+' records'};
+      }
+      case 'absentee': {
+        if(!hrAttendance.length) return null;
+        let lop=0,total=0;
+        active.forEach(e=>{const a=attendanceSummary(e.empId,period); lop+=a.lop; total+=a.totalDays;});
+        if(!total) return null;
+        return {value:Math.round(lop/total*1000)/10, basis:lop+' lost days of '+total+' in '+period};
+      }
+      case 'training': {
+        const sessions=hrTraining.filter(r=>r.kind==='session');
+        if(!sessions.length) return null;
+        const done=sessions.filter(r=>(r.data||r).effectivenessDone).length;
+        return {value:Math.round(done/sessions.length*100), basis:done+' of '+sessions.length+' sessions closed out'};
+      }
+      case 'competency': {
+        let need=0,met=0;
+        active.forEach(e=>competencyGaps(e).forEach(g=>{need++; if(g.gap===0) met++;}));
+        if(!need) return null;
+        return {value:Math.round(met/need*100), basis:met+' of '+need+' role requirements met'};
+      }
+      case 'tasks': {
+        const all=itemsOf('task');
+        if(!all.length) return null;
+        const closed=all.filter(t=>t.status==='Completed').length;
+        return {value:Math.round(closed/all.length*100), basis:closed+' of '+all.length+' tasks closed'};
+      }
+      default: return null;
+    }
+  }
+  function kpiStatus(k,actual){
+    if(actual===null||actual===undefined||actual==='') return {cls:'unk',label:'No data'};
+    const t=num(k.target), a=num(actual);
+    const hit=(k.direction==='lower')?(a<=t):(a>=t);
+    if(hit) return {cls:'go',label:'On target'};
+    const off=t?Math.abs(a-t)/Math.abs(t)*100:100;
+    return off<=10?{cls:'unk',label:'Near target'}:{cls:'no',label:'Below target'};
+  }
+
+  function renderKpis(){
+    const kpiRow=document.getElementById('kpi-kpi'), host=document.getElementById('kpi-list');
+    if(!host) return;
+    const list=itemsOf('kpi');
+    const evaluated=list.map(k=>{
+      const d=k.data||k;
+      const auto=d.source&&d.source!=='manual'?autoKpiValue(d.source):null;
+      const actual=auto?auto.value:(d.actual===''||d.actual===undefined?null:num(d.actual));
+      return {rec:k,d,auto,actual,st:kpiStatus(d,actual)};
+    });
+    const onTarget=evaluated.filter(x=>x.st.cls==='go').length;
+    const below=evaluated.filter(x=>x.st.cls==='no').length;
+    const noData=evaluated.filter(x=>x.st.cls==='unk').length;
+    if(kpiRow) kpiRow.innerHTML=`<div class="kpi"><b>${list.length}</b><span>KPIs Defined</span></div>
+      <div class="kpi"><b style="color:var(--ok)">${onTarget}</b><span>On Target</span></div>
+      <div class="kpi"><b style="color:#B03A2E">${below}</b><span>Below Target</span></div>
+      <div class="kpi"><b style="color:var(--ink-soft)">${noData}</b><span>No Data Yet</span></div>`;
+
+    host.innerHTML=list.length?`<table class="cs-t"><thead><tr><th style="width:88px">Status</th><th>KPI</th>
+      <th>Level / Applies To</th><th class="r">Target</th><th style="width:110px">Actual</th>
+      <th class="r">Variance</th><th>Source</th><th></th></tr></thead><tbody>
+      ${evaluated.map((x,i)=>{
+        const variance=(x.actual===null)?'—':
+          ((x.d.direction==='lower'?num(x.d.target)-num(x.actual):num(x.actual)-num(x.d.target)).toFixed(1));
+        return `<tr>
+        <td><span class="order-badge ${x.st.cls}">${x.st.label}</span></td>
+        <td>${esc(x.d.name)}<div class="t-micro">${esc(x.d.category||'')}</div></td>
+        <td class="t-micro">${esc(x.d.level)}${x.d.owner?' · '+esc(x.d.owner):''}</td>
+        <td class="r">${esc(x.d.target)} ${esc(x.d.unit||'')}</td>
+        <td>${x.auto?`<b>${x.auto.value}</b> ${esc(x.d.unit||'')}`
+          :`<input class="kp-act num" data-id="${esc(x.rec.item_id)}" value="${esc(x.d.actual===undefined?'':x.d.actual)}" style="width:76px">`}</td>
+        <td class="r" style="${x.actual!==null&&variance<0?'color:#B03A2E;':''}">${variance}</td>
+        <td class="t-micro">${x.auto?`<span class="src-tag verified">auto</span> ${esc(x.auto.basis)}`:'<span class="src-tag">manual</span>'}</td>
+        <td><button class="qb-del kp-del" data-id="${esc(x.rec.item_id)}">×</button></td></tr>`;}).join('')}
+      </tbody></table>`:'<p class="empty-note">No KPIs defined yet.</p>';
+
+    host.querySelectorAll('.kp-act').forEach(inp=>inp.addEventListener('change',async()=>{
+      const k=list.find(x=>x.item_id===inp.dataset.id), d=k.data||k;
+      d.actual=num(inp.value); d.updatedOn=new Date().toISOString().slice(0,10);
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'items',itemId:k.item_id,patch:d,
+        reason:'KPI actual updated'})}); await loadItems(); }catch(e){ toast(e.message); }
+    }));
+    host.querySelectorAll('.kp-del').forEach(b=>b.addEventListener('click',async()=>{
+      if(!confirm('Delete this KPI?')) return;
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'items',itemId:b.dataset.id,remove:true,reason:'deleted'})});
+        await loadItems(); }catch(e){ toast(e.message); }
+    }));
+  }
+
+  /* ================= PERFORMANCE APPRAISAL (§21) ================= */
+  function renderAppraisals(){
+    const host=document.getElementById('appraisal-list'); if(!host) return;
+    const list=itemsOf('appraisal');
+    host.innerHTML=list.length?list.map((r,i)=>{
+      const d=r.data||r;
+      const emp=hrEmployees.find(e=>e.empId===d.empId);
+      const gaps=emp?competencyGaps(emp):[];
+      const metCount=gaps.filter(g=>g.gap===0).length;
+      const badge=r.status==='Approved'?'go':(r.status==='Manager Review'?'unk':'no');
+      return `<div class="rfq-card"><div class="list-item-head rfq-summary" data-appr="${esc(r.item_id)}">
+        <div><div class="rfq-ref">${esc(emp?emp.name:d.empId)} — ${esc(d.period||'')}</div>
+        <div class="rfq-when">${esc(emp?emp.designation||'':'')} ·
+          competency ${metCount}/${gaps.length} met${d.rating?' · rating '+esc(d.rating):''}</div></div>
+        <span class="order-badge ${badge}">${esc(r.status)}</span></div>
+      <div class="rfq-body" style="display:${expandedAppraisal===r.item_id?'block':'none'};">
+        <div class="cs-sub">Competency position (from the skill matrix)</div>
+        <table class="cs-t"><thead><tr><th>Competency</th><th class="r">Required</th><th class="r">Actual</th><th>Status</th></tr></thead>
+          <tbody>${gaps.map(g=>`<tr><td>${esc(g.name)}</td><td class="r">${g.need}</td><td class="r">${g.have}</td>
+            <td><span class="order-badge ${g.status==='green'?'go':g.status==='amber'?'unk':'no'}">${g.gap?('short '+g.gap):'met'}</span></td></tr>`).join('')
+            ||'<tr><td colspan="4" class="t-micro">No role standard set.</td></tr>'}</tbody></table>
+
+        <div class="cs-sub">Assessment</div>
+        <div class="cs-row"><div><label>Self assessment</label>
+          <textarea class="ap-in" data-id="${esc(r.item_id)}" data-k="selfText" rows="3">${esc(d.selfText||'')}</textarea></div>
+          <div><label>Manager assessment</label>
+          <textarea class="ap-in" data-id="${esc(r.item_id)}" data-k="managerText" rows="3">${esc(d.managerText||'')}</textarea></div></div>
+        <div class="cs-row four" style="margin-top:10px;">
+          <div><label>Rating</label><select class="ap-in" data-id="${esc(r.item_id)}" data-k="rating" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+            <option value="">—</option>${['Outstanding','Exceeds','Meets','Needs improvement','Unsatisfactory']
+              .map(x=>`<option ${d.rating===x?'selected':''}>${x}</option>`).join('')}</select></div>
+          <div><label>Promotion recommended</label><select class="ap-in" data-id="${esc(r.item_id)}" data-k="promotion" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+            <option value="">No</option><option ${d.promotion==='Yes'?'selected':''}>Yes</option></select></div>
+          <div><label>Increment recommended %</label><input class="ap-in num" data-id="${esc(r.item_id)}" data-k="incrementPct" value="${esc(d.incrementPct||'')}"></div>
+          <div><label>Reviewed by</label><input class="ap-in" data-id="${esc(r.item_id)}" data-k="reviewedBy" value="${esc(d.reviewedBy||currentUser||'')}"></div>
+        </div>
+        <div class="cs-row" style="margin-top:10px;"><div style="grid-column:1/-1;">
+          <label>Development plan — what will change before the next review</label>
+          <textarea class="ap-in" data-id="${esc(r.item_id)}" data-k="devPlan" rows="2">${esc(d.devPlan||'')}</textarea></div></div>
+        <div class="rfq-actions" style="margin-top:12px;">
+          <button class="mini-btn gold ap-save" data-id="${esc(r.item_id)}">Save</button>
+          ${r.status!=='Approved'?`<button class="mini-btn green ap-approve" data-id="${esc(r.item_id)}">Approve</button>`:''}
+          <button class="item-delete ap-del" data-id="${esc(r.item_id)}">Delete</button>
+        </div></div></div>`;
+    }).join(''):'<p class="empty-note">No appraisals started.</p>';
+
+    host.querySelectorAll('[data-appr]').forEach(row=>row.addEventListener('click',e=>{
+      if(e.target.closest('button')||e.target.closest('select')||e.target.closest('textarea')||e.target.closest('input')) return;
+      const id=row.dataset.appr; expandedAppraisal=(expandedAppraisal===id)?null:id; renderAppraisals();
+    }));
+    host.querySelectorAll('.ap-in').forEach(inp=>inp.addEventListener('input',()=>{
+      const r=list.find(x=>x.item_id===inp.dataset.id), d=r.data||r;
+      d[inp.dataset.k]=inp.value; r.data=d;
+    }));
+    host.querySelectorAll('.ap-save').forEach(b=>b.addEventListener('click',async()=>{
+      const r=list.find(x=>x.item_id===b.dataset.id), d=r.data||r;
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'items',itemId:r.item_id,patch:d,
+        status:'Manager Review',reason:'appraisal updated'})}); await loadItems(); toast('Saved'); }
+      catch(e){ toast(e.message); }
+    }));
+    host.querySelectorAll('.ap-approve').forEach(b=>b.addEventListener('click',async()=>{
+      const r=list.find(x=>x.item_id===b.dataset.id), d=r.data||r;
+      if(!d.rating){ toast('Set a rating before approving.'); return; }
+      const reason=prompt('Approving this appraisal. Note for the record:')||'';
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'items',itemId:r.item_id,patch:d,
+        status:'Approved',reason})}); await loadItems(); toast('Approved'); }catch(e){ toast(e.message); }
+    }));
+    host.querySelectorAll('.ap-del').forEach(b=>b.addEventListener('click',async()=>{
+      if(!confirm('Delete this appraisal?')) return;
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'items',itemId:b.dataset.id,remove:true,reason:'deleted'})});
+        await loadItems(); }catch(e){ toast(e.message); }
+    }));
+  }
+
+  /* ================= ISO 9001 / IATF 16949 EVIDENCE LAYER (§27, §28) =================
+     Each check answers one question: if an auditor asked for this evidence today,
+     could you produce it from records that already exist? Nothing here asserts
+     conformity or certification — it reports what is and is not evidenced. */
+  function auditChecks(){
+    const active=hrEmployees.filter(e=>e.status!=='Exited');
+    const pols=itemsOf('policy').filter(p=>p.status==='Published');
+    const sessions=hrTraining.filter(r=>r.kind==='session');
+    const checks=[];
+
+    const add=(clause,requirement,level,evidence,gap,action)=>
+      checks.push({clause,requirement,level,evidence,gap,action});
+
+    /* --- Competence (ISO 9001 7.2, IATF 7.2.1) --- */
+    const withRole=active.filter(e=>e.designation);
+    const standardsSet=[...new Set((data.roleCompetency||[]).map(r=>String(r.role).toLowerCase()))];
+    const rolesCovered=withRole.filter(e=>standardsSet.includes(String(e.designation).toLowerCase()));
+    add('7.2 Competence','A defined competence requirement exists for every role',
+      standardsSet.length===0?'red':(rolesCovered.length===withRole.length?'green':'amber'),
+      standardsSet.length+' role standard(s) defined covering '+rolesCovered.length+' of '+withRole.length+' people',
+      withRole.length-rolesCovered.length>0?(withRole.length-rolesCovered.length)+' people have no standard for their role':'',
+      'Set role standards on the Skill Matrix tab');
+
+    const assessed=active.filter(e=>(e.competencies||[]).length>0);
+    const dated=active.filter(e=>(e.competencies||[]).some(c=>c.assessedOn&&c.assessedBy));
+    add('7.2 Competence','Competence is evaluated and the evaluation is recorded',
+      assessed.length===0?'red':(dated.length===active.length?'green':'amber'),
+      dated.length+' of '+active.length+' people have a dated, named assessment',
+      active.length-dated.length>0?(active.length-dated.length)+' people have no recorded assessment':'',
+      'Use Assess on the Skill Matrix tab');
+
+    const gapPeople=active.filter(e=>competencyGaps(e).some(g=>g.gap>0));
+    add('7.2 Competence','Where competence is lacking, action is taken',
+      gapPeople.length===0?'green':(itemsOf('task').filter(t=>(t.data||t).source==='Training').length||sessions.length?'amber':'red'),
+      gapPeople.length+' people currently below their role standard; '+sessions.length+' training session(s) recorded',
+      gapPeople.length&&!sessions.length?'Gaps exist with no training scheduled against them':'',
+      'Generate TNI and schedule training');
+
+    /* --- Training effectiveness (ISO 9001 7.2 d, IATF 7.2.1) --- */
+    const completed=sessions.filter(r=>(r.data||r).completedOn);
+    const evaluated=completed.filter(r=>(r.data||r).effectivenessDone);
+    const overdueEval=effectivenessDue();
+    add('7.2 Competence','Effectiveness of training is evaluated, not just attendance',
+      completed.length===0?'amber':(evaluated.length===completed.length?'green':'red'),
+      evaluated.length+' of '+completed.length+' completed sessions have an effectiveness verdict',
+      overdueEval.length?overdueEval.length+' session(s) overdue for evaluation':'',
+      'Record the verdict on the Training tab');
+
+    /* --- Awareness (ISO 9001 7.3) --- */
+    const ackGap=pols.reduce((t,p)=>{
+      const d=p.data||p; return t+Math.max(0,active.length-((d.acknowledgements||[]).length));},0);
+    add('7.3 Awareness','Employees are aware of the policies that apply to them',
+      pols.length===0?'red':(ackGap===0?'green':'amber'),
+      pols.length+' published policy/policies; '+ackGap+' acknowledgement(s) outstanding',
+      ackGap?ackGap+' acknowledgements still to be recorded':'',
+      'Record acknowledgements on the Policies tab');
+
+    /* --- Documented information (ISO 9001 7.5) --- */
+    const reviewOverdue=pols.filter(p=>{const d=p.data||p;return d.reviewOn&&new Date(d.reviewOn)<=new Date();});
+    add('7.5 Documented information','Documents are version-controlled and reviewed',
+      pols.length===0?'red':(reviewOverdue.length?'amber':'green'),
+      'All policies carry a version, effective date and review date',
+      reviewOverdue.length?reviewOverdue.length+' policy/policies past their review date':'',
+      'Revise and republish overdue policies');
+
+    /* --- Records / traceability (ISO 9001 7.5.3) --- */
+    add('7.5.3 Control of records','Changes to people records are traceable',
+      'green','Every employee change, payroll approval, leave decision and task closure is written to an audit log with user, timestamp and reason','',
+      'Audit Trail tab');
+
+    /* --- Job descriptions / responsibility (ISO 9001 5.3) --- */
+    const noDesig=active.filter(e=>!e.designation);
+    add('5.3 Roles and responsibilities','Every person has a defined role',
+      noDesig.length===0?'green':'amber',
+      (active.length-noDesig.length)+' of '+active.length+' have a designation recorded',
+      noDesig.length?noDesig.length+' people have no designation':'',
+      'Set the designation on the Employees tab');
+
+    /* --- Legal & other requirements --- */
+    const st=ST();
+    add('Statutory','Payroll rules are current and their review is recorded',
+      st.lastReviewedBy?(st.lastReviewedOn&&(new Date()-new Date(st.lastReviewedOn))/86400000<400?'green':'amber'):'red',
+      st.lastReviewedBy?('Last reviewed by '+st.lastReviewedBy+(st.lastReviewedOn?' on '+st.lastReviewedOn:'')):'No reviewer recorded',
+      !st.lastReviewedBy?'Statutory rates have never been formally reviewed':'',
+      'Statutory Settings tab');
+
+    return checks;
+  }
+
+  function renderAuditReady(){
+    const kpi=document.getElementById('ar-kpi'), sum=document.getElementById('ar-summary'),
+          det=document.getElementById('ar-detail');
+    if(!det) return;
+    const checks=auditChecks();
+    const g=checks.filter(c=>c.level==='green').length;
+    const a=checks.filter(c=>c.level==='amber').length;
+    const r=checks.filter(c=>c.level==='red').length;
+    const pct=checks.length?Math.round(g/checks.length*100):0;
+
+    if(kpi) kpi.innerHTML=`<div class="kpi"><b>${pct}%</b><span>Fully Evidenced</span></div>
+      <div class="kpi"><b style="color:var(--ok)">${g}</b><span>Evidence Available</span></div>
+      <div class="kpi"><b style="color:var(--gold-deep)">${a}</b><span>Partial</span></div>
+      <div class="kpi"><b style="color:#B03A2E">${r}</b><span>Evidence Missing</span></div>`;
+
+    if(sum) sum.innerHTML=r?`<div class="dx-missing"><b>${r} area(s) have no evidence an auditor could accept.</b>
+      Address these before a surveillance or customer audit.</div>`:
+      (a?`<div class="feas-banner unk"><div class="feas-title">🟡 PARTIALLY EVIDENCED</div>
+        <div class="feas-line">${a} area(s) are incomplete. Nothing is missing outright.</div></div>`:
+      `<div class="feas-banner go"><div class="feas-title">🟢 EVIDENCE AVAILABLE FOR ALL CHECKS</div>
+        <div class="feas-line">Every check below can be evidenced from records in this system.
+        This is not a statement of conformity or certification — an auditor still judges the evidence itself.</div></div>`);
+
+    det.innerHTML=`<table class="cs-t"><thead><tr><th style="width:80px">Status</th><th style="width:120px">Clause</th>
+      <th>Requirement</th><th>Evidence held</th><th>Gap</th><th>Where to fix it</th></tr></thead>
+      <tbody>${checks.map(c=>`<tr>
+        <td><span class="order-badge ${c.level==='green'?'go':c.level==='amber'?'unk':'no'}">
+          ${c.level==='green'?'OK':c.level==='amber'?'PARTIAL':'MISSING'}</span></td>
+        <td class="t-micro">${esc(c.clause)}</td>
+        <td>${esc(c.requirement)}</td>
+        <td class="t-micro">${esc(c.evidence)}</td>
+        <td class="t-micro" style="${c.gap?'color:#B03A2E;':''}">${esc(c.gap||'—')}</td>
+        <td class="t-micro">${esc(c.action)}</td></tr>`).join('')}</tbody></table>
+      <div class="rfq-actions" style="margin-top:14px;">
+        <button class="mini-btn gold" id="ar-print">Print evidence pack</button>
+      </div>
+      <div class="warn-box" style="margin-top:16px;"><b>What this is not.</b> This dashboard reports whether
+        records exist, not whether they are adequate. It does not assess your quality system, and it never
+        claims conformity or certification to any standard. An auditor judges the evidence on its merits.</div>`;
+
+    const pr=document.getElementById('ar-print');
+    if(pr) pr.addEventListener('click',()=>printAuditPack(checks));
+  }
+
+  function printAuditPack(checks){
+    const co=CO(), w=window.open('','_blank');
+    if(!w){ toast('Allow pop-ups for this site.'); return; }
+    const active=hrEmployees.filter(e=>e.status!=='Exited');
+    w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>HR Evidence Pack</title>
+    <style>@page{size:A4;margin:14mm;}body{font-family:Arial,sans-serif;font-size:9pt;color:#12233f;margin:0;}
+    h1{font-size:14pt;color:#0B2A5B;margin:0 0 4px;}h2{font-size:10pt;color:#8E6A19;margin:18px 0 6px;
+      text-transform:uppercase;letter-spacing:1pt;border-bottom:.7pt solid #e2e9f2;padding-bottom:3px;}
+    table{width:100%;border-collapse:collapse;font-size:8pt;margin-bottom:10px;}
+    th{background:#0B2A5B;color:#fff;text-align:left;padding:5px;font-size:7.5pt;text-transform:uppercase;}
+    td{padding:4px 5px;border-bottom:.6pt solid #e2e9f2;vertical-align:top;}
+    .g{color:#1F9D6B;font-weight:700;}.a{color:#8E6A19;font-weight:700;}.r{color:#B03A2E;font-weight:700;}
+    .head{border-bottom:2pt solid #0B2A5B;padding-bottom:8px;margin-bottom:12px;}
+    .note{background:#FFF6E0;border:.7pt solid #e0c37a;padding:8px 10px;font-size:7.5pt;color:#7a5c14;margin-top:14px;}
+    .noprint{text-align:center;padding:14px;background:#0B2A5B;color:#fff;}
+    .noprint button{background:#E0B44E;color:#0B2A5B;border:none;padding:10px 24px;border-radius:100px;font-weight:700;cursor:pointer;}
+    @media print{.noprint{display:none;}}</style></head><body>
+    <div class="noprint"><button onclick="window.print()">Save as PDF / Print</button></div>
+    <div class="head"><h1>${esc(co.legalName||data.brandName)}</h1>
+      <div>HR Evidence Pack — generated ${new Date().toLocaleString()}</div></div>
+
+    <h2>Evidence Summary</h2>
+    <table><thead><tr><th style="width:60px">Status</th><th style="width:90px">Clause</th><th>Requirement</th>
+      <th>Evidence held</th><th>Gap</th></tr></thead><tbody>
+      ${checks.map(c=>`<tr><td class="${c.level[0]}">${c.level==='green'?'OK':c.level==='amber'?'PARTIAL':'MISSING'}</td>
+      <td>${esc(c.clause)}</td><td>${esc(c.requirement)}</td><td>${esc(c.evidence)}</td>
+      <td>${esc(c.gap||'—')}</td></tr>`).join('')}</tbody></table>
+
+    <h2>Competence Records</h2>
+    <table><thead><tr><th>Employee</th><th>Role</th><th>Competency</th><th>Required</th><th>Actual</th>
+      <th>Assessed By</th><th>Date</th></tr></thead><tbody>
+      ${active.flatMap(e=>competencyGaps(e).map(g=>`<tr><td>${esc(e.name)}</td><td>${esc(e.designation||'')}</td>
+        <td>${esc(g.name)}</td><td>${g.need}</td><td>${g.have}</td>
+        <td>${esc(g.assessedBy||'—')}</td><td>${esc(g.assessedOn||'—')}</td></tr>`)).join('')
+        ||'<tr><td colspan="7">No competence records.</td></tr>'}</tbody></table>
+
+    <h2>Training &amp; Effectiveness</h2>
+    <table><thead><tr><th>Session</th><th>Date</th><th>Participants</th><th>Completed</th>
+      <th>Method</th><th>Verdict</th></tr></thead><tbody>
+      ${hrTraining.filter(r=>r.kind==='session').map(r=>{const d=r.data||r;
+        return `<tr><td>${esc(d.title||'')}</td><td>${esc(d.date||'')}</td>
+        <td>${(d.participants||[]).length}</td><td>${esc(d.completedOn||'—')}</td>
+        <td>${esc(d.method||'—')}</td>
+        <td class="${d.effectivenessDone?(d.effective?'g':'r'):'a'}">${d.effectivenessDone?(d.effective?'Effective':'Not effective'):'Pending'}</td></tr>`;
+      }).join('')||'<tr><td colspan="6">No training records.</td></tr>'}</tbody></table>
+
+    <h2>Policies &amp; Awareness</h2>
+    <table><thead><tr><th>Policy</th><th>Version</th><th>Effective</th><th>Acknowledged</th><th>Next Review</th></tr></thead><tbody>
+      ${itemsOf('policy').filter(p=>p.status==='Published').map(p=>{const d=p.data||p;
+        return `<tr><td>${esc(d.title)}</td><td>${esc(d.version)}</td><td>${esc(d.effectiveFrom||'')}</td>
+        <td>${(d.acknowledgements||[]).length} of ${active.length}</td><td>${esc(d.reviewOn||'—')}</td></tr>`;
+      }).join('')||'<tr><td colspan="5">No published policies.</td></tr>'}</tbody></table>
+
+    <div class="note"><b>Scope of this document.</b> It reports which records exist in the HR system on the date
+    shown. It does not assess whether those records are adequate, and it makes no claim of conformity or
+    certification to ISO 9001, IATF 16949 or any other standard. Adequacy is a matter for the auditor.</div>
+    </body></html>`);
+    w.document.close();
+  }
+
+  /* ================= POLICIES (§13) =================
+     Version-controlled. A published revision supersedes its predecessor and
+     resets acknowledgements — an old acknowledgement is not evidence that
+     someone read the current rules. */
+  let hrItems=[];
+  const itemsOf=k=>hrItems.filter(i=>i.kind===k);
+
+  async function loadItems(){
+    try{ const j=await api('/api/hr?what=items'); hrItems=j.items||[]; }catch(e){ hrItems=[]; }
+    renderPolicies(); renderTasks(); renderKpis(); renderAppraisals();
+  }
+
+  function renderPolicies(){
+    const kpi=document.getElementById('pol-kpi'), host=document.getElementById('pol-list');
+    if(!host) return;
+    const pols=itemsOf('policy');
+    const current=pols.filter(p=>p.status==='Published');
+    const drafts=pols.filter(p=>p.status==='Draft');
+    const active=hrEmployees.filter(e=>e.status!=='Exited');
+    const dueReview=current.filter(p=>{const d=p.data||p; return d.reviewOn&&new Date(d.reviewOn)<=new Date();});
+    const pendingAck=current.reduce((t,p)=>{
+      const d=p.data||p; const acks=(d.acknowledgements||[]).length;
+      return t+Math.max(0,active.length-acks);},0);
+
+    if(kpi) kpi.innerHTML=`<div class="kpi"><b>${current.length}</b><span>Published</span></div>
+      <div class="kpi"><b>${drafts.length}</b><span>Drafts</span></div>
+      <div class="kpi"><b style="color:${pendingAck?'var(--gold-deep)':'var(--ok)'}">${pendingAck}</b><span>Acknowledgements Pending</span></div>
+      <div class="kpi"><b style="color:${dueReview.length?'#B03A2E':'var(--ok)'}">${dueReview.length}</b><span>Due for Review</span></div>`;
+
+    const sel=document.getElementById('pl-supersedes');
+    if(sel) sel.innerHTML='<option value="">Nothing — this is new</option>'+
+      current.map(p=>`<option value="${esc(p.item_id)}">${esc((p.data||p).title)} v${esc((p.data||p).version)}</option>`).join('');
+
+    host.innerHTML=pols.length?pols.map((p,i)=>{
+      const d=p.data||p;
+      const acks=(d.acknowledgements||[]).length;
+      const overdue=d.reviewOn&&new Date(d.reviewOn)<=new Date();
+      const badge=p.status==='Published'?'go':(p.status==='Superseded'?'unk':'no');
+      return `<div class="rfq-card"><div class="list-item-head rfq-summary" data-pol="${esc(p.item_id)}">
+        <div><div class="rfq-ref">${esc(d.title)} <span class="t-micro">v${esc(d.version)}</span></div>
+        <div class="rfq-when">${esc(d.category||'')} · effective ${fmtDate(d.effectiveFrom)} ·
+          ${acks}/${active.length} acknowledged${overdue?' · <span style="color:#B03A2E">review overdue</span>':''}</div></div>
+        <span class="order-badge ${badge}">${esc(p.status)}</span></div>
+      <div class="rfq-body" style="display:${expandedPolicy===p.item_id?'block':'none'};">
+        <div class="feas-line" style="white-space:pre-wrap;margin-bottom:12px;">${esc(d.body||'')}</div>
+        <div class="feas-line">Applies to <b>${esc(d.appliesTo||'all employees')}</b> · owner ${esc(d.owner||'—')}
+          ${d.reviewOn?` · next review ${fmtDate(d.reviewOn)}`:''}
+          ${d.supersedesTitle?`<br>Supersedes ${esc(d.supersedesTitle)}`:''}</div>
+        ${p.status==='Published'?`
+          <div class="cs-sub">Acknowledgements</div>
+          <div class="feas-line">${acks} of ${active.length} employees have acknowledged this version.
+            ${acks<active.length?`<br><span class="t-micro">Not yet: ${esc(active.filter(e=>!(d.acknowledgements||[]).some(a=>a.empId===e.empId)).slice(0,12).map(e=>e.name).join(', '))}${active.length-acks>12?'…':''}</span>`:''}</div>
+          <div class="cs-row four" style="margin-top:10px;">
+            <div><label>Record acknowledgement for</label>
+              <select class="pol-ack-emp" data-p="${esc(p.item_id)}" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+                ${active.filter(e=>!(d.acknowledgements||[]).some(a=>a.empId===e.empId))
+                  .map(e=>`<option value="${esc(e.empId)}">${esc(e.name)}</option>`).join('')||'<option value="">Everyone has acknowledged</option>'}</select></div>
+            <div style="align-self:end;"><button class="mini-btn pol-ack" data-p="${esc(p.item_id)}">Record</button></div>
+          </div>`:''}
+        <div class="rfq-actions" style="margin-top:12px;">
+          ${p.status==='Draft'?`<button class="mini-btn green pol-pub" data-p="${esc(p.item_id)}">Publish</button>`:''}
+          ${p.status!=='Superseded'?`<button class="item-delete pol-del" data-p="${esc(p.item_id)}">Delete</button>`:''}
+        </div></div></div>`;
+    }).join(''):'<p class="empty-note">No policies yet.</p>';
+
+    host.querySelectorAll('[data-pol]').forEach(r=>r.addEventListener('click',e=>{
+      if(e.target.closest('button')||e.target.closest('select')) return;
+      const id=r.dataset.pol; expandedPolicy=(expandedPolicy===id)?null:id; renderPolicies();
+    }));
+    host.querySelectorAll('.pol-pub').forEach(b=>b.addEventListener('click',async()=>{
+      const p=pols.find(x=>x.item_id===b.dataset.p), d=p.data||p;
+      if(!confirm('Publish this version? Any policy it supersedes becomes read-only and acknowledgements start again.')) return;
+      try{
+        if(d.supersedes){
+          await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'items',itemId:d.supersedes,
+            status:'Superseded',reason:'superseded by '+d.version})});
+        }
+        d.acknowledgements=[];
+        await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'items',itemId:p.item_id,patch:d,
+          status:'Published',reason:'policy published'})});
+        await loadItems(); toast('Published');
+      }catch(e){ toast(e.message); }
+    }));
+    host.querySelectorAll('.pol-ack').forEach(b=>b.addEventListener('click',async()=>{
+      const p=pols.find(x=>x.item_id===b.dataset.p), d=p.data||p;
+      const sel=host.querySelector(`.pol-ack-emp[data-p="${CSS.escape(b.dataset.p)}"]`);
+      if(!sel||!sel.value) return;
+      d.acknowledgements=d.acknowledgements||[];
+      d.acknowledgements.push({empId:sel.value,on:new Date().toISOString().slice(0,10),by:currentUser||''});
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'items',itemId:p.item_id,patch:d,
+        reason:'acknowledgement recorded for '+sel.value})});
+        await loadItems(); toast('Recorded'); }catch(e){ toast(e.message); }
+    }));
+    host.querySelectorAll('.pol-del').forEach(b=>b.addEventListener('click',async()=>{
+      if(!confirm('Delete this policy?')) return;
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'items',itemId:b.dataset.p,remove:true,reason:'deleted'})});
+        await loadItems(); }catch(e){ toast(e.message); }
+    }));
+  }
+
+  /* ================= DWM & TASKS (§22, §23) ================= */
+  function taskState(t){
+    const d=t.data||t;
+    if(t.status==='Completed') return {label:'Completed',cls:'go',dot:'🟢'};
+    if(t.status==='Blocked') return {label:'Blocked',cls:'no',dot:'🔴'};
+    if(t.status==='In Progress') return {label:'In progress',cls:'unk',dot:'🟡'};
+    return {label:'Not started',cls:'unk',dot:'⚪'};
+  }
+  function renderTasks(){
+    const kpi=document.getElementById('task-kpi'), host=document.getElementById('task-list');
+    if(!host) return;
+    const all=itemsOf('task');
+    const today=new Date(); today.setHours(23,59,59,999);
+    const open=all.filter(t=>t.status!=='Completed');
+    const overdue=open.filter(t=>t.due&&new Date(t.due)<new Date(new Date().toDateString()));
+    const dueToday=open.filter(t=>t.due&&new Date(t.due)<=today);
+    const blocked=open.filter(t=>t.status==='Blocked');
+
+    if(kpi) kpi.innerHTML=`<div class="kpi"><b>${open.length}</b><span>Open Tasks</span></div>
+      <div class="kpi"><b>${dueToday.length}</b><span>Due Today or Sooner</span></div>
+      <div class="kpi"><b style="color:${overdue.length?'#B03A2E':'var(--ok)'}">${overdue.length}</b><span>Overdue</span></div>
+      <div class="kpi"><b style="color:${blocked.length?'#B03A2E':'var(--ok)'}">${blocked.length}</b><span>Blocked</span></div>`;
+
+    const f=(document.getElementById('tk-filter')||{}).value||'open';
+    let list=all;
+    if(f==='open') list=open;
+    else if(f==='today') list=dueToday;
+    else if(f==='mine') list=all.filter(t=>t.owner===currentUser||((t.data||t).ownerName||'')===currentUser);
+
+    host.innerHTML=list.length?`<table class="cs-t"><thead><tr><th style="width:34px"></th><th>Task</th><th>Owner</th>
+      <th>Source</th><th>Priority</th><th>Due</th><th style="width:130px">Status</th><th></th></tr></thead>
+      <tbody>${list.map(t=>{const d=t.data||t, st=taskState(t);
+        const late=t.due&&new Date(t.due)<new Date(new Date().toDateString())&&t.status!=='Completed';
+        const emp=hrEmployees.find(e=>e.empId===t.owner);
+        return `<tr><td class="c">${st.dot}</td>
+        <td>${esc(d.description)}${d.evidence?`<div class="t-micro">Evidence: ${esc(d.evidence)}</div>`:''}</td>
+        <td>${esc(emp?emp.name:(t.owner||'—'))}<div class="t-micro">${esc(d.department||'')}</div></td>
+        <td class="t-micro">${esc(d.source||'')}</td>
+        <td><span class="order-badge ${d.priority==='Critical'?'no':d.priority==='High'?'unk':'go'}">${esc(d.priority||'Normal')}</span></td>
+        <td class="${late?'':''}" style="${late?'color:#B03A2E;font-weight:700;':''}">${fmtDate(t.due)}</td>
+        <td><select class="tk-st" data-id="${esc(t.item_id)}" style="width:100%;padding:5px;border:1px solid var(--line);border-radius:5px;font-size:var(--fs-micro);">
+          ${['Not Started','In Progress','Blocked','Completed'].map(x=>`<option ${t.status===x?'selected':''}>${x}</option>`).join('')}</select></td>
+        <td><button class="qb-del tk-del" data-id="${esc(t.item_id)}">×</button></td></tr>`;}).join('')}</tbody></table>`
+      :'<p class="empty-note">Nothing to show for this filter.</p>';
+
+    host.querySelectorAll('.tk-st').forEach(sel=>sel.addEventListener('change',async()=>{
+      let reason='';
+      if(sel.value==='Completed'){ reason=prompt('What is the evidence this is done?')||''; }
+      if(sel.value==='Blocked'){ reason=prompt('What is blocking it?')||''; }
+      const t=all.find(x=>x.item_id===sel.dataset.id), d=t.data||t;
+      if(reason) d.evidence=reason;
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'items',itemId:sel.dataset.id,
+        patch:d,status:sel.value,reason:reason||('status → '+sel.value)})});
+        await loadItems(); }catch(e){ toast(e.message); }
+    }));
+    host.querySelectorAll('.tk-del').forEach(b=>b.addEventListener('click',async()=>{
+      if(!confirm('Delete this task?')) return;
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'items',itemId:b.dataset.id,remove:true,reason:'deleted'})});
+        await loadItems(); }catch(e){ toast(e.message); }
+    }));
+  }
+
+  /* ---------- Skill matrix UI (§15, §16) ---------- */
+  let expandedAssess=null, expandedPolicy=null, expandedAppraisal=null;
+  function refreshCompDropdowns(){
+    const c=document.getElementById('rc-comp'), l=document.getElementById('rc-level'),
+          d=document.getElementById('sm-dept');
+    if(c) c.innerHTML=(data.competencies||[]).map(x=>`<option value="${esc(x.id)}">${esc(x.name)} — ${esc(x.category)}</option>`).join('');
+    if(l) l.innerHTML=(data.competencyLevels||[]).map(x=>`<option value="${x.level}">${x.level} — ${esc(x.label)}</option>`).join('');
+    if(d){
+      const depts=[...new Set(hrEmployees.map(e=>e.department).filter(Boolean))];
+      d.innerHTML='<option value="">All departments</option>'+depts.map(x=>`<option>${esc(x)}</option>`).join('');
+    }
+  }
+  function renderRoleStandards(){
+    const host=document.getElementById('rc-list'); if(!host) return;
+    const list=data.roleCompetency||[];
+    host.innerHTML=list.length?`<table class="cs-t"><thead><tr><th>Role</th><th>Competency</th><th class="r">Required</th><th></th></tr></thead>
+      <tbody>${list.map((r,i)=>`<tr><td>${esc(r.role)}</td>
+        <td>${esc((compById(r.competencyId)||{}).name||r.competencyId)}</td>
+        <td class="r">${r.requiredLevel} — ${esc(levelLabel(r.requiredLevel))}</td>
+        <td><button class="qb-del rc-del" data-i="${i}">×</button></td></tr>`).join('')}</tbody></table>`
+      :'<p class="field-hint">No role standards yet. Without these the matrix has nothing to measure against.</p>';
+    host.querySelectorAll('.rc-del').forEach(b=>b.addEventListener('click',()=>{
+      data.roleCompetency.splice(+b.dataset.i,1); markDirty(); renderRoleStandards(); renderSkillMatrix();
+    }));
+  }
+  function renderSkillMatrix(){
+    const kpi=document.getElementById('skill-kpi'), host=document.getElementById('skill-matrix');
+    if(!host) return;
+    const dept=(document.getElementById('sm-dept')||{}).value||'';
+    const m=skillMatrix(dept);
+    if(kpi) kpi.innerHTML=`<div class="kpi"><b>${m.rows.length}</b><span>People Assessed</span></div>
+      <div class="kpi"><b>${m.compIds.length}</b><span>Competencies Tracked</span></div>
+      <div class="kpi"><b style="color:${m.totalGaps?'var(--gold-deep)':'var(--ok)'}">${m.totalGaps}</b><span>Total Gaps</span></div>
+      <div class="kpi"><b style="color:${m.critical?'#B03A2E':'var(--ok)'}">${m.critical}</b><span>Critical Gaps</span></div>`;
+
+    if(!m.compIds.length){ host.innerHTML='<p class="empty-note">Add role standards above to build the matrix.</p>'; return; }
+    const head=m.compIds.map(id=>`<th class="rot" title="${esc((compById(id)||{}).name||id)}">${esc(((compById(id)||{}).name||id).slice(0,22))}</th>`).join('');
+    const rows=m.rows.map((r,ri)=>`<tr>
+      <td class="nm">${esc(r.emp.name)}<div class="t-micro">${esc(r.emp.designation||'—')}</div></td>
+      ${r.cells.map(c=>c?`<td class="c sk ${c.status}" title="${esc(c.name)}: has ${c.have}, needs ${c.need}${c.assessedOn?' · assessed '+c.assessedOn:''}">${c.have}/${c.need}</td>`
+        :'<td class="c sk na">–</td>').join('')}
+      <td class="c"><button class="mini-btn sk-assess" data-emp="${esc(r.emp.empId)}">Assess</button></td></tr>`).join('');
+    host.innerHTML=`<div style="overflow-x:auto;"><table class="att-t sk-t">
+      <thead><tr><th class="nm">Employee</th>${head}<th></th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div class="feas-line" style="margin-top:10px;">
+        <span class="order-badge go">green</span> meets the standard ·
+        <span class="order-badge unk">amber</span> one level short ·
+        <span class="order-badge no">red</span> two or more short · – no standard set for that role</div>`;
+    host.querySelectorAll('.sk-assess').forEach(b=>b.addEventListener('click',()=>{
+      expandedAssess=b.dataset.emp; renderAssessPanel();
+    }));
+  }
+  function renderAssessPanel(){
+    const host=document.getElementById('emp-assess'); if(!host) return;
+    if(!expandedAssess){ host.innerHTML=''; return; }
+    const e=hrEmployees.find(x=>x.empId===expandedAssess);
+    if(!e){ host.innerHTML=''; return; }
+    const gaps=competencyGaps(e);
+    host.innerHTML=`<div class="qb" style="margin-top:16px;">
+      <h4>Assess — ${esc(e.name)} (${esc(e.designation||'no role set')})</h4>
+      ${gaps.length?`<table class="cs-t"><thead><tr><th>Competency</th><th class="r">Required</th>
+        <th style="width:190px">Actual Level</th><th>Assessed By</th><th>Date</th></tr></thead>
+        <tbody>${gaps.map(g=>`<tr><td>${esc(g.name)}<div class="t-micro">${esc(g.category)}</div></td>
+          <td class="r">${g.need}</td>
+          <td><select class="as-lvl" data-c="${esc(g.competencyId)}" style="width:100%;padding:6px;border:1px solid var(--line);border-radius:5px;font-size:var(--fs-micro);">
+            ${(data.competencyLevels||[]).map(l=>`<option value="${l.level}" ${g.have===l.level?'selected':''}>${l.level} — ${esc(l.label)}</option>`).join('')}</select></td>
+          <td><input class="as-by" data-c="${esc(g.competencyId)}" value="${esc(g.assessedBy||currentUser||'')}"></td>
+          <td><input type="date" class="as-on" data-c="${esc(g.competencyId)}" value="${esc(g.assessedOn||new Date().toISOString().slice(0,10))}"></td>
+        </tr>`).join('')}</tbody></table>
+        <button class="mini-btn gold" id="as-save" style="margin-top:12px;">Save Assessment</button>
+        <button class="mini-btn" id="as-close" style="margin-top:12px;">Close</button>`
+        :'<p class="field-hint">No role standard set for this designation — add one above first.</p>'}</div>`;
+
+    const save=document.getElementById('as-save');
+    if(save) save.addEventListener('click',async function(){
+      e.competencies=e.competencies||[];
+      host.querySelectorAll('.as-lvl').forEach(sel=>{
+        const cid=sel.dataset.c;
+        const by=host.querySelector(`.as-by[data-c="${CSS.escape(cid)}"]`).value;
+        const on=host.querySelector(`.as-on[data-c="${CSS.escape(cid)}"]`).value;
+        const ex=e.competencies.find(c=>c.competencyId===cid);
+        const rec={competencyId:cid,level:num(sel.value),assessedBy:by,assessedOn:on};
+        if(ex) Object.assign(ex,rec); else e.competencies.push(rec);
+      });
+      this.disabled=true; this.textContent='Saving…';
+      try{ await api('/api/hr',{method:'POST',body:JSON.stringify({what:'employees',employee:e,
+        reason:'competency assessment recorded'})});
+        toast('Assessment saved'); renderSkillMatrix(); }
+      catch(err){ toast(err.message); }
+      this.disabled=false; this.textContent='Save Assessment';
+    });
+    const cl=document.getElementById('as-close');
+    if(cl) cl.addEventListener('click',()=>{ expandedAssess=null; renderAssessPanel(); });
+  }
+
+  /* ---------- Training UI (§17, §18, §19) ---------- */
+  let tniCache=[];
+  function refreshTrainDropdowns(){
+    const c=document.getElementById('ts-course'), e=document.getElementById('ts-emps');
+    if(c) c.innerHTML=(data.trainingCatalogue||[]).map(t=>`<option value="${esc(t.id)}">${esc(t.title)} (${t.hours}h)</option>`).join('');
+    if(e) e.innerHTML=hrEmployees.filter(x=>x.status!=='Exited')
+      .map(x=>`<option value="${esc(x.empId)}">${esc(x.empId)} — ${esc(x.name)}</option>`).join('');
+  }
+  function renderTNI(){
+    const host=document.getElementById('tni-list'); if(!host) return;
+    if(!tniCache.length){ host.innerHTML='<p class="field-hint">Press the button above to generate.</p>'; return; }
+    host.innerHTML=`<table class="cs-t"><thead><tr><th>Priority</th><th>Employee</th><th>Competency</th>
+      <th class="r">Has / Needs</th><th class="r">Also needed by</th><th>Suggested Course</th></tr></thead>
+      <tbody>${tniCache.slice(0,80).map(n=>`<tr>
+        <td><span class="order-badge ${n.priority==='High'?'no':n.priority==='Medium'?'unk':'go'}">${n.priority}</span></td>
+        <td>${esc(n.name)}<div class="t-micro">${esc(n.department||'')}</div></td>
+        <td>${esc(n.competency)}</td><td class="r">${n.have} / ${n.need}</td>
+        <td class="r">${n.peopleNeeding}</td>
+        <td class="t-micro">${esc(n.suggestedCourse)}</td></tr>`).join('')}</tbody></table>
+      <div class="feas-line" style="margin-top:8px;">${tniCache.length} need(s) identified.
+        Schedule the ones you accept below.</div>`;
+  }
+  function renderTrainSessions(){
+    const kpi=document.getElementById('train-kpi'), host=document.getElementById('train-sessions');
+    if(!host) return;
+    const sessions=hrTraining.filter(r=>r.kind==='session');
+    const due=effectivenessDue();
+    const pendingEff=sessions.filter(r=>{const d=r.data||r;return d.completedOn&&!d.effectivenessDone;});
+    if(kpi) kpi.innerHTML=`<div class="kpi"><b>${sessions.length}</b><span>Sessions</span></div>
+      <div class="kpi"><b>${sessions.filter(r=>(r.data||r).completedOn).length}</b><span>Completed</span></div>
+      <div class="kpi"><b style="color:${pendingEff.length?'var(--gold-deep)':'var(--ok)'}">${pendingEff.length}</b><span>Effectiveness Pending</span></div>
+      <div class="kpi"><b style="color:${due.length?'#B03A2E':'var(--ok)'}">${due.length}</b><span>Evaluation Overdue</span></div>`;
+
+    host.innerHTML=sessions.length?sessions.map((r,i)=>{
+      const d=r.data||r, st=trainingStatusOf(r);
+      const course=(data.trainingCatalogue||[]).find(t=>t.id===d.courseId);
+      return `<div class="rfq-card"><div class="list-item-head rfq-summary" style="cursor:default;">
+        <div><div class="rfq-ref">${esc(d.title||(course?course.title:'Training'))}</div>
+        <div class="rfq-when">${fmtDate(d.date)} · ${(d.participants||[]).length} participants · trainer ${esc(d.trainer||'—')}</div></div>
+        <span class="order-badge ${st.cls}">${st.label}</span></div>
+      <div class="rfq-body" style="display:block;">
+        <table class="cs-t"><thead><tr><th>Participant</th><th class="c">Attended</th>
+          <th class="c">Assessment %</th><th class="c">On-job OK</th></tr></thead>
+          <tbody>${(d.participants||[]).map((pp,pi)=>{
+            const emp=hrEmployees.find(x=>x.empId===pp.empId);
+            return `<tr><td>${esc(emp?emp.name:pp.empId)}</td>
+            <td class="c"><input type="checkbox" class="tp-att" data-i="${i}" data-pi="${pi}" ${pp.attended?'checked':''}></td>
+            <td class="c"><input class="tp-score num" data-i="${i}" data-pi="${pi}" value="${esc(pp.score||'')}" style="width:64px"></td>
+            <td class="c"><input type="checkbox" class="tp-job" data-i="${i}" data-pi="${pi}" ${pp.onJobOk?'checked':''}></td></tr>`;
+          }).join('')}</tbody></table>
+        <div class="cs-row four" style="margin-top:12px;">
+          <div><label>Completed On</label><input type="date" class="ts-in" data-i="${i}" data-k="completedOn" value="${esc(d.completedOn||'')}"></div>
+          <div><label>Effectiveness Method</label>
+            <select class="ts-in" data-i="${i}" data-k="method" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+              ${(data.effectivenessMethods||[]).map(mm=>`<option ${d.method===mm?'selected':''}>${esc(mm)}</option>`).join('')}</select></div>
+          <div><label>Evaluated On</label><input type="date" class="ts-in" data-i="${i}" data-k="evaluatedOn" value="${esc(d.evaluatedOn||'')}"></div>
+          <div><label>Verdict</label>
+            <select class="ts-eff" data-i="${i}" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+              <option value="" ${!d.effectivenessDone?'selected':''}>Not evaluated</option>
+              <option value="yes" ${d.effectivenessDone&&d.effective?'selected':''}>Effective</option>
+              <option value="no" ${d.effectivenessDone&&!d.effective?'selected':''}>Not effective — retrain</option>
+            </select></div>
+        </div>
+        <div class="cs-row" style="margin-top:10px;"><div style="grid-column:1/-1;">
+          <label>Evidence / remarks</label><input class="ts-in" data-i="${i}" data-k="remarks" value="${esc(d.remarks||'')}"></div></div>
+        <div class="rfq-actions" style="margin-top:12px;">
+          <button class="mini-btn gold ts-save" data-i="${i}">Save</button>
+          <button class="mini-btn green ts-apply" data-i="${i}" title="Raise each participant's recorded level for the competencies this course covers">Apply to Competency</button>
+          <button class="item-delete ts-del" data-i="${i}">Delete</button>
+        </div></div></div>`;
+    }).join(''):'<p class="empty-note">No training sessions yet.</p>';
+
+    const upd=(i,fn)=>{ const r=sessions[i]; const d=r.data||r; fn(d); r.data=d; };
+    host.querySelectorAll('.tp-att').forEach(cb=>cb.addEventListener('change',()=>
+      upd(+cb.dataset.i,d=>{d.participants[+cb.dataset.pi].attended=cb.checked;})));
+    host.querySelectorAll('.tp-job').forEach(cb=>cb.addEventListener('change',()=>
+      upd(+cb.dataset.i,d=>{d.participants[+cb.dataset.pi].onJobOk=cb.checked;})));
+    host.querySelectorAll('.tp-score').forEach(inp=>inp.addEventListener('input',()=>
+      upd(+inp.dataset.i,d=>{d.participants[+inp.dataset.pi].score=num(inp.value); d.assessmentDone=(d.participants||[]).some(x=>num(x.score)>0);})));
+    host.querySelectorAll('.ts-in').forEach(inp=>inp.addEventListener('input',()=>
+      upd(+inp.dataset.i,d=>{d[inp.dataset.k]=inp.value;})));
+    host.querySelectorAll('.ts-eff').forEach(sel=>sel.addEventListener('change',()=>
+      upd(+sel.dataset.i,d=>{d.effectivenessDone=!!sel.value; d.effective=(sel.value==='yes');})));
+
+    host.querySelectorAll('.ts-save').forEach(b=>b.addEventListener('click',async()=>{
+      const r=sessions[+b.dataset.i], d=r.data||r;
+      b.textContent='Saving…'; b.disabled=true;
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'training',recId:r.rec_id,patch:d,
+        reason:'training record updated'})}); await loadTraining(); toast('Saved'); }
+      catch(e){ toast(e.message); b.textContent='Save'; b.disabled=false; }
+    }));
+    host.querySelectorAll('.ts-apply').forEach(b=>b.addEventListener('click',async()=>{
+      const r=sessions[+b.dataset.i], d=r.data||r;
+      if(!d.effectivenessDone||!d.effective){ toast('Only an effective, evaluated session can raise competency.'); return; }
+      const course=(data.trainingCatalogue||[]).find(t=>t.id===d.courseId);
+      if(!course||!(course.competencyIds||[]).length){ toast('This course is not mapped to any competency.'); return; }
+      let updated=0;
+      for(const pp of (d.participants||[])){
+        if(!pp.attended||!pp.onJobOk) continue;
+        const e=hrEmployees.find(x=>x.empId===pp.empId); if(!e) continue;
+        e.competencies=e.competencies||[];
+        course.competencyIds.forEach(cid=>{
+          const req=requiredFor(e.designation).find(x=>x.competencyId===cid);
+          const target=req?num(req.requiredLevel):3;
+          const ex=e.competencies.find(c=>c.competencyId===cid);
+          const rec={competencyId:cid,level:Math.max(ex?num(ex.level):0,target),
+            assessedBy:(d.trainer||currentUser||'training'),assessedOn:d.evaluatedOn||d.completedOn};
+          if(ex) Object.assign(ex,rec); else e.competencies.push(rec);
+        });
+        try{ await api('/api/hr',{method:'POST',body:JSON.stringify({what:'employees',employee:e,
+          reason:'competency raised by effective training '+r.rec_id})}); updated++; }catch(err){}
+      }
+      toast(updated+' employee record(s) updated'); renderSkillMatrix();
+    }));
+    host.querySelectorAll('.ts-del').forEach(b=>b.addEventListener('click',async()=>{
+      const r=sessions[+b.dataset.i];
+      if(!confirm('Delete this training record?')) return;
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'training',recId:r.rec_id,remove:true,reason:'deleted'})});
+        await loadTraining(); }catch(e){ toast(e.message); }
+    }));
+  }
+  async function loadTraining(){
+    try{ const j=await api('/api/hr?what=training'); hrTraining=j.records||[]; }catch(e){ hrTraining=[]; }
+    renderTrainSessions();
+  }
+
+  /* ---------- Attendance sheet UI ---------- */
+  let attDraft={};
+  function renderAttendanceGrid(){
+    const host=document.getElementById('hr-att-grid'); if(!host) return;
+    const period=document.getElementById('at-period').value;
+    if(!period){ host.innerHTML='<p class="empty-note">Choose a period and press Load Sheet.</p>'; return; }
+    const days=daysInPeriod(period);
+    const active=hrEmployees.filter(e=>e.status!=='Exited');
+    if(!active.length){ host.innerHTML='<p class="empty-note">No active employees.</p>'; return; }
+
+    const head=days.map(d=>{
+      const off=isWeekOff(d), hol=isHoliday(d);
+      return `<th class="c ${off?'wo':''} ${hol?'hol':''}" title="${hol?esc(holidayName(d)):(off?'Weekly off':'')}">${d.getDate()}</th>`;
+    }).join('');
+
+    const rows=active.map(e=>{
+      const lm=leaveDaysFor(e.empId,period);
+      const cells=days.map(d=>{
+        const k=dayKey(d), off=isWeekOff(d), hol=isHoliday(d), lv=lm[k];
+        if(hol) return `<td class="c hol" title="${esc(holidayName(d))}">H</td>`;
+        if(off) return `<td class="c wo">W</td>`;
+        if(lv) return `<td class="c lv" title="Approved ${esc(lv)}">${esc(lv)}</td>`;
+        const cur=(attDraft[e.empId+'|'+k]||{}).status||'';
+        return `<td class="c"><select class="at-cell" data-emp="${esc(e.empId)}" data-day="${k}">
+          <option value="" ${!cur?'selected':''}>–</option>
+          <option value="Present" ${cur==='Present'?'selected':''}>P</option>
+          <option value="Half" ${cur==='Half'?'selected':''}>½</option>
+          <option value="Absent" ${cur==='Absent'?'selected':''}>A</option></select></td>`;
+      }).join('');
+      const sum=attendanceSummary(e.empId,period);
+      return `<tr><td class="nm">${esc(e.name)}<div class="t-micro">${esc(e.empId)}</div></td>${cells}
+        <td class="c"><b>${sum.payableDays}</b></td>
+        <td class="c">${sum.lop||''}</td>
+        <td class="c"><input class="at-ot num" data-emp="${esc(e.empId)}" value="${sum.otHours||0}" title="Overtime hours for the month"></td></tr>`;
+    }).join('');
+
+    host.innerHTML=`<div style="overflow-x:auto;"><table class="att-t">
+      <thead><tr><th class="nm">Employee</th>${head}<th class="c">Paid</th><th class="c">LOP</th><th class="c">OT hrs</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>
+      <div class="feas-line" style="margin-top:10px;">P = present · ½ = half day · A = absent · W = weekly off ·
+        H = holiday · leave codes come from approved requests. Blank counts as absent when payroll runs.</div>`;
+
+    host.querySelectorAll('.at-cell').forEach(sel=>sel.addEventListener('change',()=>{
+      const key=sel.dataset.emp+'|'+sel.dataset.day;
+      if(!sel.value){ delete attDraft[key]; }
+      else attDraft[key]={empId:sel.dataset.emp,day:sel.dataset.day,status:sel.value==='Half'?'Present':sel.value,
+        dayFraction:sel.value==='Half'?0.5:1,otHours:(attDraft[key]||{}).otHours||0};
+    }));
+    host.querySelectorAll('.at-ot').forEach(inp=>inp.addEventListener('input',()=>{
+      // OT is recorded once for the month against the last working day
+      const emp=inp.dataset.emp, last=days.filter(d=>!isWeekOff(d)&&!isHoliday(d)).pop();
+      if(!last) return;
+      const key=emp+'|'+dayKey(last);
+      attDraft[key]=Object.assign({empId:emp,day:dayKey(last),status:'Present',dayFraction:1},
+        attDraft[key]||{},{otHours:num(inp.value)});
+    }));
+  }
+
+  async function saveAttendance(){
+    const msg=document.getElementById('at-msg');
+    const records=Object.values(attDraft);
+    if(!records.length){ msg.textContent='Nothing to save.'; msg.style.color='#B03A2E'; return; }
+    try{
+      await api('/api/hr',{method:'POST',body:JSON.stringify({what:'attendance',records,manual:true,
+        reason:'attendance sheet saved'})});
+      await loadAttendance(document.getElementById('at-period').value);
+      msg.textContent=records.length+' records saved.'; msg.style.color='var(--ok)';
+    }catch(e){ msg.textContent=e.message; msg.style.color='#B03A2E'; }
+  }
+
+  async function loadAttendance(period){
+    if(!period) return;
+    const [y,m]=period.split('-').map(Number);
+    const from=period+'-01', to=period+'-'+String(new Date(y,m,0).getDate()).padStart(2,'0');
+    try{ const j=await api(`/api/hr?what=attendance&from=${from}&to=${to}`); hrAttendance=j.attendance||[]; }
+    catch(e){ hrAttendance=[]; }
+    attDraft={};
+    hrAttendance.forEach(a=>{ attDraft[a.empId+'|'+a.day]=a; });
+    renderAttendanceGrid();
+  }
+
+  /* ---------- Leave UI ---------- */
+  async function loadLeave(){
+    try{ const j=await api('/api/hr?what=leave'); hrLeave=j.leave||[]; }catch(e){ hrLeave=[]; }
+    renderLeave();
+  }
+  function refreshLeaveDropdowns(){
+    const es=document.getElementById('lv-emp'), ts=document.getElementById('lv-type');
+    if(es) es.innerHTML=hrEmployees.filter(e=>e.status!=='Exited')
+      .map(e=>`<option value="${esc(e.empId)}">${esc(e.empId)} — ${esc(e.name)}</option>`).join('')
+      ||'<option value="">No employees</option>';
+    if(ts) ts.innerHTML=(LP().types||[]).map(t=>`<option value="${esc(t.code)}">${esc(t.name)}${t.paid?'':' (unpaid)'}</option>`).join('');
+  }
+  function renderLeave(){
+    const bal=document.getElementById('hr-leave-bal'), host=document.getElementById('hr-leave-list');
+    if(!host) return;
+    const pending=hrLeave.filter(l=>l.status==='Pending');
+
+    if(bal){
+      const sel=document.getElementById('lv-emp');
+      const empId=sel?sel.value:'';
+      const b=empId?leaveBalance(empId):[];
+      bal.innerHTML=empId?`<div class="qb" style="margin-bottom:16px;"><h4>Leave Balance — ${esc(empId)}</h4>
+        <table class="cs-t"><thead><tr><th>Type</th><th class="r">Entitled</th><th class="r">Taken</th><th class="r">Balance</th></tr></thead>
+        <tbody>${b.map(x=>`<tr><td>${esc(x.name)}${x.paid?'':' <span class="t-micro">(unpaid)</span>'}</td>
+          <td class="r">${x.entitled}</td><td class="r">${x.taken}</td>
+          <td class="r"><b>${x.balance}</b></td></tr>`).join('')}</tbody></table></div>`:'';
+    }
+
+    host.innerHTML=`${pending.length?`<div class="dx-missing"><b>${pending.length} request(s) awaiting approval.</b></div>`:''}
+      <table class="cs-t"><thead><tr><th>Employee</th><th>Type</th><th>From</th><th>To</th><th class="r">Days</th>
+      <th>Reason</th><th>Status</th><th></th></tr></thead><tbody>
+      ${hrLeave.map((l,i)=>{const d=l.data||l;
+        const days=Math.round((new Date(d.to)-new Date(d.from))/86400000)+1;
+        const emp=hrEmployees.find(e=>e.empId===l.emp_id);
+        return `<tr><td>${esc(emp?emp.name:l.emp_id)}<div class="t-micro">${esc(l.emp_id)}</div></td>
+        <td>${esc(d.type)}</td><td>${fmtDate(d.from)}</td><td>${fmtDate(d.to)}</td><td class="r">${days}</td>
+        <td class="t-micro">${esc(d.reason||'')}</td>
+        <td><span class="order-badge ${l.status==='Approved'?'go':l.status==='Rejected'?'no':'unk'}">${esc(l.status)}</span></td>
+        <td>${l.status==='Pending'?`<button class="mini-btn green lv-ok" data-id="${esc(l.leave_id)}">Approve</button>
+          <button class="mini-btn lv-no" data-id="${esc(l.leave_id)}">Reject</button>`
+          :`<button class="qb-del lv-del" data-id="${esc(l.leave_id)}">×</button>`}</td></tr>`;}).join('')
+        ||'<tr><td colspan="8" class="t-micro">No leave requests.</td></tr>'}</tbody></table>`;
+
+    host.querySelectorAll('.lv-ok, .lv-no').forEach(b=>b.addEventListener('click',async()=>{
+      const status=b.classList.contains('lv-ok')?'Approved':'Rejected';
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'leave',leaveId:b.dataset.id,
+        status,reason:status.toLowerCase()+' by '+(currentUser||'staff')})});
+        await loadLeave(); toast('Leave '+status.toLowerCase()); }catch(e){ toast(e.message); }
+    }));
+    host.querySelectorAll('.lv-del').forEach(b=>b.addEventListener('click',async()=>{
+      if(!confirm('Delete this leave record?')) return;
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'leave',leaveId:b.dataset.id,remove:true,reason:'deleted'})});
+        await loadLeave(); }catch(e){ toast(e.message); }
+    }));
+  }
+
+  /* ---------- Payroll runs ---------- */
+  function buildDraftRun(period,totalDays){
+    const active=hrEmployees.filter(e=>e.status!=='Exited');
+    const lines=active.map(e=>{
+      const a=attendanceSummary(e.empId,period);
+      const hasRecords=hrAttendance.some(x=>x.empId===e.empId&&String(x.day).startsWith(period));
+      return {empId:e.empId, name:e.name, department:e.department,
+        payableDays:hasRecords?a.payableDays:totalDays,
+        totalDays:hasRecords?a.totalDays:totalDays,
+        otHours:hasRecords?a.otHours:0, incentive:0, advance:0,
+        fromAttendance:hasRecords};
+    });
+    return {runId:'PR-'+period.replace('-','')+'-'+Date.now().toString(36).slice(-4).toUpperCase(),
+      period, totalDays, status:'Draft', lines, createdAt:new Date().toISOString(),
+      rulesEffectiveFrom:(ST().effectiveFrom||''), rulesReviewedBy:(ST().lastReviewedBy||'')};
+  }
+  function runTotals(run){
+    const slips=(run.lines||[]).map(l=>{
+      const emp=hrEmployees.find(e=>e.empId===l.empId);
+      return emp?calcPayslip(emp,l):null;
+    }).filter(Boolean);
+    return {slips,
+      gross:slips.reduce((t,s)=>t+s.gross,0),
+      deductions:slips.reduce((t,s)=>t+s.totalDeductions,0),
+      net:slips.reduce((t,s)=>t+s.net,0),
+      ctcCost:slips.reduce((t,s)=>t+s.ctcCost,0),
+      flags:slips.filter(s=>s.flags.length)};
+  }
+
+  function renderPayruns(){
+    const host=document.getElementById('hr-payrun-list'); if(!host) return;
+    if(!hrPayruns.length){ host.innerHTML='<p class="empty-note">No pay runs yet.</p>'; return; }
+
+    host.innerHTML=hrPayruns.map((r,i)=>{
+      const run=r.data||r; const open=expandedRun===r.run_id;
+      const t=runTotals(run);
+      const locked=(r.status==='Approved');
+      const badge=locked?'go':(r.status==='Reviewed'?'unk':'no');
+
+      const rows=t.slips.map((sl,si)=>`<tr>
+        <td>${esc(sl.empId)}</td><td>${esc(sl.name)}</td>
+        <td><input class="pl-in num" data-i="${i}" data-si="${si}" data-k="payableDays" value="${sl.payableDays}" ${locked?'disabled':''}
+          title="${(run.lines[si]||{}).fromAttendance?'From attendance records':'Typed in — no attendance recorded for this period'}"
+          style="${(run.lines[si]||{}).fromAttendance?'':'border-color:var(--gold);'}"></td>
+        <td><input class="pl-in num" data-i="${i}" data-si="${si}" data-k="otHours" value="${sl.otHours}" ${locked?'disabled':''}></td>
+        <td class="r">${rupee(sl.gross)}</td>
+        <td class="r">${rupee(sl.deductions.pf)}</td><td class="r">${rupee(sl.deductions.esi)}</td>
+        <td class="r">${rupee(sl.deductions.pt)}</td><td class="r">${rupee(sl.deductions.tds)}</td>
+        <td class="r"><b>${rupee(sl.net)}</b></td>
+        <td>${sl.flags.length?`<span class="order-badge no" title="${esc(sl.flags.join('; '))}">${sl.flags.length}</span>`:''}</td></tr>`).join('');
+
+      return `<div class="rfq-card ${open?'open':''}">
+        <div class="list-item-head rfq-summary" data-toggle-run="${esc(r.run_id)}">
+          <div><div class="rfq-ref">${esc(r.run_id)} — ${esc(run.period)}</div>
+          <div class="rfq-when">${t.slips.length} employees · Net ${rupee(t.net)} · Employer cost ${rupee(t.ctcCost)}</div></div>
+          <div class="rfq-summary-right"><span class="order-badge ${badge}">${esc(r.status)}</span>
+          <span class="rfq-chevron">${open?'▾':'▸'}</span></div></div>
+        <div class="rfq-body" style="display:${open?'block':'none'};">
+          ${locked?`<div class="feas-banner go"><div class="feas-title">🔒 APPROVED AND LOCKED</div>
+            <div class="feas-line">This run cannot be edited or deleted. To correct it, create a new run for the same period.</div></div>`:''}
+          ${t.flags.length?`<div class="dx-missing"><b>${t.flags.length} employee(s) have exceptions — review before approving:</b>
+            <ul>${t.flags.slice(0,10).map(f=>`<li><b>${esc(f.name)}</b>: ${esc(f.flags.join('; '))}</li>`).join('')}</ul></div>`:''}
+          <div class="feas-line" style="margin:10px 0;">Statutory rules effective from
+            <b>${esc(run.rulesEffectiveFrom||'not recorded')}</b>${run.rulesReviewedBy?`, last reviewed by ${esc(run.rulesReviewedBy)}`:', <span style="color:#B03A2E">no reviewer recorded</span>'}.</div>
+          <table class="cs-t"><thead><tr><th>ID</th><th>Name</th><th style="width:62px">Days</th><th style="width:56px">OT hrs</th>
+            <th class="r">Gross</th><th class="r">PF</th><th class="r">ESI</th><th class="r">PT</th><th class="r">TDS</th>
+            <th class="r">Net</th><th style="width:34px"></th></tr></thead><tbody>${rows}</tbody></table>
+          <div class="cs-break" style="margin-top:12px;">
+            <div><span>Total gross</span><span>${rupee(t.gross)}</span></div>
+            <div><span>Total deductions</span><span>${rupee(t.deductions)}</span></div>
+            <div class="grand"><span>Net payable</span><span>${rupee(t.net)}</span></div>
+            <div class="minp"><span>Total employer cost (incl. contributions)</span><span>${rupee(t.ctcCost)}</span></div>
+          </div>
+          <div class="rfq-actions" style="margin-top:14px;">
+            ${!locked?`<button class="mini-btn pr-save" data-i="${i}">Save Draft</button>
+              <button class="mini-btn green pr-approve" data-i="${i}">Review &amp; Approve</button>
+              <button class="item-delete pr-del" data-i="${i}">Delete Draft</button>`:''}
+            <button class="mini-btn gold pr-print" data-i="${i}">Payslips PDF</button>
+          </div>
+        </div></div>`;
+    }).join('');
+
+    host.querySelectorAll('[data-toggle-run]').forEach(row=>row.addEventListener('click',()=>{
+      const id=row.dataset.toggleRun; expandedRun=(expandedRun===id)?null:id; renderPayruns();
+    }));
+    host.querySelectorAll('.pl-in').forEach(inp=>inp.addEventListener('input',()=>{
+      const r=hrPayruns[+inp.dataset.i]; const run=r.data||r;
+      run.lines[+inp.dataset.si][inp.dataset.k]=num(inp.value);
+      clearTimeout(window.__plt); window.__plt=setTimeout(renderPayruns,600);
+    }));
+    host.querySelectorAll('.pr-save').forEach(b=>b.addEventListener('click',async()=>{
+      const r=hrPayruns[+b.dataset.i]; const run=r.data||r;
+      b.textContent='Saving…'; b.disabled=true;
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'payruns',runId:r.run_id,patch:run,reason:'draft edited'})});
+        toast('Draft saved'); }catch(e){ toast(e.message); }
+      b.textContent='Save Draft'; b.disabled=false;
+    }));
+    host.querySelectorAll('.pr-approve').forEach(b=>b.addEventListener('click',async()=>{
+      const r=hrPayruns[+b.dataset.i]; const run=r.data||r; const t=runTotals(run);
+      if(t.flags.length && !confirm(t.flags.length+' employee(s) still have exceptions. Approve anyway?')) return;
+      const reason=prompt('Approving locks this pay run permanently.\nState who checked it and against what:');
+      if(!reason) return;
+      b.textContent='Approving…'; b.disabled=true;
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'payruns',runId:r.run_id,patch:run,status:'Approved',reason})});
+        toast('Pay run approved and locked'); await loadHr(); }
+      catch(e){ toast(e.message); b.textContent='Review & Approve'; b.disabled=false; }
+    }));
+    host.querySelectorAll('.pr-del').forEach(b=>b.addEventListener('click',async()=>{
+      const r=hrPayruns[+b.dataset.i];
+      if(!confirm('Delete draft '+r.run_id+'?')) return;
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'payruns',runId:r.run_id,remove:true,reason:'draft discarded'})});
+        await loadHr(); toast('Draft deleted'); }catch(e){ toast(e.message); }
+    }));
+    host.querySelectorAll('.pr-print').forEach(b=>b.addEventListener('click',()=>{
+      openPayslipsPdf(hrPayruns[+b.dataset.i]);
+    }));
+  }
+
+  /* ---------- Statutory settings ---------- */
+  function renderStatutory(){
+    const host=document.getElementById('hr-statutory'); if(!host) return;
+    const st=ST();
+    const f=(label,path,val,hint)=>`<div><label>${label}</label>
+      <input class="st-in num" data-path="${path}" value="${esc(val)}">
+      ${hint?`<div class="field-hint">${hint}</div>`:''}</div>`;
+    host.innerHTML=`
+      <div class="qb"><h4>Review Record</h4>
+      <div class="cs-row four">
+        <div><label>Rules Effective From</label><input class="st-in" data-path="effectiveFrom" type="date" value="${esc(st.effectiveFrom)}"></div>
+        <div><label>Last Reviewed By</label><input class="st-in" data-path="lastReviewedBy" value="${esc(st.lastReviewedBy)}" placeholder="CA / consultant name"></div>
+        <div><label>Reviewed On</label><input class="st-in" data-path="lastReviewedOn" type="date" value="${esc(st.lastReviewedOn)}"></div>
+      </div></div>
+
+      <div class="qb"><h4>Provident Fund</h4><div class="cs-row four">
+        ${f('Employee %','pf.employeePct',st.pf.employeePct)}
+        ${f('Employer %','pf.employerPct',st.pf.employerPct)}
+        ${f('Wage Ceiling','pf.wageCeiling',st.pf.wageCeiling,'Set 0 and turn the ceiling off to apply on full wages')}
+        ${f('EPS %','pf.epsPct',st.pf.epsPct)}
+      </div><div class="cs-row four" style="margin-top:10px;">
+        ${f('EPS Ceiling','pf.epsCeiling',st.pf.epsCeiling)}
+        ${f('EDLI %','pf.edliPct',st.pf.edliPct)}
+        ${f('Admin %','pf.adminPct',st.pf.adminPct)}
+        <div><label>Apply Ceiling</label><select class="st-bool" data-path="pf.applyCeiling" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+          <option value="yes" ${st.pf.applyCeiling?'selected':''}>Yes</option><option value="no" ${!st.pf.applyCeiling?'selected':''}>No</option></select></div>
+      </div></div>
+
+      <div class="qb"><h4>ESI</h4><div class="cs-row four">
+        ${f('Employee %','esi.employeePct',st.esi.employeePct)}
+        ${f('Employer %','esi.employerPct',st.esi.employerPct)}
+        ${f('Gross Limit','esi.grossLimit',st.esi.grossLimit,'ESI not deducted above this monthly gross')}
+      </div></div>
+
+      <div class="qb"><h4>Professional Tax — ${esc(st.pt.state||'')}</h4>
+      <div class="field-hint" style="margin-bottom:10px;">Slabs are state-specific. Enter each threshold and the monthly amount payable up to it.</div>
+      <table class="cs-t"><thead><tr><th class="r">Gross up to</th><th class="r">PT Amount</th><th></th></tr></thead>
+        <tbody>${(st.pt.slabs||[]).map((sl,si)=>`<tr>
+          <td><input class="pt-slab num" data-si="${si}" data-k="upTo" value="${esc(sl.upTo)}"></td>
+          <td><input class="pt-slab num" data-si="${si}" data-k="amount" value="${esc(sl.amount)}"></td>
+          <td><button class="qb-del pt-del" data-si="${si}">×</button></td></tr>`).join('')}</tbody></table>
+      <button class="qb-add" id="pt-add">+ Add slab</button></div>
+
+      <div class="qb"><h4>Overtime, Gratuity &amp; Bonus</h4><div class="cs-row four">
+        ${f('OT Multiplier','ot.multiplier',st.ot.multiplier)}
+        <div><label>OT Basis</label><select class="st-str" data-path="ot.basisComponents" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+          <option value="basic+da" ${st.ot.basisComponents==='basic+da'?'selected':''}>Basic + DA</option>
+          <option value="gross" ${st.ot.basisComponents==='gross'?'selected':''}>Gross</option></select></div>
+        ${f('Gratuity accrual %','gratuity.accrualPct',st.gratuity.accrualPct,'Provision only')}
+        ${f('Bonus accrual %','bonus.accrualPct',st.bonus.accrualPct,'Provision only')}
+      </div></div>
+      <button class="add-btn solid" id="st-save" style="margin-top:6px;">Save Statutory Settings</button>
+      <div class="field-hint" id="st-msg" style="margin-top:8px;"></div>`;
+
+    const setPath=(path,val)=>{
+      const ks=path.split('.'); let o=data.statutory;
+      for(let i=0;i<ks.length-1;i++){ o[ks[i]]=o[ks[i]]||{}; o=o[ks[i]]; }
+      o[ks[ks.length-1]]=val;
+    };
+    host.querySelectorAll('.st-in').forEach(inp=>inp.addEventListener('input',()=>{
+      setPath(inp.dataset.path, inp.classList.contains('num')?num(inp.value):inp.value); markDirty();
+    }));
+    host.querySelectorAll('.st-bool').forEach(sel=>sel.addEventListener('change',()=>{
+      setPath(sel.dataset.path, sel.value==='yes'); markDirty();
+    }));
+    host.querySelectorAll('.st-str').forEach(sel=>sel.addEventListener('change',()=>{
+      setPath(sel.dataset.path, sel.value); markDirty();
+    }));
+    host.querySelectorAll('.pt-slab').forEach(inp=>inp.addEventListener('input',()=>{
+      data.statutory.pt.slabs[+inp.dataset.si][inp.dataset.k]=num(inp.value); markDirty();
+    }));
+    host.querySelectorAll('.pt-del').forEach(b=>b.addEventListener('click',()=>{
+      data.statutory.pt.slabs.splice(+b.dataset.si,1); markDirty(); renderStatutory();
+    }));
+    const add=document.getElementById('pt-add');
+    if(add) add.addEventListener('click',()=>{
+      data.statutory.pt.slabs.push({upTo:0,amount:0}); markDirty(); renderStatutory();
+    });
+    const save=document.getElementById('st-save');
+    if(save) save.addEventListener('click',async function(){
+      const msg=document.getElementById('st-msg');
+      if(!ST().lastReviewedBy){ msg.textContent='Record who reviewed these figures before saving.'; msg.style.color='#B03A2E'; return; }
+      this.disabled=true; this.textContent='Saving…';
+      try{ await api('/api/content',{method:'POST',body:JSON.stringify({data})}); dirty=false;
+        msg.textContent='Saved. These rates now apply to new pay runs.'; msg.style.color='var(--ok)'; }
+      catch(e){ msg.textContent=e.message; msg.style.color='#B03A2E'; }
+      this.disabled=false; this.textContent='Save Statutory Settings';
+    });
+  }
+
+  async function renderAudit(){
+    const host=document.getElementById('hr-audit-list'); if(!host) return;
+    host.innerHTML='<p class="field-hint">Loading…</p>';
+    try{
+      const j=await api('/api/hr?what=audit');
+      host.innerHTML=`<table class="cs-t"><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Record</th><th>Reason</th></tr></thead>
+        <tbody>${(j.audit||[]).map(a=>`<tr><td class="t-micro">${new Date(a.at).toLocaleString()}</td>
+          <td>${esc(a.who)}</td><td>${esc(a.what)}</td><td>${esc(a.ref)}</td>
+          <td class="t-micro">${esc(a.reason||'')}</td></tr>`).join('')||'<tr><td colspan="5" class="t-micro">No history yet.</td></tr>'}</tbody></table>`;
+    }catch(e){ host.innerHTML='<p class="dx-err">'+esc(e.message)+'</p>'; }
+  }
+
+  /* ================= COMPETENCY, SKILL MATRIX & TNI (§15–§17) =================
+     Required level comes from the role standard you define. Actual level is
+     assessed by a person and recorded with their name and the date — this is
+     the evidence an IATF auditor asks for. Gaps drive training need
+     automatically; nothing is inferred or invented. */
+  let hrTraining=[];
+  const compById=id=>(data.competencies||[]).find(c=>c.id===id)||null;
+  const levelLabel=n=>((data.competencyLevels||[]).find(l=>l.level===num(n))||{}).label||('Level '+n);
+
+  /* what the role demands */
+  function requiredFor(designation){
+    return (data.roleCompetency||[]).filter(r=>
+      String(r.role||'').toLowerCase()===String(designation||'').toLowerCase());
+  }
+  /* what the person actually has */
+  function actualLevel(emp,competencyId){
+    const rec=(emp.competencies||[]).find(c=>c.competencyId===competencyId);
+    return rec?num(rec.level):0;
+  }
+  function assessmentOf(emp,competencyId){
+    return (emp.competencies||[]).find(c=>c.competencyId===competencyId)||null;
+  }
+
+  /* one employee's gap picture */
+  function competencyGaps(emp){
+    return requiredFor(emp.designation).map(r=>{
+      const have=actualLevel(emp,r.competencyId), need=num(r.requiredLevel);
+      const a=assessmentOf(emp,r.competencyId);
+      return {competencyId:r.competencyId, name:(compById(r.competencyId)||{}).name||r.competencyId,
+        category:(compById(r.competencyId)||{}).category||'', need, have, gap:Math.max(0,need-have),
+        status: have>=need?'green':(have>=need-1?'amber':'red'),
+        assessedOn:a?a.assessedOn:'', assessedBy:a?a.assessedBy:''};
+    });
+  }
+
+  /* §16 the matrix itself */
+  function skillMatrix(filterDept){
+    const emps=hrEmployees.filter(e=>e.status!=='Exited'&&(!filterDept||e.department===filterDept));
+    const compIds=[...new Set((data.roleCompetency||[]).map(r=>r.competencyId))];
+    const rows=emps.map(e=>{
+      const gaps=competencyGaps(e);
+      const byId={}; gaps.forEach(g=>byId[g.competencyId]=g);
+      return {emp:e, cells:compIds.map(id=>byId[id]||null),
+        gapCount:gaps.filter(g=>g.gap>0).length,
+        criticalCount:gaps.filter(g=>g.status==='red').length};
+    });
+    return {compIds,rows,
+      totalGaps:rows.reduce((t,r)=>t+r.gapCount,0),
+      critical:rows.reduce((t,r)=>t+r.criticalCount,0)};
+  }
+
+  /* §17 training need, derived straight from the gaps */
+  function generateTNI(){
+    const needs=[];
+    hrEmployees.filter(e=>e.status!=='Exited').forEach(e=>{
+      competencyGaps(e).filter(g=>g.gap>0).forEach(g=>{
+        const course=(data.trainingCatalogue||[]).find(t=>(t.competencyIds||[]).includes(g.competencyId));
+        needs.push({empId:e.empId,name:e.name,department:e.department,designation:e.designation,
+          competencyId:g.competencyId,competency:g.name,category:g.category,
+          have:g.have,need:g.need,gap:g.gap,
+          priority: g.status==='red'?'High':(g.gap>=1?'Medium':'Low'),
+          source:'Competency gap',
+          suggestedCourse: course?course.title:'(no course mapped to this competency)',
+          courseId: course?course.id:''});
+      });
+    });
+    // most severe first, then by how many people need it
+    const counts={}; needs.forEach(n=>counts[n.competencyId]=(counts[n.competencyId]||0)+1);
+    needs.forEach(n=>n.peopleNeeding=counts[n.competencyId]);
+    const order={High:0,Medium:1,Low:2};
+    needs.sort((a,b)=>(order[a.priority]-order[b.priority])||(b.peopleNeeding-a.peopleNeeding));
+    return needs;
+  }
+
+  /* §19 effectiveness is only "done" when it has been evaluated after the event */
+  function trainingStatusOf(rec){
+    const d=rec.data||rec;
+    if(!d.completedOn) return {label:'Scheduled',cls:'unk'};
+    if(!d.assessmentDone) return {label:'Assessment pending',cls:'no'};
+    if(!d.effectivenessDone) return {label:'Effectiveness pending',cls:'no'};
+    return {label: d.effective?'Effective':'Not effective', cls: d.effective?'go':'no'};
+  }
+  function effectivenessDue(){
+    return hrTraining.filter(r=>{
+      const d=r.data||r;
+      if(r.kind!=='session'||!d.completedOn||d.effectivenessDone) return false;
+      const due=new Date(d.completedOn); due.setDate(due.getDate()+num(d.evaluateAfterDays||30));
+      return new Date()>=due;
+    });
+  }
+
+  /* ================= ATTENDANCE & LEAVE ENGINE (§9, §10) =================
+     Attendance is the input payroll depends on. Everything here is plain
+     arithmetic on your own records — no estimation. */
+  let hrAttendance=[], hrLeave=[];
+  const LP=()=>data.leavePolicy||{};
+
+  const dayKey=d=>new Date(d).toISOString().slice(0,10);
+  function isWeekOff(d){ return (LP().weekOff||[]).includes(new Date(d).getDay()); }
+  function isHoliday(d){ const k=dayKey(d); return (data.holidays||[]).some(h=>h.date===k); }
+  function holidayName(d){ const k=dayKey(d); const h=(data.holidays||[]).find(x=>x.date===k); return h?h.name:''; }
+
+  function daysInPeriod(period){
+    const [y,m]=String(period||'').split('-').map(Number);
+    if(!y||!m) return [];
+    const out=[], last=new Date(y,m,0).getDate();
+    for(let d=1;d<=last;d++) out.push(new Date(y,m-1,d));
+    return out;
+  }
+
+  /* Approved leave, expanded day by day so attendance can read it */
+  function leaveDaysFor(empId,period){
+    const map={};
+    hrLeave.filter(l=>l.emp_id===empId && (l.status==='Approved'))
+      .forEach(l=>{
+        const d=l.data||l;
+        let cur=new Date(d.from), end=new Date(d.to);
+        while(cur<=end){
+          if(!period || dayKey(cur).startsWith(period)) map[dayKey(cur)]=d.type||'CL';
+          cur.setDate(cur.getDate()+1);
+        }
+      });
+    return map;
+  }
+
+  /* Roll a month of attendance into the numbers payroll needs */
+  function attendanceSummary(empId,period){
+    const days=daysInPeriod(period);
+    const leaveMap=leaveDaysFor(empId,period);
+    const recs={};
+    hrAttendance.filter(a=>a.empId===empId&&String(a.day).startsWith(period))
+      .forEach(a=>{recs[a.day]=a;});
+
+    let present=0, weekOff=0, holiday=0, paidLeave=0, lop=0, absent=0, otHours=0, lateCount=0;
+    const paidCodes=new Set((LP().types||[]).filter(t=>t.paid).map(t=>t.code));
+
+    days.forEach(d=>{
+      const k=dayKey(d), r=recs[k], lv=leaveMap[k];
+      if(r&&r.status==='Present'){ present+=num(r.dayFraction||1); otHours+=num(r.otHours); if(r.late) lateCount++; return; }
+      if(r&&r.status==='Absent'){ absent++; lop++; return; }
+      if(lv){ if(paidCodes.has(lv)) paidLeave++; else lop++; return; }
+      if(isHoliday(d)){ holiday++; return; }
+      if(isWeekOff(d)){ weekOff++; return; }
+      if(r&&r.status){ present+=num(r.dayFraction||1); otHours+=num(r.otHours); return; }
+      absent++; lop++;                       // no record and not a day off
+    });
+
+    const totalDays=days.length;
+    const payableDays=Math.max(0, totalDays-lop);
+    return {totalDays,present,weekOff,holiday,paidLeave,lop,absent,otHours,lateCount,payableDays};
+  }
+
+  function leaveBalance(empId){
+    const taken={};
+    hrLeave.filter(l=>l.emp_id===empId&&l.status==='Approved').forEach(l=>{
+      const d=l.data||l, days=Math.round((new Date(d.to)-new Date(d.from))/86400000)+1;
+      taken[d.type]=(taken[d.type]||0)+Math.max(1,days);
+    });
+    return (LP().types||[]).map(t=>({code:t.code,name:t.name,entitled:t.annualDays,
+      taken:taken[t.code]||0, balance:Math.max(0,num(t.annualDays)-(taken[t.code]||0)), paid:t.paid}));
+  }
+
+  /* ---------- HR data loading + employee master UI ---------- */
+  async function loadHr(){
+    try{ const j=await api('/api/hr?what=employees'); hrEmployees=j.employees||[]; }
+    catch(e){ hrEmployees=[]; toast('Could not load employees: '+e.message); }
+    try{ const j=await api('/api/hr?what=payruns'); hrPayruns=j.payruns||[]; }
+    catch(e){ hrPayruns=[]; }
+    try{ const j=await api('/api/hr?what=leave'); hrLeave=j.leave||[]; }catch(e){ hrLeave=[]; }
+    refreshLeaveDropdowns();
+    try{ const j=await api('/api/hr?what=training'); hrTraining=j.records||[]; }catch(e){ hrTraining=[]; }
+    try{ const j=await api('/api/hr?what=items'); hrItems=j.items||[]; }catch(e){ hrItems=[]; }
+    const per=new Date().toISOString().slice(0,7);
+    const [yy,mm]=per.split('-').map(Number);
+    try{ const j=await api(`/api/hr?what=attendance&from=${per}-01&to=${per}-${String(new Date(yy,mm,0).getDate()).padStart(2,'0')}`);
+      hrAttendance=j.attendance||[]; }catch(e){ hrAttendance=[]; }
+    renderEmployees(); renderPayruns(); renderStatutory(); renderTower();
+  }
+
+  function renderEmployees(){
+    const kpi=document.getElementById('hr-kpi-row'), host=document.getElementById('hr-emp-list');
+    if(!host) return;
+    const active=hrEmployees.filter(e=>e.status!=='Exited');
+    const noStruct=active.filter(e=>grossMonthly(e)<=0);
+    const monthlyCost=active.reduce((t,e)=>t+grossMonthly(e),0);
+    if(kpi) kpi.innerHTML=`<div class="kpi"><b>${active.length}</b><span>Active Employees</span></div>
+      <div class="kpi"><b>${new Set(active.map(e=>e.department).filter(Boolean)).size}</b><span>Departments</span></div>
+      <div class="kpi"><b style="color:${noStruct.length?'#B03A2E':'var(--ok)'}">${noStruct.length}</b><span>No Salary Structure</span></div>
+      <div class="kpi"><b>${rupee(monthlyCost)}</b><span>Monthly Gross</span></div>`;
+
+    if(!hrEmployees.length){ host.innerHTML='<p class="empty-note">No employees yet — add one above.</p>'; return; }
+
+    host.innerHTML=hrEmployees.map((e,i)=>{
+      const open=expandedEmp===e.empId, s=e.structure||{};
+      const gross=grossMonthly(e);
+      return `<div class="rfq-card ${open?'open':''}" data-ref="${esc(e.empId)}">
+        <div class="list-item-head rfq-summary" data-toggle-emp="${esc(e.empId)}">
+          <div><div class="rfq-ref">${esc(e.empId)} — ${esc(e.name)}</div>
+          <div class="rfq-when">${esc(e.designation||'—')} · ${esc(e.department||'—')} ·
+            ${gross>0?rupee(gross)+'/month':'<span style="color:#B03A2E">no structure</span>'} · ${esc(e.status||'Active')}</div></div>
+          <span class="rfq-chevron">${open?'▾':'▸'}</span></div>
+        <div class="rfq-body" style="display:${open?'block':'none'};">
+          <div class="cs-sub">Employment</div>
+          <div class="cs-row four">
+            <div><label>Name</label><input class="em-in" data-i="${i}" data-k="name" value="${esc(e.name)}"></div>
+            <div><label>Department</label><input class="em-in" data-i="${i}" data-k="department" value="${esc(e.department)}"></div>
+            <div><label>Designation</label><input class="em-in" data-i="${i}" data-k="designation" value="${esc(e.designation)}"></div>
+            <div><label>Grade</label><input class="em-in" data-i="${i}" data-k="grade" value="${esc(e.grade)}"></div>
+          </div>
+          <div class="cs-row four" style="margin-top:10px;">
+            <div><label>Date of Joining</label><input type="date" class="em-in" data-i="${i}" data-k="doj" value="${esc(e.doj)}"></div>
+            <div><label>Reports To</label><input class="em-in" data-i="${i}" data-k="reportsTo" value="${esc(e.reportsTo)}"></div>
+            <div><label>Shift</label><input class="em-in" data-i="${i}" data-k="shift" value="${esc(e.shift)}"></div>
+            <div><label>Status</label>
+              <select class="em-in" data-i="${i}" data-k="status" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+                ${['Active','Probation','On Leave','Suspended','Exited'].map(x=>`<option ${e.status===x?'selected':''}>${x}</option>`).join('')}
+              </select></div>
+          </div>
+
+          <div class="cs-sub">Statutory Identifiers</div>
+          <div class="cs-row four">
+            <div><label>UAN</label><input class="em-in" data-i="${i}" data-k="uan" value="${esc(e.uan)}"></div>
+            <div><label>ESI Number</label><input class="em-in" data-i="${i}" data-k="esiNumber" value="${esc(e.esiNumber)}"></div>
+            <div><label>PAN</label><input class="em-in" data-i="${i}" data-k="pan" value="${esc(e.pan)}"></div>
+            <div><label>Bank A/c</label><input class="em-in" data-i="${i}" data-k="bankAcc" value="${esc(e.bankAcc)}"></div>
+          </div>
+
+          <div class="cs-sub">Salary Structure — monthly</div>
+          <div class="cs-row four">
+            <div><label>Annual CTC</label><input class="em-in num" data-i="${i}" data-k="ctcAnnual" value="${esc(e.ctcAnnual)}"></div>
+            <div style="align-self:end;"><button class="mini-btn em-build" data-i="${i}">Rebuild from CTC</button></div>
+            <div><label>Basic</label><input class="es-in num" data-i="${i}" data-k="basic" value="${esc(s.basic)}"></div>
+            <div><label>DA</label><input class="es-in num" data-i="${i}" data-k="da" value="${esc(s.da)}"></div>
+          </div>
+          <div class="cs-row four" style="margin-top:10px;">
+            <div><label>HRA</label><input class="es-in num" data-i="${i}" data-k="hra" value="${esc(s.hra)}"></div>
+            <div><label>Conveyance</label><input class="es-in num" data-i="${i}" data-k="conveyance" value="${esc(s.conveyance)}"></div>
+            <div><label>Special Allowance</label><input class="es-in num" data-i="${i}" data-k="special" value="${esc(s.special)}"></div>
+            <div><label>Other Allowance</label><input class="es-in num" data-i="${i}" data-k="otherAllow" value="${esc(s.otherAllow)}"></div>
+          </div>
+          <div class="feas-line" style="margin-top:8px;">Monthly gross from structure: <b>${rupee(gross)}</b>
+            ${e.ctcAnnual?` · annual CTC ÷ 12 = ${rupee(num(e.ctcAnnual)/12)}`:''}</div>
+
+          <div class="cs-sub">Deductions &amp; Applicability</div>
+          <div class="cs-row four">
+            <div><label>Monthly TDS</label><input class="em-in num" data-i="${i}" data-k="monthlyTds" value="${esc(e.monthlyTds)}">
+              <div class="field-hint">From your CA — not computed here.</div></div>
+            <div><label>Other Deduction</label><input class="em-in num" data-i="${i}" data-k="otherDeduction" value="${esc(e.otherDeduction)}"></div>
+            <div><label>PF Applicable</label>
+              <select class="em-bool" data-i="${i}" data-k="pfApplicable" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+                <option value="yes" ${e.pfApplicable!==false?'selected':''}>Yes</option><option value="no" ${e.pfApplicable===false?'selected':''}>No</option></select></div>
+            <div><label>ESI Applicable</label>
+              <select class="em-bool" data-i="${i}" data-k="esiApplicable" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+                <option value="yes" ${e.esiApplicable!==false?'selected':''}>Yes</option><option value="no" ${e.esiApplicable===false?'selected':''}>No</option></select></div>
+          </div>
+
+          <div class="rfq-actions" style="margin-top:16px;">
+            <button class="mini-btn gold em-save" data-i="${i}">Save Employee</button>
+            <button class="item-delete em-del" data-i="${i}">Delete</button>
+          </div>
+        </div></div>`;
+    }).join('');
+
+    host.querySelectorAll('[data-toggle-emp]').forEach(r=>r.addEventListener('click',()=>{
+      const id=r.dataset.toggleEmp; expandedEmp=(expandedEmp===id)?null:id; renderEmployees();
+    }));
+    host.querySelectorAll('.em-in').forEach(inp=>inp.addEventListener('input',()=>{
+      hrEmployees[+inp.dataset.i][inp.dataset.k]=inp.value;
+    }));
+    host.querySelectorAll('.em-bool').forEach(sel=>sel.addEventListener('change',()=>{
+      hrEmployees[+sel.dataset.i][sel.dataset.k]=(sel.value==='yes');
+    }));
+    host.querySelectorAll('.es-in').forEach(inp=>inp.addEventListener('input',()=>{
+      const e=hrEmployees[+inp.dataset.i]; e.structure=e.structure||{};
+      e.structure[inp.dataset.k]=num(inp.value);
+    }));
+    host.querySelectorAll('.em-build').forEach(b=>b.addEventListener('click',()=>{
+      const e=hrEmployees[+b.dataset.i];
+      if(!num(e.ctcAnnual)){ toast('Enter the annual CTC first'); return; }
+      e.structure=structureFromCtc(e.ctcAnnual); renderEmployees();
+      toast('Structure rebuilt — check each component before saving');
+    }));
+    host.querySelectorAll('.em-save').forEach(b=>b.addEventListener('click',async()=>{
+      const e=hrEmployees[+b.dataset.i];
+      b.textContent='Saving…'; b.disabled=true;
+      try{ await api('/api/hr',{method:'POST',body:JSON.stringify({what:'employees',employee:e,reason:'edited in HR screen'})});
+        toast('Employee saved'); }catch(err){ toast(err.message); }
+      b.textContent='Save Employee'; b.disabled=false;
+    }));
+    host.querySelectorAll('.em-del').forEach(b=>b.addEventListener('click',async()=>{
+      const e=hrEmployees[+b.dataset.i];
+      if(!confirm('Delete '+e.empId+' — '+e.name+'? Their payroll history stays in approved pay runs.')) return;
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'employees',empId:e.empId,remove:true,reason:'deleted in HR screen'})});
+        hrEmployees.splice(+b.dataset.i,1); expandedEmp=null; renderEmployees(); toast('Employee deleted'); }
+      catch(err){ toast(err.message); }
+    }));
+  }
+
+  /* ================= HR: PAYROLL ENGINE =================
+     Deterministic arithmetic only. Every statutory rate comes from
+     data.statutory, which is user-editable and effective-dated — no legal
+     rule is written into this code. The engine produces a DRAFT that a human
+     reviews and approves; it never finalises anything by itself. */
+  const ST=()=>data.statutory||{};
+  let hrEmployees=[], hrPayruns=[], expandedEmp=null, expandedRun=null;
+
+  function blankEmployee(){
+    return {empId:'', name:'', photo:'', doj:'', dob:'',
+      department:'', designation:'', grade:'', location:'', reportsTo:'',
+      employmentType:'Permanent', shift:'General', status:'Active',
+      phone:'', email:'', emergencyContact:'',
+      pfNumber:'', uan:'', esiNumber:'', pan:'', bankAcc:'', ifsc:'',
+      ctcAnnual:0,
+      structure:{basic:0, da:0, hra:0, conveyance:0, special:0, otherAllow:0},
+      pfApplicable:true, esiApplicable:true, ptApplicable:true,
+      monthlyTds:0, otherDeduction:0,
+      competencies:[], trainings:[], notes:''
+    };
+  }
+
+  /* Build a monthly salary structure from annual CTC using the template. */
+  function structureFromCtc(annualCtc){
+    const t=data.salaryStructure||{};
+    const m=num(annualCtc)/12;
+    const basic=Math.round(m*num(t.basicPct)/100);
+    const da=Math.round(m*num(t.daPct)/100);
+    const hra=Math.round(m*num(t.hraPct)/100);
+    const conveyance=num(t.conveyance);
+    const known=basic+da+hra+conveyance;
+    return {basic,da,hra,conveyance,special:Math.max(0,Math.round(m-known)),otherAllow:0};
+  }
+
+  function grossMonthly(emp){
+    const s=emp.structure||{};
+    return num(s.basic)+num(s.da)+num(s.hra)+num(s.conveyance)+num(s.special)+num(s.otherAllow);
+  }
+
+  /* ---- the payslip calculation for one employee for one period ---- */
+  function calcPayslip(emp, att){
+    const st=ST();
+    const s=emp.structure||{};
+    const payableDays=num(att.payableDays), totalDays=Math.max(1,num(att.totalDays)||30);
+    const factor=Math.min(1, payableDays/totalDays);
+
+    // earnings, prorated by days actually payable
+    const basic=Math.round(num(s.basic)*factor);
+    const da=Math.round(num(s.da)*factor);
+    const hra=Math.round(num(s.hra)*factor);
+    const conveyance=Math.round(num(s.conveyance)*factor);
+    const special=Math.round(num(s.special)*factor);
+    const otherAllow=Math.round(num(s.otherAllow)*factor);
+
+    // overtime, on the configured basis and multiplier
+    const otBasisMonthly=(String((st.ot||{}).basisComponents||'basic+da')==='gross')
+      ? grossMonthly(emp) : (num(s.basic)+num(s.da));
+    const hoursPerMonth=Math.max(1,totalDays*num(CB().hoursPerShift||8));
+    const otRatePerHour=(otBasisMonthly/hoursPerMonth)*num((st.ot||{}).multiplier||2);
+    const otAmount=Math.round(num(att.otHours)*otRatePerHour);
+
+    const incentive=num(att.incentive);
+    const gross=basic+da+hra+conveyance+special+otherAllow+otAmount+incentive;
+
+    // --- statutory deductions, all from the editable rule set ---
+    const notes=[];
+    let pfEmp=0,pfEr=0,eps=0,edli=0,pfAdmin=0;
+    const pf=st.pf||{};
+    if(pf.enabled && emp.pfApplicable!==false){
+      const pfWageRaw=basic+da;
+      const pfWage=pf.applyCeiling?Math.min(pfWageRaw,num(pf.wageCeiling)):pfWageRaw;
+      pfEmp=Math.round(pfWage*num(pf.employeePct)/100);
+      const erTotal=Math.round(pfWage*num(pf.employerPct)/100);
+      eps=Math.round(Math.min(pfWage,num(pf.epsCeiling||pf.wageCeiling))*num(pf.epsPct)/100);
+      pfEr=Math.max(0,erTotal-eps);
+      edli=Math.round(Math.min(pfWage,num(pf.wageCeiling))*num(pf.edliPct)/100);
+      pfAdmin=Math.round(Math.min(pfWage,num(pf.wageCeiling))*num(pf.adminPct)/100);
+      if(pf.applyCeiling&&pfWageRaw>num(pf.wageCeiling)) notes.push('PF restricted to the wage ceiling');
+    }
+
+    let esiEmp=0,esiEr=0;
+    const esi=st.esi||{};
+    if(esi.enabled && emp.esiApplicable!==false){
+      if(gross<=num(esi.grossLimit)){
+        esiEmp=Math.ceil(gross*num(esi.employeePct)/100);
+        esiEr=Math.ceil(gross*num(esi.employerPct)/100);
+      } else notes.push('ESI not applied — gross above the configured limit');
+    }
+
+    let pt=0;
+    const ptr=st.pt||{};
+    if(ptr.enabled && emp.ptApplicable!==false){
+      const slab=(ptr.slabs||[]).slice().sort((a,b)=>num(a.upTo)-num(b.upTo))
+        .find(x=>gross<=num(x.upTo));
+      pt=slab?num(slab.amount):0;
+    }
+
+    const tds=((st.tds||{}).enabled!==false)?num(emp.monthlyTds):0;
+    const lwfEmp=(st.lwf||{}).enabled?num(st.lwf.employee):0;
+    const lwfEr=(st.lwf||{}).enabled?num(st.lwf.employer):0;
+    const otherDed=num(emp.otherDeduction)+num(att.advance);
+
+    const totalDeductions=pfEmp+esiEmp+pt+tds+lwfEmp+otherDed;
+    const net=gross-totalDeductions;
+    const ctcCost=gross+pfEr+eps+edli+pfAdmin+esiEr+lwfEr;
+
+    // provisions, not deductions
+    const gratuityProv=Math.round((basic+da)*num((st.gratuity||{}).accrualPct)/100);
+    const bonusProv=Math.round(Math.min(basic+da,num((st.bonus||{}).wageCeiling)||(basic+da))
+      *num((st.bonus||{}).accrualPct)/100);
+
+    const flags=[];
+    if(net<0) flags.push('Net pay is negative — check deductions');
+    if(payableDays>totalDays) flags.push('Payable days exceed days in the period');
+    if(!emp.structure||grossMonthly(emp)<=0) flags.push('No salary structure set');
+    if(pf.enabled&&emp.pfApplicable!==false&&!emp.uan) flags.push('PF applicable but no UAN recorded');
+    if(esiEmp>0&&!emp.esiNumber) flags.push('ESI deducted but no ESI number recorded');
+    if(num(att.otHours)>0&&otAmount===0) flags.push('OT hours entered but OT value is zero');
+
+    return {empId:emp.empId,name:emp.name,department:emp.department,
+      payableDays,totalDays,lopDays:Math.max(0,totalDays-payableDays),
+      earnings:{basic,da,hra,conveyance,special,otherAllow,ot:otAmount,incentive},
+      gross,
+      deductions:{pf:pfEmp,esi:esiEmp,pt,tds,lwf:lwfEmp,other:otherDed},
+      totalDeductions,net,
+      employer:{pf:pfEr,eps,edli,admin:pfAdmin,esi:esiEr,lwf:lwfEr},
+      ctcCost, provisions:{gratuity:gratuityProv,bonus:bonusProv},
+      otHours:num(att.otHours), notes, flags,
+      rulesEffectiveFrom:st.effectiveFrom||''};
+  }
+
   /* ================= §2 THE PLANNING ENGINE =================
      One pass produces every plan the spec asks for that is computable from
      your master data. Sections it cannot yet do — true finite sequencing
@@ -4939,6 +7133,7 @@ Sign off as: ${data.quoteSender||'Sales Team'}, ${data.brandName}, ${data.contac
     document.getElementById('ack-switch').classList.toggle('on',data.autoAcknowledge!==false);
     document.getElementById('pipebtn-switch').classList.toggle('on',!!data.showPipeBtn);
     document.getElementById('ppcbtn-switch').classList.toggle('on',!!data.showPPCBtn);
+    document.getElementById('hrbtn-switch').classList.toggle('on',!!data.showHRBtn);
     document.getElementById('pw-user').value=currentUser||'';
     syncRanges();
     singleImageField('logo-upload-wrap','logoDataUrl');
@@ -5188,6 +7383,10 @@ Sign off as: ${data.quoteSender||'Sales Team'}, ${data.brandName}, ${data.contac
       document.body.style.overflow='hidden'; await loadRfqs(); checkAi();
       const sa=document.getElementById('staff-admin');
       if(sa) sa.style.display=(currentRole==='developer')?'':'none';
+    } else if(t==='hr'){
+      if(currentRole!=='developer'){ toast('HR records need the developer login.'); return; }
+      document.getElementById('hr-page').classList.add('open');
+      document.body.style.overflow='hidden'; await loadHr();
     } else if(t==='ppc'){
       document.getElementById('ppc-page').classList.add('open');
       document.body.style.overflow='hidden'; await loadOrders(); refreshPartDropdown();
@@ -5265,60 +7464,15 @@ Sign off as: ${data.quoteSender||'Sales Team'}, ${data.brandName}, ${data.contac
   });
 
   /* ---------- FORGOT PASSWORD ---------- */
-  let fpUser='';
-  function fpStep(n){
-    ['fp-step1','fp-step2','fp-step3'].forEach((id,i)=>{
-      document.getElementById(id).style.display=(i===n-1)?'':'none';
-    });
-    document.getElementById('forgot-err').style.display='none';
-  }
   document.getElementById('login-forgot-link').addEventListener('click',()=>{
     document.getElementById('login-fields').style.display='none';
     document.getElementById('forgot-panel').classList.add('open');
-    ['fp-who','fp-code','fp-pass','forgot-code','forgot-user','forgot-pass'].forEach(id=>{
-      const el=document.getElementById(id); if(el) el.value='';
-    });
-    fpStep(1);
-    setTimeout(()=>document.getElementById('fp-who').focus(),150);
+    document.getElementById('forgot-err').style.display='none';
+    document.getElementById('forgot-code').value='';
+    document.getElementById('forgot-user').value='';
+    document.getElementById('forgot-pass').value='';
+    setTimeout(()=>document.getElementById('forgot-code').focus(),150);
   });
-  document.getElementById('fp-use-recovery').addEventListener('click',e=>{e.preventDefault();fpStep(3);});
-  document.getElementById('fp-use-email').addEventListener('click',e=>{e.preventDefault();fpStep(1);});
-
-  async function fpSendCode(){
-    const err=document.getElementById('forgot-err'); err.style.display='none';
-    const who=document.getElementById('fp-who').value.trim();
-    if(!who){ err.textContent='Enter your username or email address.'; err.style.display='block'; return; }
-    const btn=document.getElementById('fp-send'); const label=btn.textContent; btn.textContent='Sending…'; btn.disabled=true;
-    try{
-      const j=await api('/api/auth',{method:'POST',body:JSON.stringify({action:'forgotRequest',user:who})});
-      fpUser=j.user||who;
-      document.getElementById('fp-note').textContent=j.note||'If that account exists, a code is on its way.';
-      fpStep(2);
-      setTimeout(()=>document.getElementById('fp-code').focus(),150);
-    }catch(e){ err.textContent=e.message||'Could not send the code.'; err.style.display='block'; }
-    btn.textContent=label; btn.disabled=false;
-  }
-  document.getElementById('fp-send').addEventListener('click',fpSendCode);
-  document.getElementById('fp-who').addEventListener('keydown',e=>{if(e.key==='Enter')fpSendCode();});
-  document.getElementById('fp-resend').addEventListener('click',e=>{e.preventDefault();fpStep(1);fpSendCode();});
-
-  async function fpVerify(){
-    const err=document.getElementById('forgot-err'); err.style.display='none';
-    const code=document.getElementById('fp-code').value.trim();
-    const np=document.getElementById('fp-pass').value;
-    if(code.length!==6){ err.textContent='Enter the 6-digit code from the email.'; err.style.display='block'; return; }
-    if(np.length<6){ err.textContent='New password must be at least 6 characters.'; err.style.display='block'; return; }
-    try{
-      const j=await api('/api/auth',{method:'POST',body:JSON.stringify({action:'forgotVerify',user:fpUser,code,newPass:np})});
-      token=j.token; currentUser=j.user; currentRole=j.role||'';
-      document.getElementById('login-modal').classList.remove('open');
-      showLoginFields();
-      toast('Password changed — you are signed in.');
-      openTarget(pendingTarget||'pipeline');
-    }catch(e){ err.textContent=e.message||'Could not verify the code.'; err.style.display='block'; }
-  }
-  document.getElementById('fp-verify').addEventListener('click',fpVerify);
-  document.getElementById('fp-pass').addEventListener('keydown',e=>{if(e.key==='Enter')fpVerify();});
   document.getElementById('forgot-cancel').addEventListener('click',showLoginFields);
   document.getElementById('forgot-btn').addEventListener('click',async()=>{
     const err=document.getElementById('forgot-err'); err.style.display='none';
@@ -5360,6 +7514,241 @@ Sign off as: ${data.quoteSender||'Sales Team'}, ${data.brandName}, ${data.contac
   document.getElementById('ppc-back').addEventListener('click',()=>{
     document.getElementById('ppc-page').classList.remove('open'); document.body.style.overflow='';
     if(location.hash==='#ppc')history.replaceState(null,'',location.pathname);});
+
+  /* ---------- HR page wiring ---------- */
+  document.querySelectorAll('.hr-tab').forEach(tab=>tab.addEventListener('click',()=>{
+    document.querySelectorAll('.hr-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.hr-panel').forEach(pn=>{
+      pn.style.display=(pn.dataset.hrpanel===tab.dataset.hrtab)?'':'none';
+    });
+    if(tab.dataset.hrtab==='audit') renderAudit();
+    if(tab.dataset.hrtab==='statutory') renderStatutory();
+    if(tab.dataset.hrtab==='leave'){ refreshLeaveDropdowns(); loadLeave(); }
+    if(tab.dataset.hrtab==='skills'){ refreshCompDropdowns(); renderRoleStandards(); renderSkillMatrix(); }
+    if(tab.dataset.hrtab==='training'){ refreshTrainDropdowns(); loadTraining(); }
+    if(tab.dataset.hrtab==='policies'){ loadItems(); }
+    if(tab.dataset.hrtab==='tasks'){ refreshTaskDropdowns(); loadItems(); }
+    if(tab.dataset.hrtab==='tower'){ renderTower(); }
+    if(tab.dataset.hrtab==='kpi'){
+      const e=document.getElementById('ap-emp');
+      if(e) e.innerHTML=hrEmployees.filter(x=>x.status!=='Exited')
+        .map(x=>`<option value="${esc(x.empId)}">${esc(x.empId)} — ${esc(x.name)}</option>`).join('');
+      Promise.all([loadTraining(),loadItems()]).then(()=>{renderKpis();renderAppraisals();});
+    }
+    if(tab.dataset.hrtab==='audit-ready'){
+      // needs every source loaded before it can judge the evidence
+      Promise.all([loadTraining(),loadItems()]).then(renderAuditReady);
+    }
+    if(tab.dataset.hrtab==='attendance'){
+      const pe=document.getElementById('at-period');
+      if(!pe.value) pe.value=new Date().toISOString().slice(0,7);
+      loadAttendance(pe.value);
+    }
+  }));
+  document.getElementById('hr-refresh').addEventListener('click',loadHr);
+  document.getElementById('at-load').addEventListener('click',()=>loadAttendance(document.getElementById('at-period').value));
+  document.getElementById('at-save').addEventListener('click',saveAttendance);
+  document.getElementById('at-fill').addEventListener('click',()=>{
+    const period=document.getElementById('at-period').value;
+    if(!period){ toast('Choose a period first'); return; }
+    const days=daysInPeriod(period);
+    hrEmployees.filter(e=>e.status!=='Exited').forEach(e=>{
+      const lm=leaveDaysFor(e.empId,period);
+      days.forEach(d=>{
+        const k=dayKey(d);
+        if(isWeekOff(d)||isHoliday(d)||lm[k]) return;
+        const key=e.empId+'|'+k;
+        if(!attDraft[key]) attDraft[key]={empId:e.empId,day:k,status:'Present',dayFraction:1,otHours:0};
+      });
+    });
+    renderAttendanceGrid();
+    toast('Marked present — adjust exceptions, then Save');
+  });
+  document.getElementById('lv-emp').addEventListener('change',renderLeave);
+  document.getElementById('sm-dept').addEventListener('change',renderSkillMatrix);
+  document.getElementById('tk-filter').addEventListener('change',renderTasks);
+  document.getElementById('kp-add').addEventListener('click',async function(){
+    const name=document.getElementById('kp-name').value.trim();
+    const msg=document.getElementById('kp-msg');
+    if(!name){ msg.textContent='Give the KPI a name.'; msg.style.color='#B03A2E'; return; }
+    const item={itemId:'KPI-'+Date.now().toString(36).toUpperCase(),kind:'kpi',status:'Active',
+      name, level:document.getElementById('kp-level').value,
+      owner:document.getElementById('kp-owner').value.trim(),
+      category:document.getElementById('kp-cat').value,
+      target:num(document.getElementById('kp-target').value),
+      unit:document.getElementById('kp-unit').value.trim(),
+      direction:document.getElementById('kp-dir').value,
+      source:document.getElementById('kp-src').value, actual:''};
+    this.disabled=true; this.textContent='Adding…';
+    try{ await api('/api/hr',{method:'POST',body:JSON.stringify({what:'items',item,reason:'KPI defined'})});
+      await loadItems(); document.getElementById('kp-name').value='';
+      msg.textContent='KPI added.'; msg.style.color='var(--ok)'; }
+    catch(e){ msg.textContent=e.message; msg.style.color='#B03A2E'; }
+    this.disabled=false; this.textContent='Add KPI';
+  });
+  document.getElementById('ap-create').addEventListener('click',async function(){
+    const empId=document.getElementById('ap-emp').value;
+    const period=document.getElementById('ap-period').value.trim();
+    const msg=document.getElementById('ap-msg');
+    if(!empId||!period){ msg.textContent='Choose an employee and a period.'; msg.style.color='#B03A2E'; return; }
+    const item={itemId:'APR-'+Date.now().toString(36).toUpperCase(),kind:'appraisal',status:'Self Assessment',
+      empId,period,selfText:'',managerText:'',rating:'',promotion:'',incrementPct:'',devPlan:'',
+      reviewedBy:currentUser||''};
+    this.disabled=true; this.textContent='Starting…';
+    try{ await api('/api/hr',{method:'POST',body:JSON.stringify({what:'items',item,reason:'appraisal started'})});
+      await loadItems(); msg.textContent='Appraisal started — open it below.'; msg.style.color='var(--ok)'; }
+    catch(e){ msg.textContent=e.message; msg.style.color='#B03A2E'; }
+    this.disabled=false; this.textContent='Start Appraisal';
+  });
+  function refreshTaskDropdowns(){
+    const o=document.getElementById('tk-owner');
+    if(o) o.innerHTML=hrEmployees.filter(e=>e.status!=='Exited')
+      .map(e=>`<option value="${esc(e.empId)}">${esc(e.name)}</option>`).join('')||'<option value="">No employees</option>';
+  }
+  document.getElementById('pl-create').addEventListener('click',async function(){
+    const title=document.getElementById('pl-title').value.trim();
+    const body=document.getElementById('pl-body').value.trim();
+    const msg=document.getElementById('pl-msg');
+    if(!title||!body){ msg.textContent='Title and policy text are required.'; msg.style.color='#B03A2E'; return; }
+    const sup=document.getElementById('pl-supersedes');
+    const item={itemId:'POL-'+Date.now().toString(36).toUpperCase(),kind:'policy',status:'Draft',
+      title,category:document.getElementById('pl-cat').value.trim(),
+      version:document.getElementById('pl-ver').value.trim()||'1.0',
+      effectiveFrom:document.getElementById('pl-eff').value,
+      appliesTo:document.getElementById('pl-applies').value.trim(),
+      owner:document.getElementById('pl-owner').value.trim(),
+      reviewOn:document.getElementById('pl-review').value,
+      supersedes:sup.value, supersedesTitle:sup.value?sup.options[sup.selectedIndex].text:'',
+      body, acknowledgements:[]};
+    this.disabled=true; this.textContent='Saving…';
+    try{ await api('/api/hr',{method:'POST',body:JSON.stringify({what:'items',item,reason:'policy drafted'})});
+      await loadItems(); ['pl-title','pl-body','pl-cat','pl-applies'].forEach(id=>document.getElementById(id).value='');
+      msg.textContent='Draft saved. Publish it when approved.'; msg.style.color='var(--ok)'; }
+    catch(e){ msg.textContent=e.message; msg.style.color='#B03A2E'; }
+    this.disabled=false; this.textContent='Save as Draft';
+  });
+  document.getElementById('tk-create').addEventListener('click',async function(){
+    const description=document.getElementById('tk-desc').value.trim();
+    const msg=document.getElementById('tk-msg');
+    if(!description){ msg.textContent='Describe the task.'; msg.style.color='#B03A2E'; return; }
+    const item={itemId:'TSK-'+Date.now().toString(36).toUpperCase(),kind:'task',status:'Not Started',
+      description, owner:document.getElementById('tk-owner').value,
+      priority:document.getElementById('tk-pri').value,
+      due:document.getElementById('tk-due').value||null,
+      source:document.getElementById('tk-src').value,
+      department:document.getElementById('tk-dept').value.trim(), evidence:''};
+    this.disabled=true; this.textContent='Creating…';
+    try{ await api('/api/hr',{method:'POST',body:JSON.stringify({what:'items',item,reason:'task created'})});
+      await loadItems(); document.getElementById('tk-desc').value='';
+      msg.textContent='Task created.'; msg.style.color='var(--ok)'; }
+    catch(e){ msg.textContent=e.message; msg.style.color='#B03A2E'; }
+    this.disabled=false; this.textContent='Create Task';
+  });
+  document.getElementById('rc-add').addEventListener('click',()=>{
+    const role=document.getElementById('rc-role').value.trim();
+    const competencyId=document.getElementById('rc-comp').value;
+    const requiredLevel=num(document.getElementById('rc-level').value);
+    if(!role){ toast('Enter the role this standard applies to'); return; }
+    data.roleCompetency=data.roleCompetency||[];
+    const ex=data.roleCompetency.find(r=>r.role.toLowerCase()===role.toLowerCase()&&r.competencyId===competencyId);
+    if(ex) ex.requiredLevel=requiredLevel;
+    else data.roleCompetency.push({role,competencyId,requiredLevel});
+    markDirty(); renderRoleStandards(); renderSkillMatrix();
+    toast('Standard set — publish changes to keep it');
+  });
+  document.getElementById('tni-run').addEventListener('click',function(){
+    tniCache=generateTNI(); renderTNI();
+    toast(tniCache.length?tniCache.length+' training needs found':'No gaps — nothing to train');
+  });
+  document.getElementById('ts-create').addEventListener('click',async function(){
+    const courseId=document.getElementById('ts-course').value;
+    const course=(data.trainingCatalogue||[]).find(t=>t.id===courseId);
+    const picked=[...document.getElementById('ts-emps').selectedOptions].map(o=>o.value);
+    const msg=document.getElementById('ts-msg');
+    if(!course||!picked.length){ msg.textContent='Choose a course and at least one participant.'; msg.style.color='#B03A2E'; return; }
+    const rec={recId:'TR-'+Date.now().toString(36).toUpperCase(),kind:'session',
+      courseId,title:course.title,trainer:document.getElementById('ts-trainer').value.trim(),
+      date:document.getElementById('ts-date').value,
+      evaluateAfterDays:num(document.getElementById('ts-eval').value)||30,
+      participants:picked.map(id=>({empId:id,attended:false,score:0,onJobOk:false})),
+      completedOn:'',assessmentDone:false,effectivenessDone:false,effective:false,status:'Scheduled'};
+    this.disabled=true; this.textContent='Scheduling…';
+    try{ await api('/api/hr',{method:'POST',body:JSON.stringify({what:'training',record:rec,reason:'session scheduled'})});
+      await loadTraining(); msg.textContent='Scheduled. Mark attendance and scores after the session.'; msg.style.color='var(--ok)'; }
+    catch(e){ msg.textContent=e.message; msg.style.color='#B03A2E'; }
+    this.disabled=false; this.textContent='Schedule Session';
+  });
+  document.getElementById('lv-apply').addEventListener('click',async function(){
+    const empId=document.getElementById('lv-emp').value;
+    const type=document.getElementById('lv-type').value;
+    const from=document.getElementById('lv-from').value, to=document.getElementById('lv-to').value;
+    const reason=document.getElementById('lv-reason').value.trim();
+    const msg=document.getElementById('lv-msg');
+    if(!empId||!from||!to){ msg.textContent='Employee and both dates are required.'; msg.style.color='#B03A2E'; return; }
+    if(new Date(to)<new Date(from)){ msg.textContent='The end date is before the start date.'; msg.style.color='#B03A2E'; return; }
+    const leave={leaveId:'LV-'+Date.now().toString(36).toUpperCase(),empId,type,from,to,reason,status:'Pending'};
+    this.disabled=true; this.textContent='Submitting…';
+    try{ await api('/api/hr',{method:'POST',body:JSON.stringify({what:'leave',leave,reason:'leave applied'})});
+      await loadLeave(); document.getElementById('lv-reason').value='';
+      msg.textContent='Request submitted — approve it below to affect payroll.'; msg.style.color='var(--ok)'; }
+    catch(e){ msg.textContent=e.message; msg.style.color='#B03A2E'; }
+    this.disabled=false; this.textContent='Submit Request';
+  });
+  document.getElementById('hr-admin').addEventListener('click',()=>{
+    document.getElementById('hr-page').classList.remove('open'); document.body.style.overflow='';
+    fillForm(); document.getElementById('admin-panel').classList.add('open');});
+  document.getElementById('hr-back').addEventListener('click',()=>{
+    document.getElementById('hr-page').classList.remove('open'); document.body.style.overflow='';
+    if(location.hash==='#hr')history.replaceState(null,'',location.pathname);});
+  document.getElementById('hr-logout').addEventListener('click',()=>{
+    token=null; currentUser=''; hrEmployees=[]; hrPayruns=[];
+    document.getElementById('hr-page').classList.remove('open');
+    document.getElementById('admin-panel').classList.remove('open');
+    document.body.style.overflow='';
+    if(location.hash==='#hr')history.replaceState(null,'',location.pathname);
+    toast('Signed out');});
+
+  document.getElementById('ne-create').addEventListener('click',async function(){
+    const e=blankEmployee();
+    e.empId=document.getElementById('ne-empId').value.trim();
+    e.name=document.getElementById('ne-name').value.trim();
+    e.department=document.getElementById('ne-department').value.trim();
+    e.designation=document.getElementById('ne-designation').value.trim();
+    e.doj=document.getElementById('ne-doj').value;
+    e.grade=document.getElementById('ne-grade').value.trim();
+    e.shift=document.getElementById('ne-shift').value.trim();
+    e.ctcAnnual=num(document.getElementById('ne-ctc').value);
+    const msg=document.getElementById('ne-msg');
+    if(!e.empId||!e.name){ msg.textContent='Employee ID and name are required.'; msg.style.color='#B03A2E'; return; }
+    if(e.ctcAnnual>0) e.structure=structureFromCtc(e.ctcAnnual);
+    this.disabled=true; this.textContent='Adding…';
+    try{
+      await api('/api/hr',{method:'POST',body:JSON.stringify({what:'employees',employee:e,reason:'new employee added'})});
+      hrEmployees.unshift(e); expandedEmp=e.empId; renderEmployees();
+      ['ne-empId','ne-name','ne-department','ne-designation','ne-doj','ne-grade','ne-ctc'].forEach(id=>document.getElementById(id).value='');
+      msg.textContent='Added — open the record to check the salary structure.'; msg.style.color='var(--ok)';
+    }catch(err){ msg.textContent=err.message; msg.style.color='#B03A2E'; }
+    this.disabled=false; this.textContent='Add Employee';
+  });
+
+  document.getElementById('pr-create').addEventListener('click',async function(){
+    const period=document.getElementById('pr-period').value;
+    const days=num(document.getElementById('pr-days').value)||30;
+    const msg=document.getElementById('pr-msg');
+    if(!period){ msg.textContent='Choose the pay period.'; msg.style.color='#B03A2E'; return; }
+    if(!hrEmployees.length){ msg.textContent='Add employees first.'; msg.style.color='#B03A2E'; return; }
+    if(!ST().lastReviewedBy && !confirm('The statutory figures have no recorded reviewer.\nCreate this draft anyway?')) return;
+    this.disabled=true; this.textContent='Creating…';
+    const run=buildDraftRun(period,days);
+    try{
+      await api('/api/hr',{method:'POST',body:JSON.stringify({what:'payruns',payrun:run,reason:'draft created'})});
+      await loadHr(); expandedRun=run.runId; renderPayruns();
+      msg.textContent='Draft created — enter attendance days and OT, then review.'; msg.style.color='var(--ok)';
+    }catch(e){ msg.textContent=e.message; msg.style.color='#B03A2E'; }
+    this.disabled=false; this.textContent='Create Draft Run';
+  });
+
   document.getElementById('ppc-refresh').addEventListener('click',loadOrders);
   function refreshPartDropdown(){
     const sel=document.getElementById('npo-part'); if(!sel) return;
@@ -5459,6 +7848,7 @@ Sign off as: ${data.quoteSender||'Sales Team'}, ${data.brandName}, ${data.contac
   sSwitch('autoquote-switch','autoQuote');
   sSwitch('pipebtn-switch','showPipeBtn',render);
   sSwitch('ppcbtn-switch','showPPCBtn',render);
+  sSwitch('hrbtn-switch','showHRBtn',render);
 
   document.getElementById('chat-fab').addEventListener('click',()=>{
     document.getElementById('chat-panel').classList.add('open');
@@ -5497,10 +7887,17 @@ Sign off as: ${data.quoteSender||'Sales Team'}, ${data.brandName}, ${data.contac
   });
 
   (async function init(){
-    await loadContent();
+    /* Draw the page immediately with defaults so the visitor sees something at
+       once, then redraw when the saved content arrives. Waiting for the
+       database before the first paint left the screen blank. */
     render();
+    document.body.classList.add('booting');
+    try{ await loadContent(); render(); }
+    finally{ document.body.classList.remove('booting'); }
+
     if(location.hash==='#pipeline') requestLogin('pipeline');
     if(location.hash==='#ppc') requestLogin('ppc');
+    if(location.hash==='#hr') requestLogin('hr');
   })();
 })();
 </script>
