@@ -108,6 +108,9 @@
   .me-bar{position:sticky;top:0;z-index:5;background:var(--navy);color:#fff;padding:0 var(--gutter);
     height:var(--bar-h);display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gold);}
   .me-bar h2{font-size:var(--fs-card-title);}
+  .me-bar{height:auto;min-height:var(--bar-h);padding-top:10px;padding-bottom:10px;flex-wrap:wrap;gap:10px;}
+  .me-brandwrap{display:flex;align-items:center;gap:12px;}
+  #me-logo img{max-height:38px;max-width:120px;object-fit:contain;background:#fff;padding:4px 7px;border-radius:6px;}
   .me-bar button{background:var(--gold);color:var(--navy);border:none;padding:9px 20px;border-radius:100px;font-weight:700;font-size:var(--fs-micro);}
   .me-body{padding:30px var(--gutter) 70px;max-width:820px;margin:0 auto;}
   .me-card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:32px;box-shadow:var(--shadow-md);}
@@ -848,8 +851,16 @@
 
 <div id="me-page">
   <div class="me-bar">
-    <div><h2 id="me-brand">Employee Self Service</h2><span class="t-micro" id="me-co" style="color:var(--gold-light)"></span></div>
-    <button class="gold" id="me-out">Close</button>
+    <div class="me-brandwrap">
+      <div id="me-logo"></div>
+      <div><h2 id="me-brand">Employee Self Service</h2>
+        <span class="t-micro" id="me-co" style="color:var(--gold-light);"></span>
+        <span class="t-micro" id="me-addr" style="color:rgba(255,255,255,.6);display:block;"></span></div>
+    </div>
+    <div style="display:flex;gap:9px;align-items:center;">
+      <span id="me-who" style="font-family:var(--mono);font-size:var(--fs-micro);color:#fff;"></span>
+      <button class="gold" id="me-out">Close</button>
+    </div>
   </div>
   <div class="me-body">
     <div id="me-login">
@@ -3378,10 +3389,13 @@ Reply with ONLY this JSON, no commentary or code fences:
           <tr class="tot"><td><b>Gross Earnings</b></td><td class="r"><b>${sl.gross}</b></td>
             <td><b>Total Deductions</b></td><td class="r"><b>${sl.totalDeductions}</b></td></tr></tbody></table>
         <div class="net">NET PAY &nbsp; ₹${sl.net.toLocaleString()}</div>
-        <div class="foot">Employer contributions (not deducted from you): PF ${sl.employer.pf} · EPS ${sl.employer.eps}
-          · EDLI ${sl.employer.edli} · ESI ${sl.employer.esi}<br>
-          Statutory rates effective from ${esc(sl.rulesEffectiveFrom||'not recorded')}.
-          Computer-generated payslip — no signature required.</div>
+        <div class="sealrow">
+          <div class="foot">Employer contributions (not deducted from you): PF ${sl.employer.pf} · EPS ${sl.employer.eps}
+            · EDLI ${sl.employer.edli} · ESI ${sl.employer.esi}<br>
+            Statutory rates effective from ${esc(sl.rulesEffectiveFrom||'not recorded')}.<br>
+            This is a system-generated payslip and does not require a signature.</div>
+          ${co.sealImg?`<img class="seal" src="${absUrl(co.sealImg)}" alt="">`:''}
+        </div>
       </div>`).join('');
     w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Payslips ${esc(run.period)}</title>
     <style>@page{size:A4;margin:10mm;} *{box-sizing:border-box;}
@@ -3396,7 +3410,9 @@ Reply with ONLY this JSON, no commentary or code fences:
     .amt td{padding:4px 5px;border-bottom:.6pt solid #eef2f7;} .r{text-align:right;}
     .tot td{border-top:1pt solid #b9c6d8;background:#f4f7fb;}
     .net{margin-top:8px;background:#0B2A5B;color:#fff;padding:8px 12px;border-radius:3px;font-size:11pt;font-weight:800;text-align:right;}
-    .foot{margin-top:8px;font-size:7pt;color:#8894ab;line-height:1.5;}
+    .foot{margin-top:8px;font-size:7pt;color:#8894ab;line-height:1.5;flex:1;}
+    .sealrow{display:flex;align-items:flex-end;gap:10px;margin-top:8px;}
+    .seal{max-height:22mm;max-width:22mm;object-fit:contain;opacity:.9;flex:0 0 auto;}
     .noprint{text-align:center;padding:14px;background:#0B2A5B;color:#fff;}
     .noprint button{background:#E0B44E;color:#0B2A5B;border:none;padding:10px 24px;border-radius:100px;font-weight:700;cursor:pointer;margin:0 4px;}
     @media print{.noprint{display:none;}}</style></head><body>
@@ -3627,7 +3643,7 @@ Reply with ONLY this JSON, no commentary or code fences:
   }
 
   function printRelieving(emp,d,f){
-    const co=CO(), logo=documentLogo(), w=window.open('','_blank');
+    const co=CO(), logo=absUrl(documentLogo()), w=window.open('','_blank');
     if(!w){ toast('Allow pop-ups for this site.'); return; }
     w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Relieving — ${esc(emp.name)}</title>
     <style>@page{size:A4;margin:18mm;}body{font-family:Arial,sans-serif;font-size:10pt;color:#12233f;line-height:1.7;margin:0;}
@@ -3671,134 +3687,137 @@ Reply with ONLY this JSON, no commentary or code fences:
 
   /* ================= EMPLOYEE ID CARD (§7) ================= */
   function printIdCard(emp){
-    const co=CO(), logo=documentLogo(), w=window.open('','_blank');
+    const co=CO(), logo=absUrl(documentLogo()), w=window.open('','_blank');
     if(!w){ toast('Allow pop-ups for this site.'); return; }
     const emg=(emp.references||[]).find(x=>x.isEmergency)||(emp.references||[])[0]||null;
-    /* the QR carries only the employee ID — nothing personal travels on the card */
-    /* the QR opens the self-service portal with the ID filled in — the person
-       still has to prove who they are with their date of birth, so a lost card
-       exposes nothing */
     const portal=(data.siteUrl||location.origin+location.pathname).replace(/[#?].*$/,'').replace(/\/+$/,'')
       +'/#me?id='+encodeURIComponent(emp.empId);
-    const qr='https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=0&data='+encodeURIComponent(portal);
+    const qr='https://api.qrserver.com/v1/create-qr-code/?size=500x500&margin=0&data='+encodeURIComponent(portal);
     const valid=new Date(); valid.setFullYear(valid.getFullYear()+3);
+    const sky=data.sky||'#3FA9E0', navy=data.navy||'#0B2A5B', gold=data.gold||'#C2932E';
 
     w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>ID Card — ${esc(emp.name)}</title>
 <style>
-  @page{size:A4;margin:15mm;}
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:Arial,Helvetica,sans-serif;color:#12233f;background:#fff;}
-  .sheet{display:flex;gap:10mm;flex-wrap:wrap;}
-  .card{width:54mm;height:86mm;border-radius:3mm;overflow:hidden;page-break-inside:avoid;
-    border:0.3mm solid #c8d3e2;display:flex;flex-direction:column;background:#fff;}
+  @page{size:A4;margin:16mm;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  body{font-family:'Segoe UI',Arial,Helvetica,sans-serif;color:#12233f;background:#fff;}
+  .sheet{display:flex;gap:12mm;flex-wrap:wrap;}
+  .card{width:54mm;height:85.6mm;border-radius:3.5mm;overflow:hidden;page-break-inside:avoid;
+    position:relative;background:#fff;box-shadow:0 0 0 0.25mm #d5dee9;}
 
-  /* ---------- FRONT ---------- */
-  .hd{background:#0B2A5B;padding:3mm 2mm;text-align:center;}
-  .hd .logo{height:8mm;display:flex;align-items:center;justify-content:center;}
-  .hd .logo img{max-height:8mm;max-width:34mm;object-fit:contain;}
-  .hd .fallback{color:#fff;font-size:8pt;font-weight:800;letter-spacing:.5pt;}
-  .hd .cname{color:#fff;font-size:6.5pt;font-weight:700;letter-spacing:.3pt;margin-top:1.5mm;line-height:1.2;}
+  /* ---------------- FRONT ---------------- */
+  .band{height:26mm;background:linear-gradient(135deg,${navy} 0%,${navy} 55%,${sky} 160%);
+    position:relative;padding:3.5mm 3mm 0;text-align:center;}
+  .band::after{content:'';position:absolute;left:0;right:0;bottom:-6mm;height:12mm;
+    background:#fff;border-radius:50%/100% 100% 0 0;}
+  .band img{max-height:9mm;max-width:33mm;object-fit:contain;}
+  .band .fb{color:#fff;font-size:9pt;font-weight:800;letter-spacing:.4pt;padding-top:2mm;}
+  .band .cn{color:rgba(255,255,255,.92);font-size:5.6pt;font-weight:600;letter-spacing:.5pt;
+    margin-top:1.4mm;text-transform:uppercase;line-height:1.25;}
 
-  .ph{width:22mm;height:27mm;margin:3mm auto 2mm;border:0.3mm solid #c8d3e2;border-radius:1.5mm;
-    overflow:hidden;background:#eef2f7;display:flex;align-items:center;justify-content:center;}
-  .ph img{width:100%;height:100%;object-fit:cover;}
-  .ph span{font-size:6pt;color:#93a2b8;}
+  .photo{width:23mm;height:28mm;border-radius:2mm;overflow:hidden;background:#eef2f7;
+    border:0.6mm solid #fff;box-shadow:0 0.6mm 2mm rgba(11,42,91,.22);
+    position:absolute;top:17mm;left:50%;transform:translateX(-50%);z-index:2;
+    display:flex;align-items:center;justify-content:center;}
+  .photo img{width:100%;height:100%;object-fit:cover;}
+  .photo span{font-size:5.5pt;color:#a7b4c6;letter-spacing:.4pt;}
 
-  .nm{text-align:center;font-size:11pt;font-weight:800;color:#0B2A5B;padding:0 2mm;line-height:1.15;}
-  .dg{text-align:center;font-size:7pt;color:#5a6b85;margin:0.8mm 0 2mm;padding:0 2mm;}
+  .who{margin-top:22mm;text-align:center;padding:0 2.5mm;}
+  .who .nm{font-size:11.5pt;font-weight:800;color:${navy};line-height:1.12;}
+  .who .dg{font-size:6.8pt;color:#6b7c95;margin-top:0.7mm;letter-spacing:.2pt;}
 
-  .idbar{background:#C2932E;color:#fff;text-align:center;padding:1.6mm 0;
-    font-size:10pt;font-weight:800;letter-spacing:1pt;}
+  .idband{margin:2.2mm 3mm 0;background:${gold};border-radius:1.4mm;text-align:center;
+    padding:1.4mm 0;color:#fff;font-size:10pt;font-weight:800;letter-spacing:1.6pt;}
 
-  .info{padding:2mm 3mm 0;flex:1;}
-  .info .row{display:flex;justify-content:space-between;align-items:baseline;
-    padding:1.1mm 0;border-bottom:0.2mm solid #edf1f6;font-size:7pt;}
-  .info .row .k{color:#93a2b8;}
-  .info .row .v{font-weight:700;color:#12233f;}
-  .info .row .blood{color:#B03A2E;font-weight:800;font-size:8.5pt;}
+  .rows{padding:2mm 3.5mm 0;}
+  .rows .r{display:flex;justify-content:space-between;align-items:center;
+    padding:1.15mm 0;border-bottom:0.18mm solid #eef2f7;font-size:6.6pt;}
+  .rows .r:last-child{border-bottom:none;}
+  .rows .k{color:#93a2b8;letter-spacing:.2pt;}
+  .rows .v{font-weight:700;color:#12233f;}
+  .blood{background:#B03A2E;color:#fff;padding:0.5mm 2mm;border-radius:1mm;font-size:7pt;font-weight:800;}
 
-  .qrwrap{text-align:center;padding:1.5mm 0 2mm;}
-  .qrwrap img{width:15mm;height:15mm;display:block;margin:0 auto;}
-  .qrwrap div{font-size:5pt;color:#93a2b8;margin-top:0.8mm;letter-spacing:.3pt;}
+  .qz{position:absolute;bottom:0;left:0;right:0;background:#f6f9fc;border-top:0.2mm solid #e6ecf4;
+    padding:1.6mm 0 1.8mm;text-align:center;}
+  .qz img{width:14mm;height:14mm;}
+  .qz div{font-size:4.6pt;color:#8d9cb0;letter-spacing:.5pt;margin-top:0.6mm;text-transform:uppercase;}
 
-  /* ---------- BACK ---------- */
-  .bhd{background:#0B2A5B;color:#fff;text-align:center;padding:2.5mm;font-size:6.5pt;
-    font-weight:700;letter-spacing:.6pt;}
-  .emg{background:#FDECEA;border-bottom:0.3mm solid #f0c4bf;padding:2.5mm 3mm;text-align:center;}
-  .emg .lbl{font-size:5.5pt;color:#B03A2E;letter-spacing:.6pt;font-weight:700;}
-  .emg .who{font-size:8pt;font-weight:800;color:#12233f;margin-top:0.8mm;line-height:1.2;}
-  .emg .rel{font-size:6pt;color:#7a5c14;}
-  .emg .tel{font-size:10pt;font-weight:800;color:#B03A2E;margin-top:1mm;letter-spacing:.3pt;}
+  /* ---------------- BACK ---------------- */
+  .bk{display:flex;flex-direction:column;height:100%;}
+  .bhd{background:${navy};color:#fff;padding:2.6mm;text-align:center;
+    font-size:6pt;font-weight:700;letter-spacing:1pt;}
+  .emg{background:#fff5f4;border-bottom:0.25mm solid #f2cdc8;padding:3mm 3mm;text-align:center;}
+  .emg .l{font-size:5pt;color:#B03A2E;letter-spacing:.8pt;font-weight:700;}
+  .emg .n{font-size:8.5pt;font-weight:800;color:#12233f;margin-top:1mm;line-height:1.15;}
+  .emg .rl{font-size:5.8pt;color:#8a6a3f;margin-top:0.3mm;}
+  .emg .t{font-size:11pt;font-weight:800;color:#B03A2E;margin-top:1.2mm;letter-spacing:.4pt;}
 
-  .bbody{padding:2.5mm 3mm;font-size:6pt;color:#5a6b85;line-height:1.5;flex:1;}
-  .bbody h5{font-size:6pt;color:#0B2A5B;margin-bottom:1mm;letter-spacing:.4pt;}
-  .bbody ol{margin-left:3mm;}
-  .bbody li{margin-bottom:0.6mm;}
-  .addr{margin-bottom:2mm;padding-bottom:2mm;border-bottom:0.2mm solid #edf1f6;}
-  .vb{background:#0B2A5B;color:#fff;text-align:center;font-size:5.5pt;padding:1.5mm;letter-spacing:.4pt;}
+  .bb{padding:2.6mm 3.2mm;font-size:5.6pt;color:#5f7189;line-height:1.5;flex:1;}
+  .bb h5{font-size:5.4pt;color:${navy};letter-spacing:.7pt;margin-bottom:1mm;font-weight:800;}
+  .bb .ad{margin-bottom:2.2mm;padding-bottom:2.2mm;border-bottom:0.18mm solid #eef2f7;}
+  .bb ol{margin-left:3.2mm;} .bb li{margin-bottom:0.5mm;}
+  .vb{background:${navy};color:#fff;text-align:center;font-size:5pt;padding:1.6mm;letter-spacing:.5pt;}
 
-  .noprint{text-align:center;padding:16px;background:#0B2A5B;color:#fff;margin-bottom:8mm;}
-  .noprint button{background:#E0B44E;color:#0B2A5B;border:none;padding:10px 26px;border-radius:100px;
+  .noprint{text-align:center;padding:16px;background:${navy};color:#fff;margin-bottom:9mm;}
+  .noprint button{background:#E0B44E;color:${navy};border:none;padding:10px 26px;border-radius:100px;
     font-weight:700;cursor:pointer;font-size:13px;}
-  .noprint p{font-size:11px;opacity:.85;margin-top:8px;}
+  .noprint p{font-size:11px;opacity:.85;margin-top:8px;line-height:1.6;}
   @media print{.noprint{display:none;}}
 </style></head><body>
 <div class="noprint">
   <button onclick="window.print()">Save as PDF / Print</button>
-  <p>Front and back print side by side. Cut along the borders and laminate back to back.<br>
-     In the print dialog choose <b>Save as PDF</b> and untick <b>Headers and footers</b>.</p>
+  <p>Standard CR80 size (54 × 85.6 mm). Front and back print side by side.<br>
+     In the print dialog choose <b>Save as PDF</b>, untick <b>Headers and footers</b>,
+     and set <b>Margins: None</b> with <b>Background graphics</b> ticked.</p>
 </div>
 
 <div class="sheet">
-
-  <!-- FRONT -->
   <div class="card">
-    <div class="hd">
-      <div class="logo">${logo?`<img src="${logo}">`:`<div class="fallback">${esc((co.legalName||data.brandName||'').slice(0,18))}</div>`}</div>
-      <div class="cname">${esc(co.legalName||co.displayName||data.brandName||'')}</div>
+    <div class="band">
+      ${logo?`<img src="${logo}">`:`<div class="fb">${esc((co.legalName||data.brandName||'').slice(0,16))}</div>`}
+      <div class="cn">${esc(co.legalName||co.displayName||data.brandName||'')}</div>
     </div>
-    <div class="ph">${emp.photo?`<img src="${emp.photo}">`:'<span>PHOTO</span>'}</div>
-    <div class="nm">${esc(emp.name)}</div>
-    <div class="dg">${esc(emp.designation||'')}</div>
-    <div class="idbar">${esc(emp.empId)}</div>
-    <div class="info">
-      <div class="row"><span class="k">Blood Group</span><span class="v blood">${esc(emp.bloodGroup||'—')}</span></div>
-      <div class="row"><span class="k">Department</span><span class="v">${esc(emp.department||'—')}</span></div>
-      <div class="row"><span class="k">Date of Joining</span><span class="v">${emp.doj?new Date(emp.doj).toLocaleDateString('en-GB'):'—'}</span></div>
+    <div class="photo">${emp.photo?`<img src="${absUrl(emp.photo)}">`:'<span>PHOTO</span>'}</div>
+    <div class="who">
+      <div class="nm">${esc(emp.name)}</div>
+      <div class="dg">${esc(emp.designation||'')}</div>
     </div>
-    <div class="qrwrap"><img src="${qr}" alt=""><div>SCAN FOR ATTENDANCE &amp; PAY</div></div>
+    <div class="idband">${esc(emp.empId)}</div>
+    <div class="rows">
+      <div class="r"><span class="k">Blood Group</span><span class="blood">${esc(emp.bloodGroup||'—')}</span></div>
+      <div class="r"><span class="k">Department</span><span class="v">${esc(emp.department||'—')}</span></div>
+      <div class="r"><span class="k">Joined</span><span class="v">${emp.doj?new Date(emp.doj).toLocaleDateString('en-GB'):'—'}</span></div>
+    </div>
+    <div class="qz"><img src="${qr}" alt=""><div>Scan · Attendance &amp; Pay</div></div>
   </div>
 
-  <!-- BACK -->
-  <div class="card">
+  <div class="card"><div class="bk">
     <div class="bhd">EMERGENCY CONTACT</div>
     <div class="emg">
-      ${emg?`<div class="lbl">IN CASE OF EMERGENCY CALL</div>
-        <div class="who">${esc(emg.name||'')}</div>
-        ${emg.relationship?`<div class="rel">${esc(emg.relationship)}</div>`:''}
-        <div class="tel">${esc(emg.phone||'—')}</div>`
-       :`<div class="lbl">NOT RECORDED</div>
-         <div class="rel" style="margin-top:1mm;">Add a reference contact on the employee record<br>and mark it as Emergency.</div>`}
+      ${emg?`<div class="l">IN CASE OF EMERGENCY CALL</div>
+        <div class="n">${esc(emg.name||'')}</div>
+        ${emg.relationship?`<div class="rl">${esc(emg.relationship)}</div>`:''}
+        <div class="t">${esc(emg.phone||'—')}</div>`
+       :`<div class="l">NOT RECORDED</div>
+         <div class="rl" style="margin-top:1.2mm;">Add a reference contact on the employee<br>record and mark it as Emergency.</div>`}
     </div>
-    <div class="bbody">
-      <div class="addr">
-        <h5>IF FOUND, RETURN TO</h5>
-        ${esc(co.legalName||data.brandName||'')}<br>
+    <div class="bb">
+      <div class="ad"><h5>IF FOUND, RETURN TO</h5>
+        <b>${esc(co.legalName||data.brandName||'')}</b><br>
         ${esc(companyAddressLines().join(', '))}<br>
         ${co.phone||co.mobile?('Tel: '+esc(co.phone||co.mobile)):''}
-      </div>
-      <h5>CONDITIONS</h5>
+        ${co.email?('<br>'+esc(co.email)):''}</div>
+      <h5>CONDITIONS OF USE</h5>
       <ol>
-        <li>This card remains company property.</li>
-        <li>Wear it visibly on the premises.</li>
-        <li>It is not transferable.</li>
-        <li>Report loss to HR immediately.</li>
-        <li>Return it on your last working day.</li>
+        <li>This card remains the property of the company.</li>
+        <li>Wear it visibly at all times on the premises.</li>
+        <li>It is not transferable to any other person.</li>
+        <li>Report loss or damage to HR immediately.</li>
+        <li>Surrender it on your last working day.</li>
       </ol>
     </div>
     <div class="vb">VALID UNTIL ${valid.toLocaleDateString('en-GB')} &nbsp;·&nbsp; ${esc(emp.empId)}</div>
-  </div>
-
+  </div></div>
 </div></body></html>`);
     w.document.close();
   }
@@ -4083,13 +4102,115 @@ Rules you must follow:
     toast('Demonstration data removed');
   }
 
+  /* an employee downloading their own payslip from the portal */
+  function meDownloadPayslip(){
+    const msg=document.getElementById('ms-msg');
+    const period=document.getElementById('ms-period').value;
+    if(!period){ msg.textContent='Choose a month.'; msg.style.color='#B03A2E'; return; }
+    const e=meSession.employee;
+    const days=daysInPeriod(period);
+    const recs={}; (meSession.attendance||[]).forEach(a=>{recs[a.day]=a;});
+    const lmap={};
+    (meSession.leave||[]).filter(l=>l.status==='Approved').forEach(l=>{
+      let c=new Date(l.from), end=new Date(l.to);
+      while(c<=end){ lmap[dayKey(c)]=l.type; c.setDate(c.getDate()+1); }
+    });
+    const paid=new Set((LP().types||[]).filter(t=>t.paid).map(t=>t.code));
+    let lop=0, ot=0;
+    days.forEach(d=>{
+      const k=dayKey(d), r=recs[k], lv=lmap[k];
+      if(r&&r.status==='Present'){ ot+=num(r.otHours); return; }
+      if(r&&r.status==='Absent'){ lop++; return; }
+      if(lv){ if(!paid.has(lv)) lop++; return; }
+      if(isHoliday(d)||isWeekOff(d)) return;
+      lop++;
+    });
+    if(!Object.keys(recs).length){
+      msg.textContent='No attendance is recorded for that month yet.'; msg.style.color='#B03A2E'; return;
+    }
+    const slip=calcPayslip({structure:e.structure,monthlyTds:e.monthlyTds,otherDeduction:e.otherDeduction,
+      pfApplicable:e.pfApplicable,esiApplicable:e.esiApplicable,empId:e.empId,name:e.name,
+      department:e.department},
+      {payableDays:Math.max(0,days.length-lop),totalDays:days.length,otHours:ot,incentive:0,advance:0});
+    printSinglePayslip(slip,period,e);
+    msg.textContent=''; 
+  }
+
+  function printSinglePayslip(sl,period,emp){
+    const co=CO(), logo=absUrl(documentLogo()), w=window.open('','_blank');
+    if(!w){ toast('Allow pop-ups for this site.'); return; }
+    w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Payslip ${esc(period)} — ${esc(sl.name)}</title>
+<style>@page{size:A4;margin:16mm;}*{box-sizing:border-box;margin:0;padding:0;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact;}
+body{font-family:Arial,Helvetica,sans-serif;font-size:9.5pt;color:#12233f;}
+.lh{display:flex;justify-content:space-between;align-items:center;gap:14px;
+  border-bottom:2.2pt solid #0B2A5B;padding-bottom:10px;}
+.lh img{max-height:15mm;max-width:38mm;object-fit:contain;}
+.co{font-size:13pt;font-weight:800;color:#0B2A5B;}
+.ad{font-size:7.5pt;color:#41567E;text-align:right;line-height:1.5;}
+.ttl{text-align:center;margin:16px 0 4px;font-size:12pt;font-weight:800;letter-spacing:2pt;color:#0B2A5B;}
+.rule{width:52px;height:2.2pt;background:#C2932E;margin:0 auto 14px;}
+table{width:100%;border-collapse:collapse;font-size:9pt;}
+.meta td{padding:5px 6px;border-bottom:.5pt solid #e6ecf4;}
+.meta .k{color:#93a2b8;width:26mm;}
+.amt{margin-top:14px;}
+.amt th{background:#0B2A5B;color:#fff;text-align:left;padding:6px;font-size:7.5pt;text-transform:uppercase;letter-spacing:.4pt;}
+.amt td{padding:5px 6px;border-bottom:.5pt solid #eef2f7;}
+.r{text-align:right;} .tot td{border-top:1pt solid #b9c6d8;background:#f6f9fc;font-weight:700;}
+.net{margin-top:12px;background:#0B2A5B;color:#fff;padding:10px 14px;border-radius:3px;
+  display:flex;justify-content:space-between;align-items:center;font-size:12pt;font-weight:800;}
+.sealrow{display:flex;align-items:flex-end;gap:14px;margin-top:16px;}
+.foot{flex:1;font-size:7pt;color:#8894ab;line-height:1.6;}
+.seal{max-height:24mm;max-width:24mm;object-fit:contain;opacity:.9;}
+.noprint{text-align:center;padding:15px;background:#0B2A5B;color:#fff;margin-bottom:10mm;}
+.noprint button{background:#E0B44E;color:#0B2A5B;border:none;padding:10px 26px;border-radius:100px;font-weight:700;cursor:pointer;}
+@media print{.noprint{display:none;}}</style></head><body>
+<div class="noprint"><button onclick="window.print()">Save as PDF / Print</button></div>
+<div class="lh">
+  <div style="display:flex;gap:12px;align-items:center;">${logo?`<img src="${logo}">`:''}
+    <div class="co">${esc(co.legalName||data.brandName||'')}</div></div>
+  <div class="ad">${companyAddressLines().map(l=>esc(l)).join('<br>')}
+    ${co.taxNumber?`<br>${esc(co.taxLabel||'GSTIN')}: ${esc(co.taxNumber)}`:''}</div>
+</div>
+<div class="ttl">PAYSLIP</div><div class="rule"></div>
+<table class="meta">
+  <tr><td class="k">Employee</td><td><b>${esc(sl.name)}</b> (${esc(sl.empId)})</td>
+      <td class="k">Period</td><td><b>${esc(period)}</b></td></tr>
+  <tr><td class="k">Designation</td><td>${esc((emp||{}).designation||'—')}</td>
+      <td class="k">Paid Days</td><td>${sl.payableDays} of ${sl.totalDays}${sl.lopDays?` · LOP ${sl.lopDays}`:''}</td></tr>
+  <tr><td class="k">Department</td><td>${esc((emp||{}).department||'—')}</td>
+      <td class="k">Date of Joining</td><td>${(emp||{}).doj?new Date(emp.doj).toLocaleDateString('en-GB'):'—'}</td></tr>
+</table>
+<table class="amt"><thead><tr><th>Earnings</th><th class="r">Amount</th><th>Deductions</th><th class="r">Amount</th></tr></thead>
+<tbody>
+<tr><td>Basic</td><td class="r">${sl.earnings.basic}</td><td>Provident Fund</td><td class="r">${sl.deductions.pf}</td></tr>
+<tr><td>Dearness Allowance</td><td class="r">${sl.earnings.da}</td><td>ESI</td><td class="r">${sl.deductions.esi}</td></tr>
+<tr><td>House Rent Allowance</td><td class="r">${sl.earnings.hra}</td><td>Professional Tax</td><td class="r">${sl.deductions.pt}</td></tr>
+<tr><td>Conveyance</td><td class="r">${sl.earnings.conveyance}</td><td>Income Tax (TDS)</td><td class="r">${sl.deductions.tds}</td></tr>
+<tr><td>Special Allowance</td><td class="r">${sl.earnings.special}</td><td>Other</td><td class="r">${sl.deductions.other}</td></tr>
+<tr><td>Overtime${sl.otHours?` (${sl.otHours} hrs)`:''}</td><td class="r">${sl.earnings.ot}</td><td></td><td></td></tr>
+<tr class="tot"><td>Gross Earnings</td><td class="r">${sl.gross}</td><td>Total Deductions</td><td class="r">${sl.totalDeductions}</td></tr>
+</tbody></table>
+<div class="net"><span>NET PAY</span><span>₹${sl.net.toLocaleString('en-IN')}</span></div>
+<div class="sealrow">
+  <div class="foot">
+    Employer contributions, not deducted from you: PF ₹${sl.employer.pf} · EPS ₹${sl.employer.eps}
+    · EDLI ₹${sl.employer.edli} · ESI ₹${sl.employer.esi}<br>
+    Statutory rates effective from ${esc(sl.rulesEffectiveFrom||'not recorded')}.<br>
+    This is a system-generated payslip and does not require a signature.
+  </div>
+  ${co.sealImg?`<img class="seal" src="${absUrl(co.sealImg)}" alt="">`:''}
+</div></body></html>`);
+    w.document.close();
+  }
+
   /* ================= UNIVERSAL REPORT / DOCUMENT PDF =================
      One generator for every printable output in the module, so the letterhead,
      footer and wording are identical everywhere. Reports carry a
      "system generated" line and no signature block, as they are records rather
      than instruments. */
   function openReport(opts){
-    const co=CO(), logo=documentLogo(), w=window.open('','_blank');
+    const co=CO(), logo=absUrl(documentLogo()), w=window.open('','_blank');
     if(!w){ toast('Allow pop-ups for this site.'); return; }
     const kind=opts.kind||'Report';
     const sections=(opts.sections||[]).map(sec=>{
@@ -4290,6 +4411,10 @@ ${sections}
     document.getElementById('me-page').classList.add('open');
     document.body.style.overflow='hidden';
     setText('me-co',CO().legalName||CO().displayName||data.brandName||'');
+    setText('me-addr',companyAddressLines().join(', '));
+    const lg=document.getElementById('me-logo');
+    if(lg) lg.innerHTML=documentLogo()?`<img src="${documentLogo()}" alt="">`:'';
+    setText('me-who','');
     if(prefillId) document.getElementById('me-id').value=prefillId;
     document.getElementById('me-login').style.display='';
     document.getElementById('me-detail').style.display='none';
@@ -4340,7 +4465,9 @@ ${sections}
     const payableSoFar=Math.max(0,elapsed-lop);
 
     /* earnings to date, on the same arithmetic payroll uses */
-    const slip=calcPayslip({structure:e.structure,monthlyTds:0,otherDeduction:0,
+    setText('me-who',e.name);
+    /* the same payslip engine payroll uses, so TDS, PF, ESI and PT all appear */
+    const slip=calcPayslip({structure:e.structure,monthlyTds:e.monthlyTds,otherDeduction:e.otherDeduction,
       pfApplicable:e.pfApplicable,esiApplicable:e.esiApplicable,empId:e.empId,name:e.name},
       {payableDays:payableSoFar,totalDays:days.length,otHours:ot,incentive:0,advance:0});
 
@@ -4376,6 +4503,8 @@ ${sections}
           <div><span>Provident Fund</span><span>− ${rupee(slip.deductions.pf)}</span></div>
           ${slip.deductions.esi?`<div><span>ESI</span><span>− ${rupee(slip.deductions.esi)}</span></div>`:''}
           ${slip.deductions.pt?`<div><span>Professional Tax</span><span>− ${rupee(slip.deductions.pt)}</span></div>`:''}
+          ${slip.deductions.tds?`<div><span>Income Tax (TDS)</span><span>− ${rupee(slip.deductions.tds)}</span></div>`:''}
+          ${slip.deductions.other?`<div><span>Other deductions</span><span>− ${rupee(slip.deductions.other)}</span></div>`:''}
           <div class="grand"><span>Take-home to date</span><span>${rupee(slip.net)}</span></div>
           <div class="minp"><span>Based on ${payableSoFar} payable of ${elapsed} days elapsed</span><span></span></div>
         </div>
@@ -4389,17 +4518,37 @@ ${sections}
           <td class="r">${b.taken}</td><td class="r"><b>${b.balance}</b></td></tr>`).join('')}</tbody></table></div>`:''}
 
       <div class="qb" style="margin-bottom:18px;">
+        <h4>Download a payslip</h4>
+        <div class="cs-row four">
+          <div><label>Month</label><input type="month" id="ms-period" value="${esc(period)}"></div>
+          <div style="align-self:end;"><button class="mini-btn gold" id="ms-get">Download Payslip PDF</button></div>
+        </div>
+        <div class="field-hint" id="ms-msg" style="margin-top:8px;">Payslips are available for months that
+          have closed and been approved.</div>
+      </div>
+
+      <div class="qb" style="margin-bottom:18px;">
         <h4>Apply for leave or permission</h4>
         <div class="cs-row four">
+          <div><label>Request</label><select id="ml-kind" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+            <option value="leave">Full day leave</option>
+            <option value="half">Half day</option>
+            <option value="permission">Permission — a few hours</option>
+          </select></div>
           <div><label>Type</label><select id="ml-type" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
             ${(LP().types||[]).map(t=>`<option value="${esc(t.code)}">${esc(t.name)}${t.paid?'':' (unpaid)'}</option>`).join('')}
           </select></div>
           <div><label>From</label><input type="date" id="ml-from"></div>
           <div><label>To</label><input type="date" id="ml-to"></div>
-          <div style="align-self:end;"><button class="mini-btn gold" id="ml-apply">Submit</button></div>
+        </div>
+        <div class="cs-row four" id="ml-times" style="margin-top:10px;display:none;">
+          <div><label>From time</label><input type="time" id="ml-t1" value="09:00"></div>
+          <div><label>To time</label><input type="time" id="ml-t2" value="11:00"></div>
+          <div style="align-self:end;"><span class="t-micro" id="ml-hrs"></span></div>
         </div>
         <div class="cs-row" style="margin-top:10px;"><div style="grid-column:1/-1;">
           <label>Reason</label><input id="ml-reason"></div></div>
+        <div style="margin-top:12px;"><button class="mini-btn gold" id="ml-apply">Submit Request</button></div>
         <div class="field-hint" id="ml-msg" style="margin-top:8px;">Your supervisor approves or rejects it.
           Approved paid leave does not reduce your pay; rejected or unrecorded days count as loss of pay.</div>
       </div>
@@ -4412,10 +4561,30 @@ ${sections}
           <td><span class="order-badge ${l.status==='Approved'?'go':l.status==='Rejected'?'no':'unk'}">${esc(l.status)}</span></td>
           </tr>`).join(''):'<tr><td colspan="5" class="t-micro">No requests yet.</td></tr>'}</tbody></table></div>`;
 
+    const kindSel=document.getElementById('ml-kind');
+    const showTimes=()=>{
+      const isPerm=kindSel.value==='permission';
+      document.getElementById('ml-times').style.display=isPerm?'':'none';
+      if(isPerm) document.getElementById('ml-to').value=document.getElementById('ml-from').value;
+    };
+    if(kindSel) kindSel.addEventListener('change',showTimes);
+    const calcHrs=()=>{
+      const a=document.getElementById('ml-t1').value,b=document.getElementById('ml-t2').value;
+      if(!a||!b) return;
+      const mins=(new Date('2000-01-01T'+b)-new Date('2000-01-01T'+a))/60000;
+      document.getElementById('ml-hrs').textContent=mins>0?(mins/60).toFixed(1)+' hours':'check the times';
+    };
+    ['ml-t1','ml-t2'].forEach(id=>{const el=document.getElementById(id); if(el) el.addEventListener('change',calcHrs);});
+
+    const ms=document.getElementById('ms-get');
+    if(ms) ms.addEventListener('click',()=>meDownloadPayslip());
+
     const ap=document.getElementById('ml-apply');
     if(ap) ap.addEventListener('click',async function(){
       const msg=document.getElementById('ml-msg');
-      const from=document.getElementById('ml-from').value, to=document.getElementById('ml-to').value;
+      const kind=kindSel?kindSel.value:'leave';
+      let from=document.getElementById('ml-from').value, to=document.getElementById('ml-to').value;
+      if(kind==='permission') to=from;
       if(!from||!to){ msg.textContent='Choose both dates.'; msg.style.color='#B03A2E'; return; }
       if(new Date(to)<new Date(from)){ msg.textContent='The end date is before the start date.'; msg.style.color='#B03A2E'; return; }
       this.disabled=true; this.textContent='Sending…';
@@ -4423,6 +4592,9 @@ ${sections}
         const r=await fetch(API+'/api/hr',{method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({what:'meLeave',empId:meSession.empId,dob:meSession.dob,
             leave:{type:document.getElementById('ml-type').value,from,to,
+              kind, fromTime:kind==='permission'?document.getElementById('ml-t1').value:'',
+              toTime:kind==='permission'?document.getElementById('ml-t2').value:'',
+              dayFraction:kind==='half'?0.5:(kind==='permission'?0:1),
               reason:document.getElementById('ml-reason').value.trim()}})});
         const j=await r.json();
         if(!j.ok) throw new Error(j.error);
@@ -4653,7 +4825,8 @@ ${sections}
           </div>
           <div class="rfq-actions" style="margin-top:12px;">
             <button class="mini-btn gold cd-save" data-id="${esc(c.item_id)}">Save</button>
-            ${d.offerCtc?`<button class="mini-btn cd-offer" data-id="${esc(c.item_id)}">Print Offer Letter</button>`:''}
+            ${d.offerCtc?`<button class="mini-btn gold cd-offer" data-id="${esc(c.item_id)}">Generate Offer Letter</button>
+              <button class="mini-btn ai cd-terms" data-id="${esc(c.item_id)}">AI draft terms</button>`:''}
             ${c.status==='Offer Made'?`<button class="mini-btn green cd-join" data-id="${esc(c.item_id)}">Convert to Employee</button>`:''}
             <button class="item-delete cd-del" data-id="${esc(c.item_id)}">Delete</button>
           </div></div></div>`;
@@ -4777,8 +4950,37 @@ ${co.phone||co.mobile||''}`;
         : ('Not sent — '+(st.email||st.wa||'check the Setup screen')));
     }));
     host.querySelectorAll('.cd-offer').forEach(b=>b.addEventListener('click',()=>{
-      const c=cands.find(x=>x.item_id===b.dataset.id);
-      printOfferLetter(c.data||c);
+      const c=cands.find(x=>x.item_id===b.dataset.id), d=c.data||c;
+      printOfferLetter(d,reqs.find(r=>r.item_id===d.reqId));
+    }));
+    host.querySelectorAll('.cd-terms').forEach(b=>b.addEventListener('click',async()=>{
+      const c=cands.find(x=>x.item_id===b.dataset.id), d=c.data||c;
+      const req=reqs.find(r=>r.item_id===d.reqId);
+      b.textContent='Drafting…'; b.disabled=true;
+      const prompt=`Draft the terms and conditions section of an employment offer letter for an Indian
+manufacturing company.
+
+POSITION: ${d.designation||(req?(req.data||req).title:'')}
+GRADE: ${d.grade||'not stated'}
+
+Cover, as numbered clauses in plain language: appointment, probation, hours of work and shift,
+leave, statutory deductions, confidentiality of drawings and customer information, notice period,
+conduct and safety obligations, and that the offer is subject to document verification.
+
+Rules:
+- Keep it under 400 words, factual and neutral.
+- Do not invent salary figures, benefits, bonus schemes or leave entitlements — those are set elsewhere.
+- Do not state anything as a legal requirement unless it plainly is one.
+- This is a draft for HR to review, not final legal wording.`;
+      try{
+        const txt=await callAI(prompt,{maxTokens:800,surfaceError:true});
+        if(txt){ d.offerTerms=txt;
+          await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'items',itemId:c.item_id,patch:d,
+            reason:'offer terms drafted'})});
+          await loadItems();
+          toast('Terms drafted — read them before issuing the letter'); }
+      }catch(e){ toast(e.message); }
+      b.textContent='AI draft terms'; b.disabled=false;
     }));
     host.querySelectorAll('.cd-join').forEach(b=>b.addEventListener('click',async()=>{
       const c=cands.find(x=>x.item_id===b.dataset.id), d=c.data||c;
@@ -4806,54 +5008,147 @@ ${co.phone||co.mobile||''}`;
     }));
   }
 
-  /* §5 offer letter, built from the approved figures rather than retyped */
-  function printOfferLetter(d){
-    const co=CO(), logo=documentLogo();
+  /* §5 offer letter — built from the approved figures, with the full salary
+     structure, statutory benefits and terms. Nothing is retyped. */
+  function printOfferLetter(d,req){
+    const co=CO(), logo=absUrl(documentLogo());
     const st=structureFromCtc(d.offerCtc);
+    const stat=ST();
+    const monthly=st.basic+st.da+st.hra+st.conveyance+st.special;
+    const pfWage=Math.min(st.basic+st.da,num(stat.pf.wageCeiling));
+    const pfEr=Math.round(pfWage*num(stat.pf.employerPct)/100);
+    const esiEr=(monthly<=num(stat.esi.grossLimit))?Math.ceil(monthly*num(stat.esi.employerPct)/100):0;
+    const gratuity=Math.round((st.basic+st.da)*num(stat.gratuity.accrualPct)/100);
+    const bonus=Math.round(Math.min(st.basic+st.da,num(stat.bonus.wageCeiling)||(st.basic+st.da))
+      *num(stat.bonus.accrualPct)/100);
     const w=window.open('','_blank');
     if(!w){ toast('Allow pop-ups for this site.'); return; }
+
+    const terms=d.offerTerms||`1. APPOINTMENT
+Your appointment is on the terms set out in this letter and in the company's standing orders and policies,
+as amended from time to time.
+
+2. PROBATION
+You will be on probation for six months from your date of joining. The company may extend this period.
+Confirmation in writing follows satisfactory completion.
+
+3. HOURS OF WORK
+You will work the shift assigned to you. Working hours, weekly off and holidays are as per the company's
+attendance policy and the Factories Act.
+
+4. LEAVE
+Leave entitlement is as per the company leave policy in force. Leave must be applied for in advance except
+in a genuine emergency.
+
+5. STATUTORY DEDUCTIONS
+Provident Fund, ESI, Professional Tax and Income Tax will be deducted as required by law.
+
+6. CONFIDENTIALITY
+You shall not disclose any drawing, process, price, customer detail or other confidential information of
+the company or its customers, during or after your employment.
+
+7. NOTICE PERIOD
+Either party may terminate this employment by giving one month's written notice or salary in lieu,
+subject to the terms of the standing orders.
+
+8. CONDUCT AND SAFETY
+You are required to follow all safety instructions, wear the protective equipment provided, and comply
+with the quality and environmental requirements of the company and its customers.
+
+9. VERIFICATION
+This offer is subject to verification of your certificates, previous employment and references. Any
+misrepresentation will render this offer void.`;
+
     w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Offer — ${esc(d.name)}</title>
-    <style>@page{size:A4;margin:18mm;}body{font-family:Arial,sans-serif;font-size:10pt;color:#12233f;line-height:1.6;margin:0;}
-    .lh{display:flex;gap:14px;align-items:center;border-bottom:2pt solid #0B2A5B;padding-bottom:10px;margin-bottom:20px;}
-    .lh img{max-height:52px;max-width:130px;object-fit:contain;}
-    .co{font-size:14pt;font-weight:800;color:#0B2A5B;}.ad{font-size:8pt;color:#41567E;}
-    h2{text-align:center;font-size:12pt;letter-spacing:2pt;color:#0B2A5B;margin:18px 0;}
-    table{width:100%;border-collapse:collapse;margin:14px 0;font-size:9.5pt;}
-    th{background:#0B2A5B;color:#fff;text-align:left;padding:6px;font-size:8pt;text-transform:uppercase;}
-    td{padding:5px 6px;border-bottom:.6pt solid #e2e9f2;}.r{text-align:right;}
-    .sign{margin-top:40px;display:flex;justify-content:space-between;}
-    .sign div{width:45%;border-top:.8pt solid #0B2A5B;padding-top:6px;font-size:9pt;}
-    .noprint{text-align:center;padding:14px;background:#0B2A5B;color:#fff;}
-    .noprint button{background:#E0B44E;color:#0B2A5B;border:none;padding:10px 24px;border-radius:100px;font-weight:700;cursor:pointer;}
-    @media print{.noprint{display:none;}}</style></head><body>
-    <div class="noprint"><button onclick="window.print()">Save as PDF / Print</button></div>
-    <div class="lh">${logo?`<img src="${logo}">`:''}<div><div class="co">${esc(co.legalName||data.brandName)}</div>
-      <div class="ad">${esc(companyAddressLines().join(', '))}</div></div></div>
-    <div style="text-align:right;font-size:9pt;">Date: ${new Date().toLocaleDateString()}</div>
-    <h2>LETTER OF OFFER</h2>
-    <p>Dear ${esc(d.name)},</p>
-    <p>Further to our discussions, we are pleased to offer you the position of
-      <b>${esc(d.designation||'')}</b>${d.grade?` (Grade ${esc(d.grade)})`:''} with
-      ${esc(co.legalName||data.brandName)}${d.joiningDate?`, with effect from <b>${new Date(d.joiningDate).toLocaleDateString()}</b>`:''}.</p>
-    <p>Your annual cost to company will be <b>${rupee(d.offerCtc)}</b>, made up as follows:</p>
-    <table><thead><tr><th>Component</th><th class="r">Per Month</th><th class="r">Per Annum</th></tr></thead><tbody>
-      <tr><td>Basic</td><td class="r">${rupee(st.basic)}</td><td class="r">${rupee(st.basic*12)}</td></tr>
-      <tr><td>House Rent Allowance</td><td class="r">${rupee(st.hra)}</td><td class="r">${rupee(st.hra*12)}</td></tr>
-      <tr><td>Conveyance</td><td class="r">${rupee(st.conveyance)}</td><td class="r">${rupee(st.conveyance*12)}</td></tr>
-      <tr><td>Special Allowance</td><td class="r">${rupee(st.special)}</td><td class="r">${rupee(st.special*12)}</td></tr>
-      <tr><td><b>Total</b></td><td class="r"><b>${rupee(num(d.offerCtc)/12)}</b></td><td class="r"><b>${rupee(d.offerCtc)}</b></td></tr>
-    </tbody></table>
-    <p>Statutory deductions and employer contributions will apply in accordance with the law and with
-      company policy in force from time to time.</p>
-    <p>This offer is subject to verification of your documents and references, and to your acceptance of the
-      company's terms of employment and policies.</p>
-    <p>Please confirm your acceptance by signing and returning a copy of this letter.</p>
-    <div class="sign"><div>For ${esc(co.legalName||data.brandName)}<br><br>
-      ${esc(co.signatoryName||'Authorised Signatory')}<br>
-      <span style="font-size:8pt;color:#41567E;">${esc(co.signatoryTitle||'')}</span></div>
-      <div>Accepted by<br><br>${esc(d.name)}<br>
-      <span style="font-size:8pt;color:#41567E;">Signature &amp; date</span></div></div>
-    </body></html>`);
+<style>@page{size:A4;margin:18mm;}*{box-sizing:border-box;margin:0;padding:0;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact;}
+body{font-family:Arial,Helvetica,sans-serif;font-size:9.5pt;color:#12233f;line-height:1.65;}
+.lh{display:flex;justify-content:space-between;align-items:center;gap:14px;
+  border-bottom:2.2pt solid #0B2A5B;padding-bottom:10px;margin-bottom:6px;}
+.lh img{max-height:15mm;max-width:38mm;object-fit:contain;}
+.co{font-size:13pt;font-weight:800;color:#0B2A5B;}
+.ad{font-size:7.5pt;color:#41567E;text-align:right;line-height:1.5;}
+.dt{text-align:right;font-size:8.5pt;color:#41567E;margin:8px 0 14px;}
+h1{text-align:center;font-size:12pt;letter-spacing:2pt;color:#0B2A5B;margin:14px 0 4px;}
+.rule{width:52px;height:2.2pt;background:#C2932E;margin:0 auto 16px;}
+h2{font-size:8pt;letter-spacing:1.2pt;text-transform:uppercase;color:#8E6A19;
+  margin:16px 0 6px;border-bottom:.6pt solid #e2e9f2;padding-bottom:3px;}
+p{margin-bottom:9px;}
+table{width:100%;border-collapse:collapse;font-size:9pt;margin:8px 0 12px;}
+th{background:#0B2A5B;color:#fff;text-align:left;padding:6px;font-size:7.5pt;text-transform:uppercase;letter-spacing:.4pt;}
+td{padding:5px 6px;border-bottom:.5pt solid #eef2f7;}
+.r{text-align:right;} .tot td{border-top:1pt solid #b9c6d8;background:#f6f9fc;font-weight:700;}
+.terms{white-space:pre-wrap;font-size:8.5pt;color:#41567E;line-height:1.7;}
+.sign{margin-top:34px;display:flex;justify-content:space-between;gap:30px;}
+.sign>div{width:46%;}
+.sign .ln{border-top:.8pt solid #0B2A5B;padding-top:6px;font-size:8.5pt;margin-top:20mm;}
+.seal{max-height:22mm;opacity:.9;margin-bottom:4mm;}
+.foot{margin-top:22px;border-top:.6pt solid #ccd6e5;padding-top:6px;font-size:7pt;color:#8894ab;text-align:center;}
+.noprint{text-align:center;padding:15px;background:#0B2A5B;color:#fff;margin-bottom:10mm;}
+.noprint button{background:#E0B44E;color:#0B2A5B;border:none;padding:10px 26px;border-radius:100px;font-weight:700;cursor:pointer;}
+@media print{.noprint{display:none;}}</style></head><body>
+<div class="noprint"><button onclick="window.print()">Save as PDF / Print</button></div>
+<div class="lh">
+  <div style="display:flex;gap:12px;align-items:center;">${logo?`<img src="${logo}">`:''}
+    <div class="co">${esc(co.legalName||data.brandName||'')}</div></div>
+  <div class="ad">${companyAddressLines().map(l=>esc(l)).join('<br>')}
+    ${co.taxNumber?`<br>${esc(co.taxLabel||'GSTIN')}: ${esc(co.taxNumber)}`:''}
+    ${co.cin?`<br>CIN: ${esc(co.cin)}`:''}</div>
+</div>
+<div class="dt">Ref: OFR/${new Date().getFullYear()}/${esc((d.name||'').split(' ')[0].toUpperCase())}<br>
+  Date: ${new Date().toLocaleDateString('en-GB')}</div>
+
+<h1>LETTER OF OFFER</h1><div class="rule"></div>
+
+<p>Dear ${esc(d.name)},</p>
+<p>Further to our discussions and your interview with us, we are pleased to offer you the position of
+<b>${esc(d.designation||(req?(req.data||req).title:''))}</b>${d.grade?` in grade <b>${esc(d.grade)}</b>`:''}
+${req&&(req.data||req).department?` in the <b>${esc((req.data||req).department)}</b> department`:''}
+with ${esc(co.legalName||data.brandName)}${d.joiningDate?`, with effect from <b>${new Date(d.joiningDate).toLocaleDateString('en-GB')}</b>`:''}.</p>
+
+<h2>Salary Structure</h2>
+<table><thead><tr><th>Component</th><th class="r">Per Month</th><th class="r">Per Annum</th></tr></thead><tbody>
+<tr><td>Basic Salary</td><td class="r">${rupee(st.basic)}</td><td class="r">${rupee(st.basic*12)}</td></tr>
+${st.da?`<tr><td>Dearness Allowance</td><td class="r">${rupee(st.da)}</td><td class="r">${rupee(st.da*12)}</td></tr>`:''}
+<tr><td>House Rent Allowance</td><td class="r">${rupee(st.hra)}</td><td class="r">${rupee(st.hra*12)}</td></tr>
+<tr><td>Conveyance Allowance</td><td class="r">${rupee(st.conveyance)}</td><td class="r">${rupee(st.conveyance*12)}</td></tr>
+<tr><td>Special Allowance</td><td class="r">${rupee(st.special)}</td><td class="r">${rupee(st.special*12)}</td></tr>
+<tr class="tot"><td>Gross Salary</td><td class="r">${rupee(monthly)}</td><td class="r">${rupee(monthly*12)}</td></tr>
+</tbody></table>
+
+<h2>Benefits &amp; Employer Contributions</h2>
+<p style="font-size:8.5pt;">These are paid by the company in addition to your gross salary and are not
+deducted from it.</p>
+<table><thead><tr><th>Benefit</th><th class="r">Per Month</th><th class="r">Per Annum</th></tr></thead><tbody>
+<tr><td>Provident Fund — employer share</td><td class="r">${rupee(pfEr)}</td><td class="r">${rupee(pfEr*12)}</td></tr>
+${esiEr?`<tr><td>ESI — employer share</td><td class="r">${rupee(esiEr)}</td><td class="r">${rupee(esiEr*12)}</td></tr>`:''}
+<tr><td>Gratuity provision</td><td class="r">${rupee(gratuity)}</td><td class="r">${rupee(gratuity*12)}</td></tr>
+<tr><td>Statutory bonus provision</td><td class="r">${rupee(bonus)}</td><td class="r">${rupee(bonus*12)}</td></tr>
+<tr class="tot"><td>Total Cost to Company</td><td class="r">${rupee(monthly+pfEr+esiEr+gratuity+bonus)}</td>
+  <td class="r">${rupee((monthly+pfEr+esiEr+gratuity+bonus)*12)}</td></tr>
+</tbody></table>
+<p style="font-size:8pt;color:#8894ab;">Gratuity is a provision shown for information. It becomes payable
+under the Payment of Gratuity Act after five years of continuous service.
+${esiEr?'':'ESI is not applicable as the gross salary is above the prescribed limit.'}</p>
+
+<h2>Terms &amp; Conditions</h2>
+<div class="terms">${esc(terms)}</div>
+
+<p style="margin-top:14px;">Please confirm your acceptance by signing and returning a copy of this letter
+within seven days.</p>
+
+<div class="sign">
+  <div>${co.sealImg?`<img class="seal" src="${absUrl(co.sealImg)}">`:''}
+    <div class="ln" style="margin-top:${co.sealImg?'0':'20mm'};">
+    For ${esc(co.legalName||data.brandName)}<br>
+    <b>${esc(co.signatoryName||'Authorised Signatory')}</b><br>
+    <span style="font-size:7.5pt;color:#41567E;">${esc(co.signatoryTitle||'')}</span></div></div>
+  <div><div class="ln">Accepted by<br><b>${esc(d.name)}</b><br>
+    <span style="font-size:7.5pt;color:#41567E;">Signature &amp; date</span></div></div>
+</div>
+
+<div class="foot">${esc(co.legalName||data.brandName)}${companyAddressLines().length?' · '+esc(companyAddressLines().join(', ')):''}</div>
+</body></html>`);
     w.document.close();
   }
 
@@ -7521,7 +7816,7 @@ Reply with ONLY this JSON, no commentary or code fences:
   /* ---------- INTERNAL COST SHEET (printable) ---------- */
   function buildCostSheetHtml(r){
     const c=normaliseCosting(r.costing), t=computeCosting(c), co=CO(), cfg=QC();
-    const logo=documentLogo();
+    const logo=absUrl(documentLogo());
     const x=r.extract||{}, p=x.part||{};
     const money2=n=>(cfg.currencySymbol||'₹')+num(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
 
@@ -7948,7 +8243,7 @@ Reply with ONLY this JSON, no commentary or code fences:
 
   function buildQuotationHtml(r){
     const c=CO(), q=r.quoteDoc||blankQuoteDoc(r), t=quoteTotals(q), cfg=QC();
-    const logo=documentLogo();
+    const logo=absUrl(documentLogo());
     const addr=companyAddressLines();
     const contactBits=[c.phone&&`Tel: ${esc(c.phone)}`,c.mobile&&`Mob: ${esc(c.mobile)}`,
       (c.rfqEmail||c.email)&&`Email: ${esc(c.rfqEmail||c.email)}`,c.website&&esc(c.website)].filter(Boolean).join(' &nbsp;|&nbsp; ');
@@ -8093,7 +8388,7 @@ Reply with ONLY this JSON, no commentary or code fences:
     ${c.bankAccNo?'A/c No: '+esc(c.bankAccNo):''}${c.bankIfsc?' &nbsp;|&nbsp; IFSC/SWIFT: '+esc(c.bankIfsc):''}</div>`:''}
 
   <div class="sign">
-    <div class="seal">${c.sealImg?`<img src="${c.sealImg}">`:''}</div>
+    <div class="seal">${c.sealImg?`<img src="${absUrl(c.sealImg)}">`:''}</div>
     <div class="sign-block">
       ${c.signatureImg?`<img src="${c.signatureImg}">`:'<div style="height:46px"></div>'}
       <div class="sign-line">
@@ -8846,6 +9141,15 @@ Sign off as: ${data.quoteSender||'Sales Team'}, ${data.brandName}, ${data.contac
   }
 
   /* ---------- which logo goes on documents ---------- */
+  /* Popups opened with document.write have about:blank as their base, so a
+     relative asset path resolves to nothing and the image silently fails.
+     Every URL handed to a print window must be absolute. */
+  function absUrl(u){
+    const v=String(u||'');
+    if(!v) return '';
+    if(/^(https?:|data:|blob:)/i.test(v)) return v;
+    return location.origin+(v.startsWith('/')?'':'/')+v;
+  }
   function documentLogo(){
     const c=CO();
     if(c.useWebsiteLogo!==false) return data.logoDataUrl||c.letterheadLogo||'';
