@@ -969,16 +969,17 @@
       <div class="qb" style="margin-bottom:18px;">
         <h4>Add Employee</h4>
         <div class="cs-row four">
-          <div><label>Employee ID</label><input type="text" id="ne-empId"></div>
+          <div><label>Employee ID</label><input type="text" id="ne-empId" placeholder="auto">
+            <div class="field-hint">Leave blank to generate the next one.</div></div>
           <div><label>Name</label><input type="text" id="ne-name"></div>
-          <div><label>Department</label><input type="text" id="ne-department"></div>
-          <div><label>Designation</label><input type="text" id="ne-designation"></div>
+          <div><label>Department</label><select id="ne-department" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);"></select></div>
+          <div><label>Designation</label><select id="ne-designation" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);"></select></div>
         </div>
         <div class="cs-row four" style="margin-top:10px;">
           <div><label>Date of Joining</label><input type="date" id="ne-doj"></div>
           <div><label>Annual CTC</label><input type="text" id="ne-ctc" class="num"></div>
-          <div><label>Grade</label><input type="text" id="ne-grade"></div>
-          <div><label>Shift</label><input type="text" id="ne-shift" value="General"></div>
+          <div><label>Grade</label><select id="ne-grade" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);"></select></div>
+          <div><label>Shift</label><select id="ne-shift" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);"></select></div>
         </div>
         <button class="mini-btn gold" id="ne-create" style="margin-top:12px;">Add Employee</button>
         <div class="field-hint" id="ne-msg" style="margin-top:8px;"></div>
@@ -1010,7 +1011,7 @@
         </div>
         <div class="cs-row" style="margin-top:10px;"><div style="grid-column:1/-1;">
           <label>Job description — responsibilities, qualification, experience, competencies</label>
-          <textarea id="rq-jd" rows="4"></textarea>
+          <textarea id="rq-jd" rows="16" style="min-height:340px;font-family:var(--body);line-height:1.7;"></textarea>
           <div class="rfq-actions" style="margin-top:8px;">
             <button class="mini-btn ai" id="rq-jd-ai">Draft JD with AI</button></div></div></div>
         <button class="mini-btn gold" id="rq-create" style="margin-top:12px;">Raise Requisition</button>
@@ -1321,6 +1322,7 @@ I would recommend this company as a place to work</textarea></div></div>
         They are starting placeholders. Every rate below must be checked against current law and your
         state's rules by your CA or payroll advisor before any payroll is approved. Record who checked
         them and when, so the review is evidenced rather than assumed.</div>
+      <div id="hr-masters"></div>
       <div id="hr-statutory"></div>
     </div>
 
@@ -2180,12 +2182,30 @@ I would recommend this company as a place to work</textarea></div></div>
       esi:{enabled:true, employeePct:0.75, employerPct:3.25, grossLimit:21000, note:"ESI Act"},
       pt:{enabled:true, state:"Karnataka",
           slabs:[{upTo:24999, amount:0},{upTo:999999999, amount:200}], note:"State professional tax"},
-      tds:{enabled:true, mode:"manual", note:"Per-employee monthly figure from your CA or payroll advisor"},
+      tds:{enabled:true, mode:"manual", regime:"New",
+        slabs:[], standardDeduction:0, rebate87A:0, rebateLimit:0, cessPct:4,
+        slabsReviewedBy:"", slabsReviewedOn:"",
+        note:"Slabs must be verified by your CA before the mode is switched to slab-based."},
       lwf:{enabled:false, employee:0, employer:0, note:"Labour Welfare Fund, where applicable"},
       ot:{multiplier:2, basisComponents:"basic+da", note:"Factories Act overtime multiplier"},
       gratuity:{accrualPct:4.81, note:"Provision only — payable per Gratuity Act on exit"},
       bonus:{accrualPct:8.33, wageCeiling:21000, note:"Provision only — Payment of Bonus Act"}
     },
+    /* ---- HR masters: every dropdown on the employee screen reads from here.
+       Add, edit or remove values and the dropdowns follow. ---- */
+    hrMasters:{
+      empIdPrefix:"ET", empIdNextSeq:1, empIdPad:3,
+      departments:["Machining","Quality","Maintenance","Stores","Production Planning","HR & Admin","Accounts"],
+      designations:["CNC Operator","CNC Turner","Setter","Quality Inspector","Quality Engineer",
+        "Production Supervisor","Maintenance Technician","Store Keeper","PPC Executive","HR Executive","Accountant"],
+      grades:["W1","W2","W3","W4","S1","S2","S3","S4","M1","M2"],
+      employmentTypes:["Permanent","Probation","Contract","Apprentice","Trainee","Consultant"],
+      bloodGroups:["A+","A-","B+","B-","O+","O-","AB+","AB-"],
+      genders:["Male","Female","Other","Prefer not to say"],
+      locations:["Plant 1 — Mysuru"],
+      relationships:["Father","Mother","Spouse","Brother","Sister","Son","Daughter","Guardian","Friend"]
+    },
+
     /* ---- HR: competency framework (§15) ----
        Levels are configurable; the defaults follow the common 0–4 scale. ---- */
     competencyLevels:[
@@ -2411,6 +2431,7 @@ I would recommend this company as a place to work</textarea></div></div>
         data.parts=j.data.parts||DEFAULTS.parts;
         data.statutory=Object.assign({},DEFAULTS.statutory,j.data.statutory||{});
         data.leavePolicy=Object.assign({},DEFAULTS.leavePolicy,j.data.leavePolicy||{});
+        data.hrMasters=Object.assign({},DEFAULTS.hrMasters,j.data.hrMasters||{});
         data.competencies=j.data.competencies||DEFAULTS.competencies;
         data.competencyLevels=j.data.competencyLevels||DEFAULTS.competencyLevels;
         data.roleCompetency=j.data.roleCompetency||DEFAULTS.roleCompetency;
@@ -3650,7 +3671,9 @@ Reply with ONLY this JSON, no commentary or code fences:
           4. Report loss to HR immediately.<br>
           5. Return it on the last working day.
           <h4 style="margin-top:4mm;">Emergency</h4>
-          ${esc(emp.emergencyContact||'Not recorded')}
+          ${(()=>{const r=(emp.references||[]).find(x=>x.isEmergency)||(emp.references||[])[0];
+            return r?esc(r.name+(r.relationship?' ('+r.relationship+')':'')+' — '+(r.phone||''))
+              :esc(emp.emergencyContact||'Not recorded');})()}
         </div>
         <div class="bar">${esc(emp.empId)}</div>
       </div>
@@ -3943,6 +3966,14 @@ Rules you must follow:
 
     host.querySelectorAll('[data-job]').forEach(el=>el.addEventListener('click',()=>openJob(el.dataset.job)));
   }
+  (function(){
+    const close=()=>{const m=document.getElementById('job-modal'); if(m) m.classList.remove('open');};
+    document.addEventListener('click',e=>{
+      if(e.target.id==='job-close'||e.target.closest('#job-close')) close();
+      if(e.target.id==='job-modal') close();     // clicking the backdrop closes it too
+    });
+    document.addEventListener('keydown',e=>{ if(e.key==='Escape') close(); });
+  })();
   function openJob(id){
     const j=publicJobs.find(x=>x.id===id); if(!j) return;
     document.getElementById('job-detail').innerHTML=`
@@ -3993,6 +4024,20 @@ Rules you must follow:
           body:JSON.stringify({what:'apply',candidate:cand})});
         const jj=await r.json();
         if(!jj.ok) throw new Error(jj.error||'Could not submit');
+
+        /* tell the recruiter straight away, by email and WhatsApp */
+        const alertText=`NEW JOB APPLICATION\n\n`
+          +`Position: ${j.title}\nReference: ${jj.ref}\n\n`
+          +`Name: ${cand.name}\nPhone: ${cand.phone}\nEmail: ${cand.email||'not given'}\n`
+          +`Qualification: ${cand.qualification||'not given'}\n`
+          +`Experience: ${cand.experience||0} years\n`
+          +`Expected CTC: ${cand.expectedCtc?rupee(cand.expectedCtc):'not stated'}\n`
+          +`Resume: ${cand.resumeName||'not attached'}\n`
+          +(cand.note?`\nTheir note: ${cand.note}\n`:'')
+          +`\nOpen HR & People → Recruit to review and evaluate.\n`
+          +pipelineUrl().replace('#pipeline','#hr');
+        try{ await sendMessage_({email:'',whatsapp:'',useOwner:true,
+          subject:'New application — '+j.title+' — '+cand.name, text:alertText}); }catch(_){}
         document.getElementById('job-detail').innerHTML=`
           <p class="t-label">THANK YOU</p><h2 class="t-title">Application received</h2>
           <p class="t-body" style="margin-top:12px;">Your reference is <b>${esc(jj.ref)}</b>.
@@ -4144,7 +4189,18 @@ Rules you must follow:
     host.querySelectorAll('.cd-screen').forEach(b=>b.addEventListener('click',async()=>{
       const c=cands.find(x=>x.item_id===b.dataset.id), d=c.data||c;
       const req=reqs.find(r=>r.item_id===d.reqId);
-      if(!d.cvText){ toast('Paste the CV text first.'); return; }
+      /* Prefer the attached PDF — the AI reads it directly. Fall back to pasted
+         text only when there is no readable attachment (e.g. a Word file). */
+      let attachment=null;
+      if(d.resumeData&&/pdf/i.test(d.resumeType||'')){
+        const m=String(d.resumeData).match(/^data:([^;,]+);base64,(.+)$/);
+        if(m) attachment={mime:m[1],b64:m[2]};
+      }
+      if(!attachment&&!d.cvText){
+        toast(d.resumeName?'That resume is a Word file — AI cannot read it. Paste the text below, or ask for a PDF.'
+          :'No resume attached and no CV text.');
+        return;
+      }
       b.textContent='Reading…'; b.disabled=true;
       const prompt=`Compare a CV against the written requirements of a role. Be factual and specific.
 
@@ -4153,8 +4209,7 @@ STATED REQUIREMENTS (this is the only standard to measure against):
 ${req?((req.data||req).jd||'No written requirements — say so and measure nothing.'):'not specified'}
 
 CANDIDATE DETAILS: ${d.qualification||'qualification not stated'}, ${d.experience||0} years experience.
-CV TEXT:
-${d.cvText||'(no CV text supplied)'}
+CV: ${attachment?'attached as a PDF — read it':'\n'+(d.cvText||'(none supplied)')}
 
 Reply with ONLY this JSON, no commentary or code fences:
 {
@@ -4179,7 +4234,7 @@ Rules you must follow:
 - If the CV does not state something, say it is not evidenced rather than assuming either way.
 - A low percentage means the document lacks evidence, not that the person is unsuitable.`;
       try{
-        const txt=await callAI(prompt,{maxTokens:1100,surfaceError:true});
+        const txt=await callAI(prompt,{maxTokens:1100,attachment,surfaceError:true});
         try{
           const clean=(txt||'').replace(/```json|```/g,'').trim();
           const j=JSON.parse(clean.slice(clean.indexOf('{'),clean.lastIndexOf('}')+1));
@@ -5492,6 +5547,114 @@ ${co.phone||co.mobile||''}`;
     }));
   }
 
+  /* ---------- HR masters: every dropdown value, editable ---------- */
+  const MASTER_LISTS=[
+    ['departments','Departments'],['designations','Designations'],['grades','Grades'],
+    ['employmentTypes','Employment Types'],['bloodGroups','Blood Groups'],['genders','Gender Options'],
+    ['locations','Locations'],['relationships','Relationships']
+  ];
+  function renderMasters(){
+    const host=document.getElementById('hr-masters'); if(!host) return;
+    const m=HM();
+    host.innerHTML=`<div class="qb"><h4>Employee ID Format</h4>
+      <div class="cs-row four">
+        <div><label>Prefix</label><input class="hm-cfg" data-k="empIdPrefix" value="${esc(m.empIdPrefix||'ET')}"></div>
+        <div><label>Next Number</label><input class="hm-cfg num" data-k="empIdNextSeq" value="${esc(m.empIdNextSeq||1)}"></div>
+        <div><label>Digits</label><input class="hm-cfg num" data-k="empIdPad" value="${esc(m.empIdPad||3)}"></div>
+        <div style="align-self:end;"><div class="feas-line">Next ID: <b>${esc(nextEmpId())}</b></div></div>
+      </div></div>
+
+      <div class="qb"><h4>Dropdown Values</h4>
+      <div class="field-hint" style="margin-bottom:12px;">These fill the dropdowns on the employee screen.
+        Add, rename or remove as you need. Removing a value does not change employees already using it.</div>
+      <div class="tower-grid">
+      ${MASTER_LISTS.map(([key,label])=>`<div class="tower-card" style="cursor:default;">
+        <h4>${label}</h4>
+        ${(m[key]||[]).map((v,vi)=>`<div class="tw-row" style="gap:8px;">
+          <input class="hm-val" data-k="${key}" data-i="${vi}" value="${esc(v)}"
+            style="flex:1;border:1px solid var(--line);border-radius:5px;padding:5px 7px;font-size:var(--fs-micro);">
+          <button class="qb-del hm-del" data-k="${key}" data-i="${vi}">×</button></div>`).join('')}
+        <button class="qb-add hm-add" data-k="${key}" style="margin-top:8px;">+ Add</button>
+      </div>`).join('')}
+      </div>
+
+      <h4 style="margin-top:20px;">Shifts</h4>
+      <table class="cs-t"><thead><tr><th>Code</th><th>Name</th><th>Start</th><th>End</th><th class="r">Break min</th><th></th></tr></thead>
+        <tbody>${(data.shifts||[]).map((sh,si)=>`<tr>
+          <td><input class="hm-sh" data-i="${si}" data-k="code" value="${esc(sh.code)}"></td>
+          <td><input class="hm-sh" data-i="${si}" data-k="name" value="${esc(sh.name)}"></td>
+          <td><input type="time" class="hm-sh" data-i="${si}" data-k="start" value="${esc(sh.start)}"></td>
+          <td><input type="time" class="hm-sh" data-i="${si}" data-k="end" value="${esc(sh.end)}"></td>
+          <td><input class="hm-sh num" data-i="${si}" data-k="breakMin" value="${esc(sh.breakMin)}"></td>
+          <td><button class="qb-del hm-shdel" data-i="${si}">×</button></td></tr>`).join('')}</tbody></table>
+      <button class="qb-add" id="hm-shadd">+ Add shift</button>
+
+      <h4 style="margin-top:20px;">Holiday Calendar</h4>
+      <table class="cs-t"><thead><tr><th>Date</th><th>Occasion</th><th></th></tr></thead>
+        <tbody>${(data.holidays||[]).map((h,hi)=>`<tr>
+          <td><input type="date" class="hm-hol" data-i="${hi}" data-k="date" value="${esc(h.date)}"></td>
+          <td><input class="hm-hol" data-i="${hi}" data-k="name" value="${esc(h.name)}"></td>
+          <td><button class="qb-del hm-holdel" data-i="${hi}">×</button></td></tr>`).join('')
+          ||'<tr><td colspan="3" class="t-micro">No holidays set — every non-week-off day counts as working.</td></tr>'}</tbody></table>
+      <button class="qb-add" id="hm-holadd">+ Add holiday</button>
+
+      <h4 style="margin-top:20px;">Leave Types</h4>
+      <table class="cs-t"><thead><tr><th>Code</th><th>Name</th><th class="r">Days/year</th><th class="c">Paid</th><th class="c">Carry fwd</th><th></th></tr></thead>
+        <tbody>${((data.leavePolicy||{}).types||[]).map((lt,li)=>`<tr>
+          <td><input class="hm-lv" data-i="${li}" data-k="code" value="${esc(lt.code)}"></td>
+          <td><input class="hm-lv" data-i="${li}" data-k="name" value="${esc(lt.name)}"></td>
+          <td><input class="hm-lv num" data-i="${li}" data-k="annualDays" value="${esc(lt.annualDays)}"></td>
+          <td class="c"><input type="checkbox" class="hm-lvb" data-i="${li}" data-k="paid" ${lt.paid?'checked':''}></td>
+          <td class="c"><input type="checkbox" class="hm-lvb" data-i="${li}" data-k="carryForward" ${lt.carryForward?'checked':''}></td>
+          <td><button class="qb-del hm-lvdel" data-i="${li}">×</button></td></tr>`).join('')}</tbody></table>
+      <button class="qb-add" id="hm-lvadd">+ Add leave type</button>
+
+      <button class="add-btn solid" id="hm-save" style="margin-top:18px;">Save Masters</button>
+      <div class="field-hint" id="hm-msg" style="margin-top:8px;"></div></div>`;
+
+    const M=()=>{ data.hrMasters=data.hrMasters||{}; return data.hrMasters; };
+    host.querySelectorAll('.hm-cfg').forEach(i=>i.addEventListener('input',()=>{
+      M()[i.dataset.k]=i.classList.contains('num')?num(i.value):i.value; markDirty(); }));
+    host.querySelectorAll('.hm-val').forEach(i=>i.addEventListener('input',()=>{
+      M()[i.dataset.k][+i.dataset.i]=i.value; markDirty(); }));
+    host.querySelectorAll('.hm-del').forEach(b=>b.addEventListener('click',()=>{
+      M()[b.dataset.k].splice(+b.dataset.i,1); markDirty(); renderMasters(); }));
+    host.querySelectorAll('.hm-add').forEach(b=>b.addEventListener('click',()=>{
+      M()[b.dataset.k]=M()[b.dataset.k]||[]; M()[b.dataset.k].push('New value'); markDirty(); renderMasters(); }));
+    host.querySelectorAll('.hm-sh').forEach(i=>i.addEventListener('input',()=>{
+      data.shifts[+i.dataset.i][i.dataset.k]=i.classList.contains('num')?num(i.value):i.value; markDirty(); }));
+    host.querySelectorAll('.hm-shdel').forEach(b=>b.addEventListener('click',()=>{
+      data.shifts.splice(+b.dataset.i,1); markDirty(); renderMasters(); }));
+    const sa=document.getElementById('hm-shadd');
+    if(sa) sa.addEventListener('click',()=>{ data.shifts=data.shifts||[];
+      data.shifts.push({code:'',name:'New Shift',start:'09:00',end:'17:30',breakMin:30}); markDirty(); renderMasters(); });
+    host.querySelectorAll('.hm-hol').forEach(i=>i.addEventListener('input',()=>{
+      data.holidays[+i.dataset.i][i.dataset.k]=i.value; markDirty(); }));
+    host.querySelectorAll('.hm-holdel').forEach(b=>b.addEventListener('click',()=>{
+      data.holidays.splice(+b.dataset.i,1); markDirty(); renderMasters(); }));
+    const ha=document.getElementById('hm-holadd');
+    if(ha) ha.addEventListener('click',()=>{ data.holidays=data.holidays||[];
+      data.holidays.push({date:'',name:''}); markDirty(); renderMasters(); });
+    host.querySelectorAll('.hm-lv').forEach(i=>i.addEventListener('input',()=>{
+      data.leavePolicy.types[+i.dataset.i][i.dataset.k]=i.classList.contains('num')?num(i.value):i.value; markDirty(); }));
+    host.querySelectorAll('.hm-lvb').forEach(i=>i.addEventListener('change',()=>{
+      data.leavePolicy.types[+i.dataset.i][i.dataset.k]=i.checked; markDirty(); }));
+    host.querySelectorAll('.hm-lvdel').forEach(b=>b.addEventListener('click',()=>{
+      data.leavePolicy.types.splice(+b.dataset.i,1); markDirty(); renderMasters(); }));
+    const la=document.getElementById('hm-lvadd');
+    if(la) la.addEventListener('click',()=>{ data.leavePolicy.types.push(
+      {code:'XX',name:'New Leave',annualDays:0,paid:true,carryForward:false,maxCarry:0}); markDirty(); renderMasters(); });
+    const sv=document.getElementById('hm-save');
+    if(sv) sv.addEventListener('click',async function(){
+      const msg=document.getElementById('hm-msg');
+      this.disabled=true; this.textContent='Saving…';
+      try{ await api('/api/content',{method:'POST',body:JSON.stringify({data})}); dirty=false;
+        msg.textContent='Saved. Dropdowns updated everywhere.'; msg.style.color='var(--ok)'; renderMasters(); }
+      catch(e){ msg.textContent=e.message; msg.style.color='#B03A2E'; }
+      this.disabled=false; this.textContent='Save Masters';
+    });
+  }
+
   /* ---------- Statutory settings ---------- */
   function renderStatutory(){
     const host=document.getElementById('hr-statutory'); if(!host) return;
@@ -5535,6 +5698,49 @@ ${co.phone||co.mobile||''}`;
           <td><button class="qb-del pt-del" data-si="${si}">×</button></td></tr>`).join('')}</tbody></table>
       <button class="qb-add" id="pt-add">+ Add slab</button></div>
 
+      <div class="qb"><h4>Income Tax (TDS)</h4>
+      <div class="warn-box" style="margin-bottom:12px;"><b>Read this before changing anything here.</b>
+        TDS liability sits with the employer under Section 201(1A). Slabs, rebate and surcharge change with
+        each Finance Act and depend on the employee's regime election and declarations. These figures must be
+        set and verified by your CA. AI can draft them for checking — it cannot be relied on as the authority,
+        and slab-based calculation stays locked until a named person records that they verified it.</div>
+      <div class="cs-row four">
+        <div><label>Mode</label>
+          <select class="st-str" data-path="tds.mode" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+            <option value="manual" ${st.tds.mode!=='slab'?'selected':''}>Manual — figure per employee from your CA</option>
+            <option value="slab" ${st.tds.mode==='slab'?'selected':''}>Slab-based — computed from the table below</option>
+          </select></div>
+        <div><label>Regime</label>
+          <select class="st-str" data-path="tds.regime" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+            <option ${st.tds.regime==='New'?'selected':''}>New</option>
+            <option ${st.tds.regime==='Old'?'selected':''}>Old</option></select></div>
+        <div><label>Standard Deduction</label><input class="st-in num" data-path="tds.standardDeduction" value="${esc(st.tds.standardDeduction)}"></div>
+        <div><label>Cess %</label><input class="st-in num" data-path="tds.cessPct" value="${esc(st.tds.cessPct)}"></div>
+      </div>
+      <div class="cs-row four" style="margin-top:10px;">
+        <div><label>87A Rebate up to income</label><input class="st-in num" data-path="tds.rebateLimit" value="${esc(st.tds.rebateLimit)}"></div>
+        <div><label>87A Rebate amount</label><input class="st-in num" data-path="tds.rebate87A" value="${esc(st.tds.rebate87A)}"></div>
+        <div><label>Slabs verified by</label><input class="st-in" data-path="tds.slabsReviewedBy" value="${esc(st.tds.slabsReviewedBy)}" placeholder="CA name"></div>
+        <div><label>Verified on</label><input type="date" class="st-in" data-path="tds.slabsReviewedOn" value="${esc(st.tds.slabsReviewedOn)}"></div>
+      </div>
+      <div class="field-hint" style="margin:10px 0;">Annual taxable income slabs. Enter each upper limit and
+        the rate that applies up to it.</div>
+      <table class="cs-t"><thead><tr><th class="r">Income up to</th><th class="r">Rate %</th><th></th></tr></thead>
+        <tbody>${(st.tds.slabs||[]).map((sl,si)=>`<tr>
+          <td><input class="tds-slab num" data-si="${si}" data-k="upTo" value="${esc(sl.upTo)}"></td>
+          <td><input class="tds-slab num" data-si="${si}" data-k="rate" value="${esc(sl.rate)}"></td>
+          <td><button class="qb-del tds-del" data-si="${si}">×</button></td></tr>`).join('')
+          ||'<tr><td colspan="3" class="t-micro">No slabs entered — manual mode is in use.</td></tr>'}</tbody></table>
+      <div class="rfq-actions" style="margin-top:10px;">
+        <button class="qb-add" id="tds-add" style="width:auto;">+ Add slab</button>
+        <button class="mini-btn ai" id="tds-ai">Ask AI to draft the slabs</button>
+      </div>
+      <div id="tds-ai-out"></div>
+      ${st.tds.mode==='slab'&&!st.tds.slabsReviewedBy?`<div class="dx-missing" style="margin-top:10px;">
+        <b>Slab mode is selected but nobody has verified the slabs.</b> Payroll will keep using the manual
+        per-employee figure until a verifier is recorded above.</div>`:''}
+      </div>
+
       <div class="qb"><h4>Overtime, Gratuity &amp; Bonus</h4><div class="cs-row four">
         ${f('OT Multiplier','ot.multiplier',st.ot.multiplier)}
         <div><label>OT Basis</label><select class="st-str" data-path="ot.basisComponents" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
@@ -5560,6 +5766,58 @@ ${co.phone||co.mobile||''}`;
     host.querySelectorAll('.st-str').forEach(sel=>sel.addEventListener('change',()=>{
       setPath(sel.dataset.path, sel.value); markDirty();
     }));
+    host.querySelectorAll('.tds-slab').forEach(inp=>inp.addEventListener('input',()=>{
+      data.statutory.tds.slabs[+inp.dataset.si][inp.dataset.k]=num(inp.value); markDirty();
+    }));
+    host.querySelectorAll('.tds-del').forEach(b=>b.addEventListener('click',()=>{
+      data.statutory.tds.slabs.splice(+b.dataset.si,1); markDirty(); renderStatutory();
+    }));
+    const ta=document.getElementById('tds-add');
+    if(ta) ta.addEventListener('click',()=>{
+      data.statutory.tds.slabs=data.statutory.tds.slabs||[];
+      data.statutory.tds.slabs.push({upTo:0,rate:0}); markDirty(); renderStatutory();
+    });
+    const tai=document.getElementById('tds-ai');
+    if(tai) tai.addEventListener('click',async function(){
+      const out=document.getElementById('tds-ai-out');
+      this.disabled=true; this.textContent='Drafting…';
+      const fy=new Date().getMonth()>=3?new Date().getFullYear():new Date().getFullYear()-1;
+      const prompt=`Draft the Indian income tax slab table for salaried individuals under the
+${ST().tds.regime||'New'} tax regime for financial year ${fy}-${String(fy+1).slice(2)}.
+
+Reply with ONLY this JSON, no commentary or code fences:
+{"slabs":[{"upTo":0,"rate":0}],"standardDeduction":0,"rebate87A":0,"rebateLimit":0,"cessPct":4,
+ "confidence":"","caution":""}
+
+Rules:
+- "slabs" must be cumulative upper limits of annual taxable income with the marginal rate up to each.
+  Use a very large number for the top band.
+- State your confidence honestly in "confidence". If you are not certain these are the rates currently in
+  force, say so plainly there.
+- In "caution", state what a CA must independently verify before this is used.
+- Do not guess if you are unsure — return empty slabs and explain why in "caution".`;
+      try{
+        const txt=await callAI(prompt,{maxTokens:800,surfaceError:true});
+        const clean=(txt||'').replace(/```json|```/g,'').trim();
+        const j=JSON.parse(clean.slice(clean.indexOf('{'),clean.lastIndexOf('}')+1));
+        if((j.slabs||[]).length){
+          data.statutory.tds.slabs=j.slabs.map(x=>({upTo:num(x.upTo),rate:num(x.rate)}));
+          data.statutory.tds.standardDeduction=num(j.standardDeduction);
+          data.statutory.tds.rebate87A=num(j.rebate87A);
+          data.statutory.tds.rebateLimit=num(j.rebateLimit);
+          data.statutory.tds.cessPct=num(j.cessPct)||4;
+          data.statutory.tds.slabsReviewedBy=''; data.statutory.tds.slabsReviewedOn='';
+          markDirty();
+        }
+        out.innerHTML=`<div class="dx-missing" style="margin-top:10px;">
+          <b>Draft only — not verified.</b><br>${esc(j.confidence||'')}<br><br>
+          <b>Your CA must check:</b> ${esc(j.caution||'the rates, rebate, surcharge bands and cess against the current Finance Act.')}
+          <br><br>The verified-by field has been cleared. Slab mode stays locked until someone records that
+          they checked these figures.</div>`;
+        renderStatutory();
+      }catch(e){ out.innerHTML=`<div class="dx-err" style="margin-top:10px;">${esc(e.message)}</div>`; }
+      this.disabled=false; this.textContent='Ask AI to draft the slabs';
+    });
     host.querySelectorAll('.pt-slab').forEach(inp=>inp.addEventListener('input',()=>{
       data.statutory.pt.slabs[+inp.dataset.si][inp.dataset.k]=num(inp.value); markDirty();
     }));
@@ -5773,6 +6031,14 @@ ${co.phone||co.mobile||''}`;
     renderEmployees(); renderPayruns(); renderStatutory(); renderTower();
   }
 
+  const dd=(k,val,list,i)=>`<select class="em-in" data-i="${i}" data-k="${k}"
+      style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+      <option value="">—</option>${(list||[]).map(x=>`<option ${val===x?'selected':''}>${esc(x)}</option>`).join('')}
+      ${val&&!(list||[]).includes(val)?`<option selected>${esc(val)}</option>`:''}</select>`;
+  const ddRef=(k,val,list,i,ri)=>`<select class="em-ref" data-i="${i}" data-ri="${ri}" data-k="${k}"
+      style="width:100%;padding:7px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+      <option value="">—</option>${(list||[]).map(x=>`<option ${val===x?'selected':''}>${esc(x)}</option>`).join('')}</select>`;
+
   function renderEmployees(){
     const kpi=document.getElementById('hr-kpi-row'), host=document.getElementById('hr-emp-list');
     if(!host) return;
@@ -5796,17 +6062,53 @@ ${co.phone||co.mobile||''}`;
             ${gross>0?rupee(gross)+'/month':'<span style="color:#B03A2E">no structure</span>'} · ${esc(e.status||'Active')}</div></div>
           <span class="rfq-chevron">${open?'▾':'▸'}</span></div>
         <div class="rfq-body" style="display:${open?'block':'none'};">
-          <div class="cs-sub">Employment</div>
+          <div class="cs-sub">Personal</div>
           <div class="cs-row four">
             <div><label>Name</label><input class="em-in" data-i="${i}" data-k="name" value="${esc(e.name)}"></div>
-            <div><label>Department</label><input class="em-in" data-i="${i}" data-k="department" value="${esc(e.department)}"></div>
-            <div><label>Designation</label><input class="em-in" data-i="${i}" data-k="designation" value="${esc(e.designation)}"></div>
-            <div><label>Grade</label><input class="em-in" data-i="${i}" data-k="grade" value="${esc(e.grade)}"></div>
+            <div><label>Date of Birth</label><input type="date" class="em-in" data-i="${i}" data-k="dob" value="${esc(e.dob)}"></div>
+            <div><label>Gender</label>${dd('gender',e.gender,HM().genders,i)}</div>
+            <div><label>Blood Group</label>${dd('bloodGroup',e.bloodGroup,HM().bloodGroups,i)}</div>
+          </div>
+          <div class="cs-row four" style="margin-top:10px;">
+            <div><label>Phone</label><input class="em-in" data-i="${i}" data-k="phone" value="${esc(e.phone)}"></div>
+            <div><label>Alternate Phone</label><input class="em-in" data-i="${i}" data-k="altPhone" value="${esc(e.altPhone)}"></div>
+            <div><label>Work Email</label><input class="em-in" data-i="${i}" data-k="email" value="${esc(e.email)}"></div>
+            <div><label>Personal Email</label><input class="em-in" data-i="${i}" data-k="personalEmail" value="${esc(e.personalEmail)}"></div>
+          </div>
+          <div class="cs-row four" style="margin-top:10px;">
+            <div style="grid-column:span 2;"><label>Address</label><input class="em-in" data-i="${i}" data-k="addressLine" value="${esc(e.addressLine)}"></div>
+            <div><label>City</label><input class="em-in" data-i="${i}" data-k="addressCity" value="${esc(e.addressCity)}"></div>
+            <div><label>PIN</label><input class="em-in" data-i="${i}" data-k="addressPin" value="${esc(e.addressPin)}"></div>
+          </div>
+          <div class="cs-row four" style="margin-top:10px;">
+            <div><label>Photograph</label><div class="img-upload" id="emp-photo-${esc(e.empId)}"></div></div>
+          </div>
+
+          <div class="cs-sub">Emergency &amp; Reference Contacts</div>
+          <table class="cs-t"><thead><tr><th>Name</th><th>Relationship</th><th>Phone</th><th class="c">Emergency</th><th></th></tr></thead>
+            <tbody>${(e.references||[]).map((rf,ri)=>`<tr>
+              <td><input class="em-ref" data-i="${i}" data-ri="${ri}" data-k="name" value="${esc(rf.name)}"></td>
+              <td>${ddRef('relationship',rf.relationship,HM().relationships,i,ri)}</td>
+              <td><input class="em-ref" data-i="${i}" data-ri="${ri}" data-k="phone" value="${esc(rf.phone)}"></td>
+              <td class="c"><input type="radio" name="emg-${esc(e.empId)}" class="em-emg" data-i="${i}" data-ri="${ri}" ${rf.isEmergency?'checked':''}></td>
+              <td><button class="qb-del em-refdel" data-i="${i}" data-ri="${ri}">×</button></td></tr>`).join('')
+              ||'<tr><td colspan="5" class="t-micro">No contacts recorded. The one marked Emergency prints on the ID card.</td></tr>'}</tbody></table>
+          <button class="qb-add em-refadd" data-i="${i}">+ Add contact</button>
+
+          <div class="cs-sub">Employment</div>
+          <div class="cs-row four">
+            <div><label>Department</label>${dd('department',e.department,HM().departments,i)}</div>
+            <div><label>Designation</label>${dd('designation',e.designation,HM().designations,i)}</div>
+            <div><label>Grade</label>${dd('grade',e.grade,HM().grades,i)}</div>
+            <div><label>Employment Type</label>${dd('employmentType',e.employmentType,HM().employmentTypes,i)}</div>
           </div>
           <div class="cs-row four" style="margin-top:10px;">
             <div><label>Date of Joining</label><input type="date" class="em-in" data-i="${i}" data-k="doj" value="${esc(e.doj)}"></div>
             <div><label>Reports To</label><input class="em-in" data-i="${i}" data-k="reportsTo" value="${esc(e.reportsTo)}"></div>
-            <div><label>Shift</label><input class="em-in" data-i="${i}" data-k="shift" value="${esc(e.shift)}"></div>
+            <div><label>Shift</label>${dd('shift',e.shift,(data.shifts||[]).map(x=>x.name),i)}</div>
+            <div><label>Location</label>${dd('location',e.location,HM().locations,i)}</div>
+          </div>
+          <div class="cs-row four" style="margin-top:10px;">
             <div><label>Status</label>
               <select class="em-in" data-i="${i}" data-k="status" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
                 ${['Active','Probation','On Leave','Suspended','Exited'].map(x=>`<option ${e.status===x?'selected':''}>${x}</option>`).join('')}
@@ -5819,6 +6121,13 @@ ${co.phone||co.mobile||''}`;
             <div><label>ESI Number</label><input class="em-in" data-i="${i}" data-k="esiNumber" value="${esc(e.esiNumber)}"></div>
             <div><label>PAN</label><input class="em-in" data-i="${i}" data-k="pan" value="${esc(e.pan)}"></div>
             <div><label>Bank A/c</label><input class="em-in" data-i="${i}" data-k="bankAcc" value="${esc(e.bankAcc)}"></div>
+          </div>
+          <div class="cs-row four" style="margin-top:10px;">
+            <div><label>Bank Name</label><input class="em-in" data-i="${i}" data-k="bankName" value="${esc(e.bankName)}"></div>
+            <div><label>IFSC Code</label><input class="em-in" data-i="${i}" data-k="ifsc" value="${esc(e.ifsc)}" placeholder="SBIN0001234"></div>
+            <div><label>PF Number</label><input class="em-in" data-i="${i}" data-k="pfNumber" value="${esc(e.pfNumber)}"></div>
+            <div><label>Aadhaar — last 4 only</label><input class="em-in" data-i="${i}" data-k="aadhaarLast4" value="${esc(e.aadhaarLast4)}" maxlength="4">
+              <div class="field-hint">Only the last four digits are stored.</div></div>
           </div>
 
           <div class="cs-sub">Salary Structure — monthly</div>
@@ -5884,6 +6193,38 @@ ${co.phone||co.mobile||''}`;
         toast('Employee saved'); }catch(err){ toast(err.message); }
       b.textContent='Save Employee'; b.disabled=false;
     }));
+    host.querySelectorAll('.em-ref').forEach(inp=>inp.addEventListener('input',()=>{
+      const e=hrEmployees[+inp.dataset.i]; e.references=e.references||[];
+      e.references[+inp.dataset.ri][inp.dataset.k]=inp.value;
+    }));
+    host.querySelectorAll('.em-emg').forEach(r=>r.addEventListener('change',()=>{
+      const e=hrEmployees[+r.dataset.i];
+      (e.references||[]).forEach((x,ix)=>x.isEmergency=(ix===+r.dataset.ri));
+    }));
+    host.querySelectorAll('.em-refadd').forEach(b=>b.addEventListener('click',()=>{
+      const e=hrEmployees[+b.dataset.i]; e.references=e.references||[];
+      e.references.push({name:'',relationship:'',phone:'',isEmergency:!e.references.length});
+      renderEmployees();
+    }));
+    host.querySelectorAll('.em-refdel').forEach(b=>b.addEventListener('click',()=>{
+      hrEmployees[+b.dataset.i].references.splice(+b.dataset.ri,1); renderEmployees();
+    }));
+    hrEmployees.forEach((e,ix)=>{
+      const wrap=document.getElementById('emp-photo-'+e.empId); if(!wrap) return;
+      wrap.innerHTML=`${e.photo?`<img src="${e.photo}" class="thumb">`:'<div class="thumb placeholder">None</div>'}
+        <input type="file" accept="image/*" class="em-photo" data-i="${ix}">
+        ${e.photo?`<button type="button" class="link-btn em-photodel" data-i="${ix}">Remove</button>`:''}`;
+    });
+    host.querySelectorAll('.em-photo').forEach(inp=>inp.addEventListener('change',async ev=>{
+      const f=ev.target.files[0]; if(!f) return;
+      const e=hrEmployees[+inp.dataset.i];
+      toast('Uploading photo…');
+      e.photo=await storeImage(f,400,0.85);
+      renderEmployees(); toast('Photo added — press Save Employee');
+    }));
+    host.querySelectorAll('.em-photodel').forEach(b=>b.addEventListener('click',()=>{
+      hrEmployees[+b.dataset.i].photo=''; renderEmployees();
+    }));
     host.querySelectorAll('.em-idcard').forEach(b=>b.addEventListener('click',()=>{
       printIdCard(hrEmployees[+b.dataset.i]);
     }));
@@ -5904,12 +6245,24 @@ ${co.phone||co.mobile||''}`;
   const ST=()=>data.statutory||{};
   let hrEmployees=[], hrPayruns=[], expandedEmp=null, expandedRun=null;
 
+  const HM=()=>data.hrMasters||{};
+  function nextEmpId(){
+    const m=HM();
+    const used=new Set(hrEmployees.map(e=>e.empId));
+    let n=num(m.empIdNextSeq)||1;
+    let id;
+    do{ id=(m.empIdPrefix||'ET')+String(n).padStart(num(m.empIdPad)||3,'0'); n++; }while(used.has(id));
+    return id;
+  }
   function blankEmployee(){
-    return {empId:'', name:'', photo:'', doj:'', dob:'',
+    return {empId:'', name:'', photo:'', doj:'', dob:'', gender:'', bloodGroup:'',
       department:'', designation:'', grade:'', location:'', reportsTo:'',
       employmentType:'Permanent', shift:'General', status:'Active',
-      phone:'', email:'', emergencyContact:'',
-      pfNumber:'', uan:'', esiNumber:'', pan:'', bankAcc:'', ifsc:'',
+      phone:'', altPhone:'', email:'', personalEmail:'',
+      addressLine:'', addressCity:'', addressState:'', addressPin:'',
+      references:[],
+      pfNumber:'', uan:'', esiNumber:'', pan:'', aadhaarLast4:'',
+      bankName:'', bankAcc:'', ifsc:'',
       ctcAnnual:0,
       structure:{basic:0, da:0, hra:0, conveyance:0, special:0, otherAllow:0},
       pfApplicable:true, esiApplicable:true, ptApplicable:true,
@@ -5993,7 +6346,29 @@ ${co.phone||co.mobile||''}`;
       pt=slab?num(slab.amount):0;
     }
 
-    const tds=((st.tds||{}).enabled!==false)?num(emp.monthlyTds):0;
+    /* Slab-based TDS is used only when the slabs have a recorded verifier.
+       Without that, the manual per-employee figure applies — an unverified
+       slab table must never silently drive a deduction. */
+    let tds=0;
+    const tdsCfg=st.tds||{};
+    if(tdsCfg.enabled!==false){
+      const slabsUsable=tdsCfg.mode==='slab'&&(tdsCfg.slabs||[]).length&&tdsCfg.slabsReviewedBy;
+      if(slabsUsable){
+        const annual=Math.max(0,(gross*12)-num(tdsCfg.standardDeduction));
+        let tax=0,prev=0;
+        (tdsCfg.slabs||[]).slice().sort((a,b)=>num(a.upTo)-num(b.upTo)).forEach(sl=>{
+          const band=Math.max(0,Math.min(annual,num(sl.upTo))-prev);
+          tax+=band*num(sl.rate)/100; prev=num(sl.upTo);
+        });
+        if(num(tdsCfg.rebateLimit)&&annual<=num(tdsCfg.rebateLimit)) tax=Math.max(0,tax-num(tdsCfg.rebate87A));
+        tax=tax*(1+num(tdsCfg.cessPct)/100);
+        tds=Math.round(tax/12);
+        notes.push('TDS from verified slab table');
+      } else {
+        tds=num(emp.monthlyTds);
+        if(tdsCfg.mode==='slab') notes.push('Slab mode selected but unverified — manual TDS figure used');
+      }
+    }
     const lwfEmp=(st.lwf||{}).enabled?num(st.lwf.employee):0;
     const lwfEr=(st.lwf||{}).enabled?num(st.lwf.employer):0;
     const otherDed=num(emp.otherDeduction)+num(att.advance);
@@ -8683,7 +9058,7 @@ Sign off as: ${data.quoteSender||'Sales Team'}, ${data.brandName}, ${data.contac
       pn.style.display=(pn.dataset.hrpanel===tab.dataset.hrtab)?'':'none';
     });
     if(tab.dataset.hrtab==='audit') renderAudit();
-    if(tab.dataset.hrtab==='statutory') renderStatutory();
+    if(tab.dataset.hrtab==='statutory'){ renderMasters(); renderStatutory(); }
     if(tab.dataset.hrtab==='leave'){ refreshLeaveDropdowns(); loadLeave(); }
     if(tab.dataset.hrtab==='skills'){ refreshCompDropdowns(); renderRoleStandards(); renderSkillMatrix(); }
     if(tab.dataset.hrtab==='training'){ refreshTrainDropdowns(); loadTraining(); }
@@ -8691,6 +9066,13 @@ Sign off as: ${data.quoteSender||'Sales Team'}, ${data.brandName}, ${data.contac
     if(tab.dataset.hrtab==='tasks'){ refreshTaskDropdowns(); loadItems(); }
     if(tab.dataset.hrtab==='tower'){ renderTower(); }
     if(tab.dataset.hrtab==='recruit'){ loadItems(); }
+    if(tab.dataset.hrtab==='people'){
+      const fill=(id,list)=>{const el=document.getElementById(id); if(el)
+        el.innerHTML='<option value="">—</option>'+(list||[]).map(x=>`<option>${esc(x)}</option>`).join('');};
+      fill('ne-department',HM().departments); fill('ne-designation',HM().designations);
+      fill('ne-grade',HM().grades); fill('ne-shift',(data.shifts||[]).map(x=>x.name));
+      document.getElementById('ne-empId').placeholder=nextEmpId();
+    }
     if(tab.dataset.hrtab==='engage'){
       const e=document.getElementById('rw-emp');
       if(e) e.innerHTML=hrEmployees.filter(x=>x.status!=='Exited')
@@ -9017,7 +9399,7 @@ company-specific policies, salary figures or reporting lines.`;
 
   document.getElementById('ne-create').addEventListener('click',async function(){
     const e=blankEmployee();
-    e.empId=document.getElementById('ne-empId').value.trim();
+    e.empId=document.getElementById('ne-empId').value.trim()||nextEmpId();
     e.name=document.getElementById('ne-name').value.trim();
     e.department=document.getElementById('ne-department').value.trim();
     e.designation=document.getElementById('ne-designation').value.trim();
@@ -9026,7 +9408,8 @@ company-specific policies, salary figures or reporting lines.`;
     e.shift=document.getElementById('ne-shift').value.trim();
     e.ctcAnnual=num(document.getElementById('ne-ctc').value);
     const msg=document.getElementById('ne-msg');
-    if(!e.empId||!e.name){ msg.textContent='Employee ID and name are required.'; msg.style.color='#B03A2E'; return; }
+    if(!e.name){ msg.textContent='Name is required.'; msg.style.color='#B03A2E'; return; }
+    if(hrEmployees.some(x=>x.empId===e.empId)){ msg.textContent='That employee ID already exists.'; msg.style.color='#B03A2E'; return; }
     if(e.ctcAnnual>0) e.structure=structureFromCtc(e.ctcAnnual);
     this.disabled=true; this.textContent='Adding…';
     try{
