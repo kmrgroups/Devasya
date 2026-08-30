@@ -107,6 +107,14 @@ export default async function handler(req, res) {
       const leaveId = 'LV-' + Date.now().toString(36).toUpperCase();
       const rec = { leaveId, empId: emp.empId, type: l.type, from: l.from, to: l.to,
         reason: l.reason || '', status: 'Pending', appliedVia: 'Employee portal' };
+      // a permission is a few hours inside one working day, not a day off —
+      // the times and hours must survive or payroll cannot see it
+      if (l.kind) rec.kind = String(l.kind);
+      if (l.fromTime) rec.fromTime = String(l.fromTime);
+      if (l.toTime) rec.toTime = String(l.toTime);
+      if (l.hours) rec.hours = Number(l.hours) || 0;
+      if (l.dayFraction !== undefined) rec.dayFraction = Number(l.dayFraction);
+      if (rec.kind === 'permission') { rec.type = 'PERM'; rec.to = rec.from; }
       await sql`INSERT INTO hr_leave (leave_id, emp_id, data, status)
                 VALUES (${leaveId}, ${emp.empId}, ${JSON.stringify(rec)}::jsonb, 'Pending')`;
       await audit(emp.empId, 'leave.apply.portal', leaveId, null,

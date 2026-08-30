@@ -404,6 +404,11 @@
   .att-t td.wo{background:#EEF1F6;color:var(--ink-soft);} .att-t td.hol{background:#FFF6E0;color:var(--gold-deep);}
   .att-t td.lv{background:#F3EDFF;color:#5B2BB8;font-weight:600;}
   .att-t select{border:1px solid var(--line);border-radius:3px;font-size:10px;padding:2px;width:38px;background:var(--white);}
+  .att-t td.pm{background:#E8F5EC;}
+  .att-t .perm-b{display:block;font-family:var(--mono);font-size:8px;color:#1E7A48;line-height:1.1;margin-top:1px;}
+  .att-t .at-card{padding:1px 7px;font-size:9px;margin-top:3px;}
+  .att-t td.pmc{font-family:var(--mono);}
+  .att-t td.pmc .ex{color:#B03A2E;display:block;font-size:8px;}
   .sk-t td.sk{font-family:var(--mono);font-weight:700;font-size:10px;padding:6px 3px;}
   .sk-t td.sk.green{background:#E6F7F0;color:var(--ok);}
   .sk-t td.sk.amber{background:#FFF6E0;color:var(--gold-deep);}
@@ -1133,6 +1138,27 @@
           automatically. Approved leave is applied from the Leave tab. Anything left unmarked counts as absent.</div>
       </div>
       <div id="hr-att-grid"></div>
+
+      <div class="qb" style="margin-top:18px;">
+        <h4>Permission — a few hours off inside a working day</h4>
+        <div class="field-hint" style="margin-bottom:10px;">Use this when someone leaves for two hours and
+          comes back. The day still counts as present; only the hours are recorded. What you enter here is
+          approved straight away. Requests raised by employees from the portal arrive on the Leave tab for
+          approval and appear here once approved.</div>
+        <div class="cs-row four">
+          <div><label>Employee</label><select id="pm-emp" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);"></select></div>
+          <div><label>Date</label><input type="date" id="pm-date"></div>
+          <div><label>From time</label><input type="time" id="pm-t1" value="09:00"></div>
+          <div><label>To time</label><input type="time" id="pm-t2" value="11:00"></div>
+        </div>
+        <div class="cs-row four" style="margin-top:10px;">
+          <div style="grid-column:span 2;"><label>Reason</label><input type="text" id="pm-reason" placeholder="Bank work"></div>
+          <div style="align-self:end;"><button class="mini-btn gold" id="pm-add">Record Permission</button></div>
+          <div style="align-self:end;"><span class="t-micro" id="pm-hrs"></span></div>
+        </div>
+        <div class="field-hint" id="pm-msg" style="margin-top:8px;"></div>
+      </div>
+      <div id="hr-perm-list" style="margin-top:16px;"></div>
     </div>
 
     <div class="hr-panel" data-hrpanel="leave" style="display:none;">
@@ -1147,7 +1173,8 @@
         <div class="cs-row" style="margin-top:10px;"><div style="grid-column:1/-1;">
           <label>Reason</label><input type="text" id="lv-reason"></div></div>
         <button class="mini-btn gold" id="lv-apply" style="margin-top:12px;">Submit Request</button>
-        <div class="field-hint" id="lv-msg" style="margin-top:8px;"></div>
+        <div class="field-hint" id="lv-msg" style="margin-top:8px;">For a few hours off inside a working day,
+          use <b>Permission</b> on the Attendance tab instead — a permission does not consume a day of leave.</div>
       </div>
       <div id="hr-leave-bal"></div>
       <div id="hr-leave-list"></div>
@@ -2339,6 +2366,11 @@ I would recommend this company as a place to work</textarea></div></div>
       ],
       weekOff:[0], /* 0 = Sunday */
       lateGraceMin:10, halfDayAfterMin:120,
+      /* Permission = short leave of a few hours inside a working day (§9.4).
+         Hours beyond the free monthly allowance are charged as loss of pay,
+         pro-rata on the standard shift length. */
+      permission:{ standardHours:8, maxHoursPerRequest:2, freeInstancesPerMonth:2,
+        freeHoursPerMonth:4, excessTreatment:"lop" },
       note:"Leave rules are company policy — check them against your standing orders."
     },
     shifts:[
@@ -4152,6 +4184,7 @@ Rules you must follow:
     const recs={}; (meSession.attendance||[]).forEach(a=>{recs[a.day]=a;});
     const lmap={};
     (meSession.leave||[]).filter(l=>l.status==='Approved').forEach(l=>{
+      if(isPermission(l)) return;                 // hours off, not a day off
       let c=new Date(l.from), end=new Date(l.to);
       while(c<=end){ lmap[dayKey(c)]=l.type; c.setDate(c.getDate()+1); }
     });
@@ -4168,6 +4201,7 @@ Rules you must follow:
     if(!Object.keys(recs).length){
       msg.textContent='No attendance is recorded for that month yet.'; msg.style.color='#B03A2E'; return;
     }
+    const mp=mePermission(period); lop+=mp.lopDays;
     const slip=calcPayslip({structure:e.structure,monthlyTds:e.monthlyTds,otherDeduction:e.otherDeduction,
       pfApplicable:e.pfApplicable,esiApplicable:e.esiApplicable,empId:e.empId,name:e.name,
       department:e.department},
@@ -4265,10 +4299,11 @@ table{width:100%;border-collapse:collapse;font-size:9pt;}
     const sections=(opts.sections||[]).map(sec=>{
       if(sec.type==='table'){
         return `<h2>${esc(sec.title||'')}</h2>
-          <table><thead><tr>${(sec.columns||[]).map(c=>
+          <table class="${sec.dense?'dense':''}"><thead><tr>${(sec.columns||[]).map(c=>
             `<th class="${c.align||''}" ${c.width?`style="width:${c.width}"`:''}>${esc(c.label)}</th>`).join('')}</tr></thead>
-          <tbody>${(sec.rows||[]).length?(sec.rows||[]).map(r=>`<tr>${r.map((cell,ci)=>
-            `<td class="${(sec.columns[ci]||{}).align||''}">${cell===null||cell===undefined?'—':cell}</td>`).join('')}</tr>`).join('')
+          <tbody>${(sec.rows||[]).length?(sec.rows||[]).map(r=>`<tr>${r.map((cell,ci)=>{
+            const o=(cell&&typeof cell==='object')?cell:{v:cell};
+            return `<td class="${(sec.columns[ci]||{}).align||''} ${o.cls||''}">${o.v===null||o.v===undefined?'—':o.v}</td>`;}).join('')}</tr>`).join('')
             :`<tr><td colspan="${(sec.columns||[]).length}" class="muted">No records.</td></tr>`}</tbody></table>
           ${sec.note?`<div class="note">${esc(sec.note)}</div>`:''}`;
       }
@@ -4283,7 +4318,7 @@ table{width:100%;border-collapse:collapse;font-size:9pt;}
     w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(opts.title)}</title>
 <style>
   @page{size:${opts.landscape?'A4 landscape':'A4'};margin:14mm 12mm 18mm;}
-  *{box-sizing:border-box;margin:0;padding:0;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   body{font-family:Arial,Helvetica,sans-serif;font-size:9pt;color:#12233f;line-height:1.5;}
   .lh{display:flex;justify-content:space-between;align-items:center;gap:14px;
       border-bottom:2.2pt solid #0B2A5B;padding-bottom:9px;}
@@ -4304,6 +4339,17 @@ table{width:100%;border-collapse:collapse;font-size:9pt;}
   td{padding:4.5px 6px;border-bottom:.5pt solid #e6ecf4;vertical-align:top;}
   tr:nth-child(even) td{background:#fafbfd;}
   th.r,td.r{text-align:right;} th.c,td.c{text-align:center;}
+  table.dense{font-size:5.6pt;table-layout:fixed;}
+  table.dense th{padding:3px 1px;font-size:5.2pt;letter-spacing:0;text-align:center;}
+  table.dense td{padding:3px 1px;text-align:center;border-bottom:.4pt solid #eef2f7;}
+  table.dense tr:nth-child(even) td{background:#fff;}
+  table.dense th.nm,table.dense td.nm{text-align:left;padding-left:3px;width:26mm;}
+  table.dense td.wo{background:#eef1f6;color:#7c8ba3;}
+  table.dense td.hol{background:#fff6e0;color:#8E6A19;}
+  table.dense td.lvc{background:#f3edff;color:#5B2BB8;font-weight:700;}
+  table.dense td.ab{background:#fdecea;color:#B03A2E;font-weight:700;}
+  table.dense td.tot{background:#f6f9fc;font-weight:700;}
+  .perm{color:#1E7A48;font-size:4.6pt;display:block;line-height:1;}
   table.pairs th{background:none;color:#8894ab;text-transform:none;letter-spacing:0;
      font-weight:400;width:44mm;border-bottom:.5pt solid #e6ecf4;}
   table.pairs td{font-weight:600;color:#12233f;}
@@ -4360,14 +4406,59 @@ ${sections}
           rupee(grossMonthly(e))])}]}),
 
     attendance:()=>{const period=(document.getElementById('at-period')||{}).value||new Date().toISOString().slice(0,7);
-      return {title:'Attendance Summary',kind:'Report',subtitle:'Period '+period,
-      sections:[{type:'table',title:'Attendance — '+period,
-        columns:[{label:'ID'},{label:'Name'},{label:'Present',align:'r'},{label:'Paid Leave',align:'r'},
-          {label:'LOP',align:'r'},{label:'Week Off',align:'r'},{label:'Holiday',align:'r'},
-          {label:'OT hrs',align:'r'},{label:'Payable',align:'r'}],
-        rows:hrEmployees.filter(e=>e.status!=='Exited').map(e=>{const a=attendanceSummary(e.empId,period);
-          return [esc(e.empId),esc(e.name),a.present,a.paidLeave,a.lop,a.weekOff,a.holiday,a.otHours,a.payableDays];}),
-        note:'Days with no punch recorded and no approved leave are counted as loss of pay.'}]};},
+      const days=daysInPeriod(period), active=hrEmployees.filter(e=>e.status!=='Exited');
+      const DN=['S','M','T','W','T','F','S'];
+      /* the muster roll itself — one column per calendar day, exactly what is on screen */
+      const musterCols=[{label:'Employee',align:'nm'}]
+        .concat(days.map(d=>({label:d.getDate()+' '+DN[d.getDay()],align:'c'})))
+        .concat([{label:'P',align:'c'},{label:'PL',align:'c'},{label:'LOP',align:'c'},
+                 {label:'WO',align:'c'},{label:'H',align:'c'},{label:'Perm hrs',align:'c'},
+                 {label:'OT hrs',align:'c'},{label:'Pay days',align:'c'}]);
+      const musterRows=active.map(e=>{
+        const lm=leaveDaysFor(e.empId,period), pmm=permissionsFor(e.empId,period), a=attendanceSummary(e.empId,period);
+        const recs={}; hrAttendance.filter(x=>x.empId===e.empId&&String(x.day).startsWith(period))
+          .forEach(x=>{recs[x.day]=x;});
+        const cells=days.map(d=>{
+          const k=dayKey(d), r=recs[k], lv=lm[k], pr=pmm[k];
+          const tag=pr?`<span class="perm">${pr.hours}h</span>`:'';
+          if(isHoliday(d)) return {v:'H'+tag,cls:'hol'};
+          if(isWeekOff(d)) return {v:'W'+tag,cls:'wo'};
+          if(r&&r.status==='Present') return {v:(num(r.dayFraction||1)<1?'½':'P')+tag,cls:''};
+          if(r&&r.status==='Absent') return {v:'A'+tag,cls:'ab'};
+          if(lv) return {v:esc(lv)+tag,cls:'lvc'};
+          return {v:'A'+tag,cls:'ab'};
+        });
+        return [{v:'<b>'+esc(e.name)+'</b><br>'+esc(e.empId),cls:'nm'}].concat(cells).concat([
+          {v:a.present,cls:'tot'},{v:a.paidLeave,cls:'tot'},{v:a.lop||'',cls:'tot'},
+          {v:a.weekOff,cls:'tot'},{v:a.holiday,cls:'tot'},
+          {v:a.permHours?a.permHours+(a.permExcessHours?'*':''):'',cls:'tot'},
+          {v:a.otHours||'',cls:'tot'},{v:'<b>'+a.payableDays+'</b>',cls:'tot'}]);
+      });
+      const perms=permissionRecords(period);
+      return {title:'Attendance Record',kind:'Register',landscape:true,subtitle:'Period '+period,
+      sections:[
+        {type:'table',title:'Muster Roll — '+period,dense:true,columns:musterCols,rows:musterRows,
+         note:'P = present · ½ = half day · A = absent or unmarked · W = weekly off · H = holiday · '
+            +'other letters are approved leave codes. A green figure is permission — hours taken off inside '
+            +'that working day, which still counts as present. * marks permission beyond the free allowance, '
+            +'charged as loss of pay. Days with nothing recorded and no approved leave are counted as loss of pay.'},
+        {type:'table',title:'Summary — '+period,
+          columns:[{label:'ID'},{label:'Name'},{label:'Designation'},{label:'Present',align:'r'},
+            {label:'Paid Leave',align:'r'},{label:'Permission hrs',align:'r'},{label:'Charged hrs',align:'r'},
+            {label:'LOP days',align:'r'},{label:'Week Off',align:'r'},{label:'Holiday',align:'r'},
+            {label:'OT hrs',align:'r'},{label:'Payable',align:'r'}],
+          rows:active.map(e=>{const a=attendanceSummary(e.empId,period);
+            return [esc(e.empId),esc(e.name),esc(e.designation||''),a.present,a.paidLeave,
+              a.permHours||0,a.permExcessHours||0,a.lop,a.weekOff,a.holiday,a.otHours,a.payableDays];})},
+        {type:'table',title:'Permission Register — '+period,
+          columns:[{label:'Date'},{label:'Employee'},{label:'From'},{label:'To'},{label:'Hours',align:'r'},
+            {label:'Reason'},{label:'Raised by'},{label:'Status'}],
+          rows:perms.map(l=>{const d=l.data||l; const e=hrEmployees.find(x=>x.empId===l.emp_id);
+            return [fmtDate(d.from),esc(e?e.name:l.emp_id),esc(d.fromTime||'—'),esc(d.toTime||'—'),
+              permHoursOf(d),esc(d.reason||''),esc(d.appliedVia||'HR'),esc(l.status)];}),
+          note:'Free allowance '+PM().freeInstancesPerMonth+' instances or '+PM().freeHoursPerMonth
+              +' hours a month; excess charged on a '+PM().standardHours+'-hour shift.'}
+      ]};},
 
     leave:()=>({title:'Leave Register',kind:'Register',
       sections:[{type:'table',title:'Leave Requests',
@@ -4483,6 +4574,14 @@ ${sections}
       renderMe();
     }catch(e){ err.textContent=e.message; err.style.display='block'; }
   }
+  /* the employee's own permission position for a month */
+  function mePermission(period){
+    let h=0,c=0;
+    (meSession.leave||[]).filter(l=>l.status==='Approved'&&isPermission(l))
+      .filter(l=>String(l.from||'').startsWith(period))
+      .forEach(l=>{ h+=permHoursOf(l); c++; });
+    return permCharge(h,c);
+  }
   function renderMe(){
     const host=document.getElementById('me-detail');
     document.getElementById('me-login').style.display='none';
@@ -4494,6 +4593,7 @@ ${sections}
     const recs={}; (meSession.attendance||[]).forEach(a=>{recs[a.day]=a;});
     const lmap={};
     (meSession.leave||[]).filter(l=>l.status==='Approved').forEach(l=>{
+      if(isPermission(l)) return;                 // hours off, not a day off
       let c=new Date(l.from), end=new Date(l.to);
       while(c<=end){ lmap[dayKey(c)]=l.type; c.setDate(c.getDate()+1); }
     });
@@ -4511,7 +4611,8 @@ ${sections}
       if(isWeekOff(d)){weekOff++; return;}
       lop++;                       // no punch recorded and not a day off
     });
-    const payableSoFar=Math.max(0,elapsed-lop);
+    const myPerm=mePermission(period);
+    const payableSoFar=Math.max(0,Math.round((elapsed-lop-myPerm.lopDays)*1000)/1000);
 
     /* earnings to date, on the same arithmetic payroll uses */
     setText('me-who',e.name);
@@ -4538,7 +4639,14 @@ ${sections}
         <div class="me-tile"><b>${paidLeave}</b><span>Paid Leave</span></div>
         <div class="me-tile"><b style="color:${lop?'#B03A2E':'var(--ok)'}">${lop}</b><span>Loss of Pay</span></div>
         <div class="me-tile"><b>${ot}</b><span>OT Hours</span></div>
+        <div class="me-tile"><b style="color:${myPerm.excessHours?'#B03A2E':'inherit'}">${myPerm.hours}</b>
+          <span>Permission Hrs</span></div>
       </div>
+      ${myPerm.count?`<div class="field-hint" style="margin:-8px 0 16px;">Permission this month:
+        ${myPerm.count} instance(s), ${myPerm.hours} hours. Free allowance is
+        ${PM().freeInstancesPerMonth} instances or ${PM().freeHoursPerMonth} hours.
+        ${myPerm.excessHours?`<b style="color:#B03A2E">${myPerm.excessHours} hours beyond the allowance —
+          ${myPerm.lopDays} day of pay deducted.</b>`:'You are within the allowance.'}</div>`:''}
 
       <div class="qb" style="margin-bottom:18px;">
         <h4>Salary position — ${esc(period)}</h4>
@@ -4640,7 +4748,9 @@ ${sections}
       <div class="qb"><h4>My leave requests</h4>
         <table class="cs-t"><thead><tr><th>Type</th><th>From</th><th>To</th><th>Reason</th><th>Status</th></tr></thead>
         <tbody>${(meSession.leave||[]).length?(meSession.leave||[]).map(l=>`<tr>
-          <td>${esc(l.type)}</td><td>${fmtDate(l.from)}</td><td>${fmtDate(l.to)}</td>
+          <td>${isPermission(l)?'<b>Permission</b> '+permHoursOf(l)+' hrs':esc(l.type)}</td>
+          <td>${fmtDate(l.from)}${isPermission(l)&&l.fromTime?' '+esc(l.fromTime):''}</td>
+          <td>${isPermission(l)?(l.toTime?esc(l.toTime):'—'):fmtDate(l.to)}</td>
           <td class="t-micro">${esc(l.reason||'')}</td>
           <td><span class="order-badge ${l.status==='Approved'?'go':l.status==='Rejected'?'no':'unk'}">${esc(l.status)}</span></td>
           </tr>`).join(''):'<tr><td colspan="5" class="t-micro">No requests yet.</td></tr>'}</tbody></table></div>`;
@@ -4649,6 +4759,12 @@ ${sections}
     const showTimes=()=>{
       const isPerm=kindSel.value==='permission';
       document.getElementById('ml-times').style.display=isPerm?'':'none';
+      const ts=document.getElementById('ml-type');
+      if(ts) ts.disabled=isPerm;
+      const hint=document.getElementById('ml-msg');
+      if(hint&&isPerm) hint.textContent='Permission is for a few hours inside one working day — up to '
+        +PM().maxHoursPerRequest+' hours at a time, '+PM().freeHoursPerMonth+' hours a month free. '
+        +'It does not use a day of leave.';
       if(isPerm) document.getElementById('ml-to').value=document.getElementById('ml-from').value;
     };
     if(kindSel) kindSel.addEventListener('change',showTimes);
@@ -4671,13 +4787,22 @@ ${sections}
       if(kind==='permission') to=from;
       if(!from||!to){ msg.textContent='Choose both dates.'; msg.style.color='#B03A2E'; return; }
       if(new Date(to)<new Date(from)){ msg.textContent='The end date is before the start date.'; msg.style.color='#B03A2E'; return; }
+      const pHrs=kind==='permission'
+        ? permHoursOf({fromTime:document.getElementById('ml-t1').value,toTime:document.getElementById('ml-t2').value}) : 0;
+      if(kind==='permission'){
+        if(pHrs<=0){ msg.textContent='Check the times — the end time must be after the start time.'; msg.style.color='#B03A2E'; return; }
+        const cap=num(PM().maxHoursPerRequest);
+        if(cap&&pHrs>cap){ msg.textContent='Permission is limited to '+cap+' hours at a time. This is '+pHrs+' hours.';
+          msg.style.color='#B03A2E'; return; }
+      }
       this.disabled=true; this.textContent='Sending…';
       try{
         const r=await fetch(API+'/api/hr',{method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({what:'meLeave',empId:meSession.empId,dob:meSession.dob,
-            leave:{type:document.getElementById('ml-type').value,from,to,
+            leave:{type:kind==='permission'?'PERM':document.getElementById('ml-type').value,from,to,
               kind, fromTime:kind==='permission'?document.getElementById('ml-t1').value:'',
               toTime:kind==='permission'?document.getElementById('ml-t2').value:'',
+              hours:pHrs,
               dayFraction:kind==='half'?0.5:(kind==='permission'?0:1),
               reason:document.getElementById('ml-reason').value.trim()}})});
         const j=await r.json();
@@ -6296,31 +6421,40 @@ within seven days.</p>
     }).join('');
 
     const rows=active.map(e=>{
-      const lm=leaveDaysFor(e.empId,period);
+      const lm=leaveDaysFor(e.empId,period), pm=permissionsFor(e.empId,period);
       const cells=days.map(d=>{
-        const k=dayKey(d), off=isWeekOff(d), hol=isHoliday(d), lv=lm[k];
-        if(hol) return `<td class="c hol" title="${esc(holidayName(d))}">H</td>`;
-        if(off) return `<td class="c wo">W</td>`;
-        if(lv) return `<td class="c lv" title="Approved ${esc(lv)}">${esc(lv)}</td>`;
+        const k=dayKey(d), off=isWeekOff(d), hol=isHoliday(d), lv=lm[k], pr=pm[k];
+        const badge=pr?`<i class="perm-b" title="Permission ${esc(pr.slots.join(', '))}">${pr.hours}h</i>`:'';
+        if(hol) return `<td class="c hol" title="${esc(holidayName(d))}">H${badge}</td>`;
+        if(off) return `<td class="c wo">W${badge}</td>`;
+        if(lv) return `<td class="c lv" title="Approved ${esc(lv)}">${esc(lv)}${badge}</td>`;
         const cur=(attDraft[e.empId+'|'+k]||{}).status||'';
-        return `<td class="c"><select class="at-cell" data-emp="${esc(e.empId)}" data-day="${k}">
+        return `<td class="c ${pr?'pm':''}"><select class="at-cell" data-emp="${esc(e.empId)}" data-day="${k}">
           <option value="" ${!cur?'selected':''}>–</option>
           <option value="Present" ${cur==='Present'?'selected':''}>P</option>
           <option value="Half" ${cur==='Half'?'selected':''}>½</option>
-          <option value="Absent" ${cur==='Absent'?'selected':''}>A</option></select></td>`;
+          <option value="Absent" ${cur==='Absent'?'selected':''}>A</option></select>${badge}</td>`;
       }).join('');
       const sum=attendanceSummary(e.empId,period);
-      return `<tr><td class="nm">${esc(e.name)}<div class="t-micro">${esc(e.empId)}</div></td>${cells}
+      return `<tr><td class="nm">${esc(e.name)}<div class="t-micro">${esc(e.empId)}</div>
+        <button class="mini-btn at-card" data-emp="${esc(e.empId)}" title="Print this person's attendance record">Print record</button></td>${cells}
         <td class="c"><b>${sum.payableDays}</b></td>
         <td class="c">${sum.lop||''}</td>
+        <td class="c pmc">${sum.permHours?sum.permHours+'h':''}${sum.permExcessHours?`<span class="ex" title="Beyond the free allowance — charged as ${sum.permLopDays} day loss of pay">+${sum.permExcessHours}h</span>`:''}</td>
         <td class="c"><input class="at-ot num" data-emp="${esc(e.empId)}" value="${sum.otHours||0}" title="Overtime hours for the month"></td></tr>`;
     }).join('');
 
     host.innerHTML=`<div style="overflow-x:auto;"><table class="att-t">
-      <thead><tr><th class="nm">Employee</th>${head}<th class="c">Paid</th><th class="c">LOP</th><th class="c">OT hrs</th></tr></thead>
+      <thead><tr><th class="nm">Employee</th>${head}<th class="c">Paid</th><th class="c">LOP</th><th class="c">Perm</th><th class="c">OT hrs</th></tr></thead>
       <tbody>${rows}</tbody></table></div>
       <div class="feas-line" style="margin-top:10px;">P = present · ½ = half day · A = absent · W = weekly off ·
-        H = holiday · leave codes come from approved requests. Blank counts as absent when payroll runs.</div>`;
+        H = holiday · leave codes come from approved requests. Blank counts as absent when payroll runs.
+        A green figure in a cell is <b>permission</b> — hours taken off inside that working day; the day still
+        counts as present. Permission beyond ${PM().freeHoursPerMonth} hours or ${PM().freeInstancesPerMonth}
+        instances a month is shown in red and charged as loss of pay.</div>`;
+
+    host.querySelectorAll('.at-card').forEach(b=>b.addEventListener('click',()=>
+      printAttendanceCard(b.dataset.emp,period)));
 
     host.querySelectorAll('.at-cell').forEach(sel=>sel.addEventListener('change',()=>{
       const key=sel.dataset.emp+'|'+sel.dataset.day;
@@ -6350,6 +6484,117 @@ within seven days.</p>
     }catch(e){ msg.textContent=e.message; msg.style.color='#B03A2E'; }
   }
 
+  /* the month's permission register, under the sheet */
+  function renderPermList(){
+    const host=document.getElementById('hr-perm-list'); if(!host) return;
+    const period=(document.getElementById('at-period')||{}).value||'';
+    const recs=permissionRecords(period);
+    const pending=recs.filter(r=>r.status==='Pending').length;
+    host.innerHTML=`<div class="qb"><h4>Permission Register — ${esc(period||'all periods')}</h4>
+      ${pending?`<div class="dx-missing"><b>${pending} permission request(s) awaiting approval on the Leave tab.</b></div>`:''}
+      <table class="cs-t"><thead><tr><th>Employee</th><th>Date</th><th>From</th><th>To</th>
+        <th class="r">Hours</th><th>Reason</th><th>Raised by</th><th>Status</th><th></th></tr></thead>
+      <tbody>${recs.length?recs.map(l=>{const d=l.data||l;
+        const e=hrEmployees.find(x=>x.empId===l.emp_id);
+        return `<tr><td>${esc(e?e.name:l.emp_id)}<div class="t-micro">${esc(l.emp_id)}</div></td>
+          <td>${fmtDate(d.from)}</td><td>${esc(d.fromTime||'—')}</td><td>${esc(d.toTime||'—')}</td>
+          <td class="r"><b>${permHoursOf(d)}</b></td>
+          <td class="t-micro">${esc(d.reason||'')}</td>
+          <td class="t-micro">${esc(d.appliedVia||'HR')}</td>
+          <td><span class="order-badge ${l.status==='Approved'?'go':l.status==='Rejected'?'no':'unk'}">${esc(l.status)}</span></td>
+          <td>${l.status==='Pending'?`<button class="mini-btn green pm-ok" data-id="${esc(l.leave_id)}">Approve</button>
+            <button class="mini-btn pm-no" data-id="${esc(l.leave_id)}">Reject</button>`
+            :`<button class="qb-del pm-del" data-id="${esc(l.leave_id)}">×</button>`}</td></tr>`;}).join('')
+        :'<tr><td colspan="9" class="t-micro">No permission recorded for this period.</td></tr>'}</tbody></table>
+      <div class="field-hint" style="margin-top:8px;">Free allowance: ${PM().freeInstancesPerMonth} instances
+        or ${PM().freeHoursPerMonth} hours a month, whichever the hours reach first. Anything beyond that is
+        charged on a ${PM().standardHours}-hour shift. Change these on the Statutory &amp; Masters tab.</div></div>`;
+
+    host.querySelectorAll('.pm-ok, .pm-no').forEach(b=>b.addEventListener('click',async()=>{
+      const status=b.classList.contains('pm-ok')?'Approved':'Rejected';
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'leave',leaveId:b.dataset.id,
+        status,reason:'permission '+status.toLowerCase()+' by '+(currentUser||'staff')})});
+        await loadLeave(); renderPermList(); renderAttendanceGrid(); toast('Permission '+status.toLowerCase()); }
+      catch(e){ toast(e.message); }
+    }));
+    host.querySelectorAll('.pm-del').forEach(b=>b.addEventListener('click',async()=>{
+      if(!confirm('Delete this permission record?')) return;
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'leave',leaveId:b.dataset.id,
+        remove:true,reason:'permission deleted'})});
+        await loadLeave(); renderPermList(); renderAttendanceGrid(); }catch(e){ toast(e.message); }
+    }));
+  }
+
+  async function addPermission(){
+    const msg=document.getElementById('pm-msg');
+    const empId=(document.getElementById('pm-emp')||{}).value||'';
+    const date=(document.getElementById('pm-date')||{}).value||'';
+    const t1=(document.getElementById('pm-t1')||{}).value||'';
+    const t2=(document.getElementById('pm-t2')||{}).value||'';
+    const reason=((document.getElementById('pm-reason')||{}).value||'').trim();
+    const fail=t=>{ msg.textContent=t; msg.style.color='#B03A2E'; };
+    if(!empId||!date||!t1||!t2) return fail('Employee, date and both times are required.');
+    const hours=permHoursOf({fromTime:t1,toTime:t2});
+    if(hours<=0) return fail('The end time is not after the start time.');
+    const cap=num(PM().maxHoursPerRequest);
+    if(cap&&hours>cap) return fail(`Policy allows at most ${cap} hours in one permission — this is ${hours}.`);
+    if(isWeekOff(new Date(date))||isHoliday(new Date(date)))
+      return fail('That date is a weekly off or holiday — permission is only for working days.');
+    const leave={leaveId:'PM-'+Date.now().toString(36).toUpperCase(),empId,type:'PERM',kind:'permission',
+      from:date,to:date,fromTime:t1,toTime:t2,hours,dayFraction:0,reason,
+      status:'Approved',appliedVia:'HR'};
+    try{
+      await api('/api/hr',{method:'POST',body:JSON.stringify({what:'leave',leave,reason:'permission recorded by HR'})});
+      await loadLeave();
+      renderPermList(); renderAttendanceGrid();
+      const st=permissionStats(empId,String(date).slice(0,7));
+      msg.textContent=`Recorded — ${hours} hours. This month: ${st.count} instance(s), ${st.hours} hours`
+        +(st.excessHours?`, ${st.excessHours} hours beyond the allowance = ${st.lopDays} day loss of pay.`:'; within the free allowance.');
+      msg.style.color=st.excessHours?'var(--gold-deep)':'var(--ok)';
+      const r=document.getElementById('pm-reason'); if(r) r.value='';
+    }catch(e){ fail(e.message); }
+  }
+
+  /* one person's month, as a printable record */
+  function printAttendanceCard(empId,period){
+    const e=hrEmployees.find(x=>x.empId===empId); if(!e) return;
+    period=period||(document.getElementById('at-period')||{}).value||new Date().toISOString().slice(0,7);
+    const days=daysInPeriod(period), lm=leaveDaysFor(empId,period), pm=permissionsFor(empId,period);
+    const recs={}; hrAttendance.filter(a=>a.empId===empId&&String(a.day).startsWith(period))
+      .forEach(a=>{recs[a.day]=a;});
+    const sum=attendanceSummary(empId,period);
+    const DN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const rows=days.map(d=>{
+      const k=dayKey(d), r=recs[k], lv=lm[k], pr=pm[k];
+      let status='Absent';
+      if(isHoliday(d)) status='Holiday — '+holidayName(d);
+      else if(isWeekOff(d)) status='Weekly off';
+      else if(r&&r.status==='Present') status=num(r.dayFraction||1)<1?'Half day':'Present';
+      else if(r&&r.status==='Absent') status='Absent';
+      else if(lv) status='Leave — '+lv;
+      else if(!r) status='Not marked (absent)';
+      return [k.split('-').reverse().join('/'),DN[d.getDay()],esc(status),
+        pr?pr.hours+' hrs'+(pr.slots.length?' ('+esc(pr.slots.join(', '))+')':''):'—',
+        (r&&num(r.otHours))?num(r.otHours):'—'];
+    });
+    openReport({title:'Attendance Record',kind:'Record',subtitle:e.name+' ('+empId+') · '+period,
+      sections:[
+        {type:'pairs',title:'Employee',rows:[
+          ['Employee',esc(e.name)+' ('+esc(empId)+')'],['Designation',esc(e.designation||'—')],
+          ['Department',esc(e.department||'—')],['Date of Joining',e.doj?new Date(e.doj).toLocaleDateString('en-GB'):'—'],
+          ['Period',esc(period)],['Shift',esc(e.shift||'—')]]},
+        {type:'table',title:'Day by day',
+          columns:[{label:'Date'},{label:'Day'},{label:'Status'},{label:'Permission'},{label:'OT hrs',align:'r'}],
+          rows},
+        {type:'pairs',title:'Month summary',rows:[
+          ['Days in month',sum.totalDays],['Present',sum.present],['Paid leave',sum.paidLeave],
+          ['Weekly offs',sum.weekOff],['Holidays',sum.holiday],['Absent / unmarked',sum.absent],
+          ['Permission taken',sum.permHours+' hours in '+sum.permCount+' instance(s)'],
+          ['Permission beyond allowance',sum.permExcessHours?sum.permExcessHours+' hours = '+sum.permLopDays+' day loss of pay':'None'],
+          ['Loss of pay',sum.lop+' day(s)'],['Overtime',sum.otHours+' hours'],
+          ['<b>Payable days</b>','<b>'+sum.payableDays+'</b>']]}]});
+  }
+
   async function loadAttendance(period){
     if(!period) return;
     const [y,m]=period.split('-').map(Number);
@@ -6358,7 +6603,14 @@ within seven days.</p>
     catch(e){ hrAttendance=[]; }
     attDraft={};
     hrAttendance.forEach(a=>{ attDraft[a.empId+'|'+a.day]=a; });
-    renderAttendanceGrid();
+    if(!hrLeave.length){ try{ const j=await api('/api/hr?what=leave'); hrLeave=j.leave||[]; }catch(e){} }
+    renderAttendanceGrid(); renderPermList();
+    const pe=document.getElementById('pm-emp');
+    if(pe) pe.innerHTML=hrEmployees.filter(x=>x.status!=='Exited')
+      .map(x=>`<option value="${esc(x.empId)}">${esc(x.empId)} — ${esc(x.name)}</option>`).join('');
+    const pd=document.getElementById('pm-date');
+    if(pd&&!pd.value) pd.value=period+'-'+String(Math.min(new Date().getDate(),
+      new Date(+period.split('-')[0],+period.split('-')[1],0).getDate())).padStart(2,'0');
   }
 
   /* ---------- Leave UI ---------- */
@@ -6393,10 +6645,15 @@ within seven days.</p>
       <table class="cs-t"><thead><tr><th>Employee</th><th>Type</th><th>From</th><th>To</th><th class="r">Days</th>
       <th>Reason</th><th>Status</th><th></th></tr></thead><tbody>
       ${hrLeave.map((l,i)=>{const d=l.data||l;
-        const days=Math.round((new Date(d.to)-new Date(d.from))/86400000)+1;
+        const perm=isPermission(d);
+        const days=perm?permHoursOf(d)+' hrs'
+          :(d.dayFraction===0.5?'0.5':String(Math.round((new Date(d.to)-new Date(d.from))/86400000)+1));
         const emp=hrEmployees.find(e=>e.empId===l.emp_id);
         return `<tr><td>${esc(emp?emp.name:l.emp_id)}<div class="t-micro">${esc(l.emp_id)}</div></td>
-        <td>${esc(d.type)}</td><td>${fmtDate(d.from)}</td><td>${fmtDate(d.to)}</td><td class="r">${days}</td>
+        <td>${perm?'<b>Permission</b>':esc(d.type)}</td>
+        <td>${fmtDate(d.from)}${perm&&d.fromTime?' <span class="t-micro">'+esc(d.fromTime)+'</span>':''}</td>
+        <td>${perm?fmtDate(d.from)+(d.toTime?' <span class="t-micro">'+esc(d.toTime)+'</span>':''):fmtDate(d.to)}</td>
+        <td class="r">${days}</td>
         <td class="t-micro">${esc(d.reason||'')}</td>
         <td><span class="order-badge ${l.status==='Approved'?'go':l.status==='Rejected'?'no':'unk'}">${esc(l.status)}</span></td>
         <td>${l.status==='Pending'?`<button class="mini-btn green lv-ok" data-id="${esc(l.leave_id)}">Approve</button>
@@ -6408,7 +6665,8 @@ within seven days.</p>
       const status=b.classList.contains('lv-ok')?'Approved':'Rejected';
       try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'leave',leaveId:b.dataset.id,
         status,reason:status.toLowerCase()+' by '+(currentUser||'staff')})});
-        await loadLeave(); toast('Leave '+status.toLowerCase()); }catch(e){ toast(e.message); }
+        await loadLeave(); renderPermList(); renderAttendanceGrid();
+        toast('Request '+status.toLowerCase()); }catch(e){ toast(e.message); }
     }));
     host.querySelectorAll('.lv-del').forEach(b=>b.addEventListener('click',async()=>{
       if(!confirm('Delete this leave record?')) return;
@@ -6597,10 +6855,38 @@ within seven days.</p>
           <td><button class="qb-del hm-lvdel" data-i="${li}">×</button></td></tr>`).join('')}</tbody></table>
       <button class="qb-add" id="hm-lvadd">+ Add leave type</button>
 
+      <h4 style="margin-top:20px;">Permission — short leave of a few hours</h4>
+      <div class="field-hint" style="margin-bottom:10px;">A person who steps out for part of a working day
+        applies for <b>permission</b>, not leave. The day still counts as present. Hours taken beyond the
+        free allowance below are converted to loss of pay on the standard shift length.</div>
+      <div class="cs-row four">
+        <div><label>Standard shift hours</label>
+          <input class="hm-pm num" data-k="standardHours" value="${esc(PM().standardHours)}"></div>
+        <div><label>Max hours per request</label>
+          <input class="hm-pm num" data-k="maxHoursPerRequest" value="${esc(PM().maxHoursPerRequest)}"></div>
+        <div><label>Free instances / month</label>
+          <input class="hm-pm num" data-k="freeInstancesPerMonth" value="${esc(PM().freeInstancesPerMonth)}"></div>
+        <div><label>Free hours / month</label>
+          <input class="hm-pm num" data-k="freeHoursPerMonth" value="${esc(PM().freeHoursPerMonth)}"></div>
+      </div>
+      <div class="cs-row" style="margin-top:10px;"><div>
+        <label>Hours beyond the free allowance</label>
+        <select class="hm-pmS" data-k="excessTreatment" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+          <option value="lop" ${PM().excessTreatment==='lop'?'selected':''}>Deduct pro-rata as loss of pay</option>
+          <option value="halfday" ${PM().excessTreatment==='halfday'?'selected':''}>Round up to a half day loss of pay</option>
+          <option value="ignore" ${PM().excessTreatment==='ignore'?'selected':''}>Record only — never deduct</option>
+        </select></div></div>
+
       <button class="add-btn solid" id="hm-save" style="margin-top:18px;">Save Masters</button>
       <div class="field-hint" id="hm-msg" style="margin-top:8px;"></div></div>`;
 
     const M=()=>{ data.hrMasters=data.hrMasters||{}; return data.hrMasters; };
+    const PMset=()=>{ data.leavePolicy=data.leavePolicy||{};
+      data.leavePolicy.permission=data.leavePolicy.permission||{}; return data.leavePolicy.permission; };
+    host.querySelectorAll('.hm-pm').forEach(i=>i.addEventListener('input',()=>{
+      PMset()[i.dataset.k]=num(i.value); markDirty(); }));
+    host.querySelectorAll('.hm-pmS').forEach(i=>i.addEventListener('change',()=>{
+      PMset()[i.dataset.k]=i.value; markDirty(); }));
     host.querySelectorAll('.hm-cfg').forEach(i=>i.addEventListener('input',()=>{
       M()[i.dataset.k]=i.classList.contains('num')?num(i.value):i.value; markDirty(); }));
     host.querySelectorAll('.hm-val').forEach(i=>i.addEventListener('input',()=>{
@@ -6936,6 +7222,59 @@ Rules:
      arithmetic on your own records — no estimation. */
   let hrAttendance=[], hrLeave=[];
   const LP=()=>data.leavePolicy||{};
+  const PM=()=>Object.assign({standardHours:8,maxHoursPerRequest:2,freeInstancesPerMonth:2,
+    freeHoursPerMonth:4,excessTreatment:'lop'},(data.leavePolicy||{}).permission||{});
+
+  /* ---- Permission: short leave measured in hours, not days ---- */
+  const isPermission=d=>{ const x=d&&(d.data||d)||{};
+    return String(x.kind||'')==='permission'||String(x.type||'')==='PERM'; };
+  function permHoursOf(d){
+    const x=(d&&(d.data||d))||{};
+    if(num(x.hours)) return num(x.hours);
+    if(x.fromTime&&x.toTime){
+      const m=(new Date('2000-01-01T'+x.toTime)-new Date('2000-01-01T'+x.fromTime))/60000;
+      return m>0?Math.round(m/6)/10:0;
+    }
+    return 0;
+  }
+  /* what a month's permission costs, given the policy */
+  function permCharge(hours,count){
+    const p=PM(), std=num(p.standardHours)||8;
+    const excess=Math.max(0,+(hours-num(p.freeHoursPerMonth)).toFixed(2));
+    const overInstances=Math.max(0,count-num(p.freeInstancesPerMonth));
+    let lopDays=0;
+    if(excess>0){
+      if(p.excessTreatment==='ignore') lopDays=0;
+      else if(p.excessTreatment==='halfday') lopDays=Math.ceil((excess/std)*2)/2;
+      else lopDays=Math.round((excess/std)*1000)/1000;
+    }
+    return {hours:+(+hours).toFixed(2),count,excessHours:excess,overInstances,lopDays};
+  }
+  /* every approved permission for one person in one month, keyed by day */
+  function permissionsFor(empId,period){
+    const map={};
+    hrLeave.filter(l=>l.emp_id===empId&&l.status==='Approved').forEach(l=>{
+      const d=l.data||l; if(!isPermission(d)) return;
+      const k=String(d.from||'').slice(0,10);
+      if(!k||(period&&!k.startsWith(period))) return;
+      map[k]=map[k]||{hours:0,count:0,slots:[],reasons:[]};
+      map[k].hours=+(map[k].hours+permHoursOf(d)).toFixed(2);
+      map[k].count++;
+      if(d.fromTime&&d.toTime) map[k].slots.push(d.fromTime+'–'+d.toTime);
+      if(d.reason) map[k].reasons.push(d.reason);
+    });
+    return map;
+  }
+  function permissionStats(empId,period){
+    const map=permissionsFor(empId,period);
+    let h=0,c=0; Object.keys(map).forEach(k=>{h+=map[k].hours;c+=map[k].count;});
+    return Object.assign({map},permCharge(h,c));
+  }
+  function permissionRecords(period){
+    return hrLeave.filter(l=>isPermission(l.data||l))
+      .filter(l=>{const d=l.data||l; return !period||String(d.from||'').startsWith(period);})
+      .sort((a,b)=>String((b.data||b).from).localeCompare(String((a.data||a).from)));
+  }
 
   const dayKey=d=>new Date(d).toISOString().slice(0,10);
   function isWeekOff(d){ return (LP().weekOff||[]).includes(new Date(d).getDay()); }
@@ -6956,6 +7295,7 @@ Rules:
     hrLeave.filter(l=>l.emp_id===empId && (l.status==='Approved'))
       .forEach(l=>{
         const d=l.data||l;
+        if(isPermission(d)) return;         // hours off, not a day off
         let cur=new Date(d.from), end=new Date(d.to);
         while(cur<=end){
           if(!period || dayKey(cur).startsWith(period)) map[dayKey(cur)]=d.type||'CL';
@@ -6987,15 +7327,23 @@ Rules:
       absent++; lop++;                       // no record and not a day off
     });
 
+    /* permission hours beyond the free monthly allowance become loss of pay */
+    const perm=permissionStats(empId,period);
+    const lopDays=Math.round((lop+perm.lopDays)*1000)/1000;
+
     const totalDays=days.length;
-    const payableDays=Math.max(0, totalDays-lop);
-    return {totalDays,present,weekOff,holiday,paidLeave,lop,absent,otHours,lateCount,payableDays};
+    const payableDays=Math.max(0, Math.round((totalDays-lopDays)*1000)/1000);
+    return {totalDays,present,weekOff,holiday,paidLeave,lop:lopDays,absent,otHours,lateCount,payableDays,
+      lopDaysFromAbsence:lop, permHours:perm.hours, permCount:perm.count,
+      permExcessHours:perm.excessHours, permLopDays:perm.lopDays,
+      permOverInstances:perm.overInstances, permMap:perm.map};
   }
 
   function leaveBalance(empId){
     const taken={};
     hrLeave.filter(l=>l.emp_id===empId&&l.status==='Approved').forEach(l=>{
-      const d=l.data||l, days=Math.round((new Date(d.to)-new Date(d.from))/86400000)+1;
+      const d=l.data||l; if(isPermission(d)) return;      // hours, not days
+      const days=Math.round((new Date(d.to)-new Date(d.from))/86400000)+1;
       taken[d.type]=(taken[d.type]||0)+Math.max(1,days);
     });
     return (LP().types||[]).map(t=>({code:t.code,name:t.name,entitled:t.annualDays,
@@ -10121,12 +10469,19 @@ Sign off as: ${data.quoteSender||'Sales Team'}, ${data.brandName}, ${data.contac
     if(tab.dataset.hrtab==='attendance'){
       const pe=document.getElementById('at-period');
       if(!pe.value) pe.value=new Date().toISOString().slice(0,7);
-      loadAttendance(pe.value);
+      loadLeave().then(()=>loadAttendance(pe.value));
     }
   }));
   document.getElementById('hr-refresh').addEventListener('click',loadHr);
   document.getElementById('at-load').addEventListener('click',()=>loadAttendance(document.getElementById('at-period').value));
   document.getElementById('at-save').addEventListener('click',saveAttendance);
+  document.getElementById('pm-add').addEventListener('click',addPermission);
+  ['pm-t1','pm-t2'].forEach(id=>{const el=document.getElementById(id);
+    if(el) el.addEventListener('change',()=>{
+      const h=permHoursOf({fromTime:document.getElementById('pm-t1').value,
+        toTime:document.getElementById('pm-t2').value});
+      document.getElementById('pm-hrs').textContent=h>0?h+' hours':'check the times';
+    });});
   document.getElementById('at-fill').addEventListener('click',()=>{
     const period=document.getElementById('at-period').value;
     if(!period){ toast('Choose a period first'); return; }
