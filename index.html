@@ -701,6 +701,7 @@
     .gallery-grid{grid-template-columns:1fr 1fr;}    #chat-panel{bottom:12px;left:12px;right:12px;width:auto;height:calc(100vh - 90px);}
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
 
@@ -3694,69 +3695,72 @@ Reply with ONLY this JSON, no commentary or code fences:
       +'/#me?id='+encodeURIComponent(emp.empId);
     const qr='https://api.qrserver.com/v1/create-qr-code/?size=500x500&margin=0&data='+encodeURIComponent(portal);
     const valid=new Date(); valid.setFullYear(valid.getFullYear()+3);
-    const sky=data.sky||'#3FA9E0', navy=data.navy||'#0B2A5B', gold=data.gold||'#C2932E';
+    const navy=data.navy||'#0B2A5B', gold=data.gold||'#C2932E';
 
+    /* Fixed CR80 card. Every block has a declared height and the whole column
+       adds up to 85.6mm, so nothing can be pushed off the card. */
     w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>ID Card — ${esc(emp.name)}</title>
 <style>
-  @page{size:A4;margin:16mm;}
+  @page{size:A4;margin:15mm;}
   *{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  body{font-family:'Segoe UI',Arial,Helvetica,sans-serif;color:#12233f;background:#fff;}
-  .sheet{display:flex;gap:12mm;flex-wrap:wrap;}
-  .card{width:54mm;height:85.6mm;border-radius:3.5mm;overflow:hidden;page-break-inside:avoid;
-    position:relative;background:#fff;box-shadow:0 0 0 0.25mm #d5dee9;}
+  body{font-family:Arial,Helvetica,sans-serif;color:#12233f;background:#fff;}
+  .sheet{display:flex;gap:10mm;flex-wrap:wrap;}
+  .card{width:54mm;height:85.6mm;border:0.25mm solid #d5dee9;border-radius:3mm;
+    overflow:hidden;page-break-inside:avoid;display:flex;flex-direction:column;background:#fff;}
 
-  /* ---------------- FRONT ---------------- */
-  .band{height:26mm;background:linear-gradient(135deg,${navy} 0%,${navy} 55%,${sky} 160%);
-    position:relative;padding:3.5mm 3mm 0;text-align:center;}
-  .band::after{content:'';position:absolute;left:0;right:0;bottom:-6mm;height:12mm;
-    background:#fff;border-radius:50%/100% 100% 0 0;}
-  .band img{max-height:9mm;max-width:33mm;object-fit:contain;}
-  .band .fb{color:#fff;font-size:9pt;font-weight:800;letter-spacing:.4pt;padding-top:2mm;}
-  .band .cn{color:rgba(255,255,255,.92);font-size:5.6pt;font-weight:600;letter-spacing:.5pt;
-    margin-top:1.4mm;text-transform:uppercase;line-height:1.25;}
+  /* ---- FRONT : 12 + 30 + 13 + 7 + 15 + 8.6 = 85.6mm ---- */
+  .f-head{height:12mm;background:${navy};display:flex;align-items:center;justify-content:center;
+    flex-direction:column;padding:1.5mm 2mm;flex:0 0 12mm;}
+  .f-head img{max-height:6mm;max-width:30mm;object-fit:contain;}
+  .f-head .fb{color:#fff;font-size:8pt;font-weight:800;letter-spacing:.4pt;}
+  .f-head .cn{color:rgba(255,255,255,.9);font-size:4.6pt;font-weight:600;letter-spacing:.5pt;
+    text-transform:uppercase;margin-top:0.8mm;text-align:center;line-height:1.1;}
 
-  .photo{width:23mm;height:28mm;border-radius:2mm;overflow:hidden;background:#eef2f7;
-    border:0.6mm solid #fff;box-shadow:0 0.6mm 2mm rgba(11,42,91,.22);
-    position:absolute;top:17mm;left:50%;transform:translateX(-50%);z-index:2;
+  .f-photo{height:30mm;flex:0 0 30mm;display:flex;align-items:center;justify-content:center;
+    background:#f2f5f9;padding:1.5mm;}
+  .f-photo .box{width:23mm;height:27mm;border-radius:1.5mm;overflow:hidden;background:#e3e9f1;
+    border:0.4mm solid #fff;box-shadow:0 0.4mm 1.2mm rgba(11,42,91,.18);
     display:flex;align-items:center;justify-content:center;}
-  .photo img{width:100%;height:100%;object-fit:cover;}
-  .photo span{font-size:5.5pt;color:#a7b4c6;letter-spacing:.4pt;}
+  .f-photo img{width:100%;height:100%;object-fit:cover;}
+  .f-photo span{font-size:5pt;color:#9fb0c4;letter-spacing:.4pt;}
 
-  .who{margin-top:22mm;text-align:center;padding:0 2.5mm;}
-  .who .nm{font-size:11.5pt;font-weight:800;color:${navy};line-height:1.12;}
-  .who .dg{font-size:6.8pt;color:#6b7c95;margin-top:0.7mm;letter-spacing:.2pt;}
+  .f-name{height:13mm;flex:0 0 13mm;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;padding:0 2mm;text-align:center;}
+  .f-name .n{font-size:11pt;font-weight:800;color:${navy};line-height:1.1;}
+  .f-name .d{font-size:6.4pt;color:#6b7c95;margin-top:0.6mm;}
 
-  .idband{margin:2.2mm 3mm 0;background:${gold};border-radius:1.4mm;text-align:center;
-    padding:1.4mm 0;color:#fff;font-size:10pt;font-weight:800;letter-spacing:1.6pt;}
+  .f-id{height:7mm;flex:0 0 7mm;background:${gold};color:#fff;display:flex;align-items:center;
+    justify-content:center;font-size:10.5pt;font-weight:800;letter-spacing:1.8pt;}
 
-  .rows{padding:2mm 3.5mm 0;}
-  .rows .r{display:flex;justify-content:space-between;align-items:center;
-    padding:1.15mm 0;border-bottom:0.18mm solid #eef2f7;font-size:6.6pt;}
-  .rows .r:last-child{border-bottom:none;}
-  .rows .k{color:#93a2b8;letter-spacing:.2pt;}
-  .rows .v{font-weight:700;color:#12233f;}
-  .blood{background:#B03A2E;color:#fff;padding:0.5mm 2mm;border-radius:1mm;font-size:7pt;font-weight:800;}
+  .f-info{height:15mm;flex:0 0 15mm;padding:1.5mm 3.5mm;display:flex;flex-direction:column;
+    justify-content:center;gap:0.9mm;}
+  .f-info .r{display:flex;justify-content:space-between;align-items:center;font-size:6.4pt;}
+  .f-info .k{color:#93a2b8;}
+  .f-info .v{font-weight:700;color:#12233f;}
+  .f-info .bg{background:#B03A2E;color:#fff;padding:0.3mm 1.8mm;border-radius:0.8mm;
+    font-size:6.8pt;font-weight:800;letter-spacing:.3pt;}
 
-  .qz{position:absolute;bottom:0;left:0;right:0;background:#f6f9fc;border-top:0.2mm solid #e6ecf4;
-    padding:1.6mm 0 1.8mm;text-align:center;}
-  .qz img{width:14mm;height:14mm;}
-  .qz div{font-size:4.6pt;color:#8d9cb0;letter-spacing:.5pt;margin-top:0.6mm;text-transform:uppercase;}
+  .f-qr{height:8.6mm;flex:0 0 8.6mm;background:${navy};display:flex;align-items:center;
+    justify-content:center;gap:2mm;padding:0 3mm;}
+  .f-qr img{width:7mm;height:7mm;background:#fff;padding:0.3mm;border-radius:0.5mm;}
+  .f-qr div{color:#fff;font-size:4.4pt;letter-spacing:.4pt;text-transform:uppercase;line-height:1.25;}
 
-  /* ---------------- BACK ---------------- */
-  .bk{display:flex;flex-direction:column;height:100%;}
-  .bhd{background:${navy};color:#fff;padding:2.6mm;text-align:center;
-    font-size:6pt;font-weight:700;letter-spacing:1pt;}
-  .emg{background:#fff5f4;border-bottom:0.25mm solid #f2cdc8;padding:3mm 3mm;text-align:center;}
-  .emg .l{font-size:5pt;color:#B03A2E;letter-spacing:.8pt;font-weight:700;}
-  .emg .n{font-size:8.5pt;font-weight:800;color:#12233f;margin-top:1mm;line-height:1.15;}
-  .emg .rl{font-size:5.8pt;color:#8a6a3f;margin-top:0.3mm;}
-  .emg .t{font-size:11pt;font-weight:800;color:#B03A2E;margin-top:1.2mm;letter-spacing:.4pt;}
-
-  .bb{padding:2.6mm 3.2mm;font-size:5.6pt;color:#5f7189;line-height:1.5;flex:1;}
-  .bb h5{font-size:5.4pt;color:${navy};letter-spacing:.7pt;margin-bottom:1mm;font-weight:800;}
-  .bb .ad{margin-bottom:2.2mm;padding-bottom:2.2mm;border-bottom:0.18mm solid #eef2f7;}
-  .bb ol{margin-left:3.2mm;} .bb li{margin-bottom:0.5mm;}
-  .vb{background:${navy};color:#fff;text-align:center;font-size:5pt;padding:1.6mm;letter-spacing:.5pt;}
+  /* ---- BACK : 8 + 26 + 43.6 + 8 = 85.6mm ---- */
+  .b-head{height:8mm;flex:0 0 8mm;background:${navy};color:#fff;display:flex;align-items:center;
+    justify-content:center;font-size:5.8pt;font-weight:700;letter-spacing:1pt;}
+  .b-emg{height:26mm;flex:0 0 26mm;background:#fff5f4;border-bottom:0.25mm solid #f2cdc8;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2mm;text-align:center;}
+  .b-emg .l{font-size:4.8pt;color:#B03A2E;letter-spacing:.7pt;font-weight:700;}
+  .b-emg .n{font-size:9pt;font-weight:800;color:#12233f;margin-top:1mm;line-height:1.1;}
+  .b-emg .rl{font-size:5.6pt;color:#8a6a3f;margin-top:0.4mm;}
+  .b-emg .t{font-size:11.5pt;font-weight:800;color:#B03A2E;margin-top:1.2mm;letter-spacing:.4pt;}
+  .b-body{height:43.6mm;flex:0 0 43.6mm;padding:2.4mm 3.2mm;font-size:5.4pt;color:#5f7189;
+    line-height:1.45;overflow:hidden;}
+  .b-body h5{font-size:5.2pt;color:${navy};letter-spacing:.6pt;margin-bottom:0.8mm;font-weight:800;}
+  .b-body .ad{margin-bottom:2mm;padding-bottom:2mm;border-bottom:0.18mm solid #eef2f7;}
+  .b-body ol{margin-left:3mm;} .b-body li{margin-bottom:0.4mm;}
+  .b-valid{height:8mm;flex:0 0 8mm;background:${navy};color:#fff;display:flex;align-items:center;
+    justify-content:center;font-size:5pt;letter-spacing:.5pt;}
 
   .noprint{text-align:center;padding:16px;background:${navy};color:#fff;margin-bottom:9mm;}
   .noprint button{background:#E0B44E;color:${navy};border:none;padding:10px 26px;border-radius:100px;
@@ -3766,47 +3770,47 @@ Reply with ONLY this JSON, no commentary or code fences:
 </style></head><body>
 <div class="noprint">
   <button onclick="window.print()">Save as PDF / Print</button>
-  <p>Standard CR80 size (54 × 85.6 mm). Front and back print side by side.<br>
-     In the print dialog choose <b>Save as PDF</b>, untick <b>Headers and footers</b>,
-     and set <b>Margins: None</b> with <b>Background graphics</b> ticked.</p>
+  <p>Standard CR80 card, 54 × 85.6 mm. Front and back print side by side.<br>
+     In the print dialog: <b>Save as PDF</b> · untick <b>Headers and footers</b> ·
+     <b>Margins: None</b> · tick <b>Background graphics</b>.</p>
 </div>
 
 <div class="sheet">
   <div class="card">
-    <div class="band">
+    <div class="f-head">
       ${logo?`<img src="${logo}">`:`<div class="fb">${esc((co.legalName||data.brandName||'').slice(0,16))}</div>`}
       <div class="cn">${esc(co.legalName||co.displayName||data.brandName||'')}</div>
     </div>
-    <div class="photo">${emp.photo?`<img src="${absUrl(emp.photo)}">`:'<span>PHOTO</span>'}</div>
-    <div class="who">
-      <div class="nm">${esc(emp.name)}</div>
-      <div class="dg">${esc(emp.designation||'')}</div>
+    <div class="f-photo"><div class="box">
+      ${emp.photo?`<img src="${absUrl(emp.photo)}">`:'<span>PHOTO</span>'}</div></div>
+    <div class="f-name">
+      <div class="n">${esc(emp.name)}</div>
+      <div class="d">${esc(emp.designation||'')}</div>
     </div>
-    <div class="idband">${esc(emp.empId)}</div>
-    <div class="rows">
-      <div class="r"><span class="k">Blood Group</span><span class="blood">${esc(emp.bloodGroup||'—')}</span></div>
-      <div class="r"><span class="k">Department</span><span class="v">${esc(emp.department||'—')}</span></div>
-      <div class="r"><span class="k">Joined</span><span class="v">${emp.doj?new Date(emp.doj).toLocaleDateString('en-GB'):'—'}</span></div>
+    <div class="f-id">${esc(emp.empId)}</div>
+    <div class="f-info">
+      <div class="r"><span class="k">BLOOD GROUP</span><span class="bg">${esc(emp.bloodGroup||'—')}</span></div>
+      <div class="r"><span class="k">DEPARTMENT</span><span class="v">${esc(emp.department||'—')}</span></div>
+      <div class="r"><span class="k">DATE OF JOINING</span><span class="v">${emp.doj?new Date(emp.doj).toLocaleDateString('en-GB'):'—'}</span></div>
     </div>
-    <div class="qz"><img src="${qr}" alt=""><div>Scan · Attendance &amp; Pay</div></div>
+    <div class="f-qr"><img src="${qr}" alt=""><div>SCAN FOR<br>ATTENDANCE &amp; PAY</div></div>
   </div>
 
-  <div class="card"><div class="bk">
-    <div class="bhd">EMERGENCY CONTACT</div>
-    <div class="emg">
+  <div class="card">
+    <div class="b-head">EMERGENCY CONTACT</div>
+    <div class="b-emg">
       ${emg?`<div class="l">IN CASE OF EMERGENCY CALL</div>
         <div class="n">${esc(emg.name||'')}</div>
         ${emg.relationship?`<div class="rl">${esc(emg.relationship)}</div>`:''}
         <div class="t">${esc(emg.phone||'—')}</div>`
        :`<div class="l">NOT RECORDED</div>
-         <div class="rl" style="margin-top:1.2mm;">Add a reference contact on the employee<br>record and mark it as Emergency.</div>`}
+         <div class="rl" style="margin-top:1.5mm;">Add a reference contact on the<br>employee record and mark it Emergency.</div>`}
     </div>
-    <div class="bb">
+    <div class="b-body">
       <div class="ad"><h5>IF FOUND, RETURN TO</h5>
         <b>${esc(co.legalName||data.brandName||'')}</b><br>
         ${esc(companyAddressLines().join(', '))}<br>
-        ${co.phone||co.mobile?('Tel: '+esc(co.phone||co.mobile)):''}
-        ${co.email?('<br>'+esc(co.email)):''}</div>
+        ${co.phone||co.mobile?('Tel: '+esc(co.phone||co.mobile)):''}${co.email?('<br>'+esc(co.email)):''}</div>
       <h5>CONDITIONS OF USE</h5>
       <ol>
         <li>This card remains the property of the company.</li>
@@ -3816,8 +3820,8 @@ Reply with ONLY this JSON, no commentary or code fences:
         <li>Surrender it on your last working day.</li>
       </ol>
     </div>
-    <div class="vb">VALID UNTIL ${valid.toLocaleDateString('en-GB')} &nbsp;·&nbsp; ${esc(emp.empId)}</div>
-  </div></div>
+    <div class="b-valid">VALID UNTIL ${valid.toLocaleDateString('en-GB')} &nbsp;·&nbsp; ${esc(emp.empId)}</div>
+  </div>
 </div></body></html>`);
     w.document.close();
   }
@@ -4180,6 +4184,12 @@ table{width:100%;border-collapse:collapse;font-size:9pt;}
       <td class="k">Paid Days</td><td>${sl.payableDays} of ${sl.totalDays}${sl.lopDays?` · LOP ${sl.lopDays}`:''}</td></tr>
   <tr><td class="k">Department</td><td>${esc((emp||{}).department||'—')}</td>
       <td class="k">Date of Joining</td><td>${(emp||{}).doj?new Date(emp.doj).toLocaleDateString('en-GB'):'—'}</td></tr>
+  <tr><td class="k">UAN</td><td>${esc((emp||{}).uan||'—')}</td>
+      <td class="k">PF Number</td><td>${esc((emp||{}).pfNumber||'—')}</td></tr>
+  <tr><td class="k">ESI Number</td><td>${esc((emp||{}).esiNumber||'—')}</td>
+      <td class="k">PAN</td><td>${esc((emp||{}).pan||'—')}</td></tr>
+  <tr><td class="k">Bank</td><td>${esc((emp||{}).bankName||'—')}${(emp||{}).bankAcc?' · A/c '+esc(emp.bankAcc):''}</td>
+      <td class="k">IFSC</td><td>${esc((emp||{}).ifsc||'—')}</td></tr>
 </table>
 <table class="amt"><thead><tr><th>Earnings</th><th class="r">Amount</th><th>Deductions</th><th class="r">Amount</th></tr></thead>
 <tbody>
@@ -4196,7 +4206,10 @@ table{width:100%;border-collapse:collapse;font-size:9pt;}
   <div class="foot">
     Employer contributions, not deducted from you: PF ₹${sl.employer.pf} · EPS ₹${sl.employer.eps}
     · EDLI ₹${sl.employer.edli} · ESI ₹${sl.employer.esi}<br>
-    Statutory rates effective from ${esc(sl.rulesEffectiveFrom||'not recorded')}.<br>
+    Statutory rates effective from ${esc(sl.rulesEffectiveFrom||'not recorded')}.
+    ${sl.deductions.tds?'TDS as computed under the configured tax table.'
+      :'No TDS deducted this month — either below the taxable threshold or no figure has been set for this employee.'}<br>
+    ${(sl.notes||[]).length?esc(sl.notes.join(' · '))+'<br>':''}
     This is a system-generated payslip and does not require a signature.
   </div>
   ${co.sealImg?`<img class="seal" src="${absUrl(co.sealImg)}" alt="">`:''}
@@ -4709,6 +4722,27 @@ ${sections}
     });
   }
 
+  /* Free AI providers read images but not PDFs. Rather than asking the user to
+     paste the text, pull it out of the PDF here and send that instead. */
+  async function pdfToText(dataUrl){
+    if(!window.pdfjsLib) return '';
+    try{
+      pdfjsLib.GlobalWorkerOptions.workerSrc=
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      const b64=String(dataUrl).split(',')[1];
+      const bin=atob(b64), arr=new Uint8Array(bin.length);
+      for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+      const pdf=await pdfjsLib.getDocument({data:arr}).promise;
+      let out=[];
+      for(let p=1;p<=Math.min(pdf.numPages,8);p++){
+        const page=await pdf.getPage(p);
+        const tc=await page.getTextContent();
+        out.push(tc.items.map(i=>i.str).join(' '));
+      }
+      return out.join('\n').replace(/\s{3,}/g,'  ').trim();
+    }catch(e){ console.log('PDF text extraction failed:',e.message); return ''; }
+  }
+
   /* ================= RECRUITMENT (§3B, §4, §5) =================
      AI is used for screening assistance only: it summarises what a CV does and
      does not evidence against the role. It deliberately does not score, rank or
@@ -4786,7 +4820,17 @@ ${sections}
             <textarea class="cd-in" data-id="${esc(c.item_id)}" data-k="cvText" rows="3">${esc(d.cvText||'')}</textarea></div>
           <div class="rfq-actions" style="margin-top:10px;">
             <button class="mini-btn ai cd-screen" data-id="${esc(c.item_id)}">Evaluate against the role</button>
-            <button class="mini-btn cd-invite" data-id="${esc(c.item_id)}">Invite to interview</button>
+          </div>
+          <div class="cs-sub">Invite to interview</div>
+          <div class="cs-row four">
+            <div><label>Date</label><input type="date" class="iv-in" data-id="${esc(c.item_id)}" data-k="ivDate" value="${esc(d.ivDate||'')}"></div>
+            <div><label>Time</label><input type="time" class="iv-in" data-id="${esc(c.item_id)}" data-k="ivTime" value="${esc(d.ivTime||'10:00')}"></div>
+            <div style="grid-column:span 2;"><label>Venue</label>
+              <input class="iv-in" data-id="${esc(c.item_id)}" data-k="ivVenue"
+                value="${esc(d.ivVenue||companyAddressLines().join(', '))}"></div>
+          </div>
+          <div class="rfq-actions" style="margin-top:10px;">
+            <button class="mini-btn cd-invite" data-id="${esc(c.item_id)}">Send Invitation — email &amp; WhatsApp</button>
           </div>
           <div id="scr-${esc(c.item_id)}">${d.screening?`<div class="dx" style="margin-top:10px;">
             <div class="dx-head"><b>Match against stated requirements</b><span class="t-micro">${esc(d.screenedOn||'')}</span></div>
@@ -4823,11 +4867,25 @@ ${sections}
             <div><label>Stage</label><select class="cd-stage" data-id="${esc(c.item_id)}" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
               ${CAND_STAGES.map(x=>`<option ${c.status===x?'selected':''}>${x}</option>`).join('')}</select></div>
           </div>
-          <div class="rfq-actions" style="margin-top:12px;">
+          <div class="cs-sub">Message this candidate</div>
+          <div class="cs-row four">
+            <div style="grid-column:span 3;"><label>Message</label>
+              <input class="cd-msg" data-id="${esc(c.item_id)}" placeholder="Congratulations — you have been selected…"></div>
+            <div style="align-self:end;"><button class="mini-btn cd-send" data-id="${esc(c.item_id)}">Send</button></div>
+          </div>
+          <div class="rfq-actions" style="margin-top:8px;">
+            <button class="mini-btn cd-quick" data-id="${esc(c.item_id)}" data-tpl="selected">Send “Selected”</button>
+            <button class="mini-btn cd-quick" data-id="${esc(c.item_id)}" data-tpl="offer">Send “Offer issued”</button>
+            <button class="mini-btn cd-quick" data-id="${esc(c.item_id)}" data-tpl="regret">Send “Not selected”</button>
+          </div>
+
+          <div class="rfq-actions" style="margin-top:14px;">
             <button class="mini-btn gold cd-save" data-id="${esc(c.item_id)}">Save</button>
             ${d.offerCtc?`<button class="mini-btn gold cd-offer" data-id="${esc(c.item_id)}">Generate Offer Letter</button>
               <button class="mini-btn ai cd-terms" data-id="${esc(c.item_id)}">AI draft terms</button>`:''}
-            ${c.status==='Offer Made'?`<button class="mini-btn green cd-join" data-id="${esc(c.item_id)}">Convert to Employee</button>`:''}
+            ${['Selected','Offer Made','Joined'].includes(c.status)&&!d.empId
+              ?`<button class="mini-btn green cd-join" data-id="${esc(c.item_id)}">Convert to Employee</button>`:''}
+            ${d.empId?`<span class="order-badge go">Employee ${esc(d.empId)}</span>`:''}
             <button class="item-delete cd-del" data-id="${esc(c.item_id)}">Delete</button>
           </div></div></div>`;
     }).join(''):'<p class="empty-note">No candidates yet.</p>';
@@ -4855,13 +4913,26 @@ ${sections}
       /* Prefer the attached PDF — the AI reads it directly. Fall back to pasted
          text only when there is no readable attachment (e.g. a Word file). */
       let attachment=null;
-      if(d.resumeData&&/pdf/i.test(d.resumeType||'')){
+      /* A PDF is turned into text here, which every provider can read.
+         An image resume is sent as an image. */
+      if(d.resumeData&&/pdf/i.test(d.resumeType||'')&&!d.cvText){
+        b.textContent='Reading resume…';
+        const txt=await pdfToText(d.resumeData);
+        if(txt&&txt.length>60){
+          d.cvText=txt;
+          try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'items',itemId:c.item_id,
+            patch:d,reason:'resume text extracted'})}); }catch(_){}
+        }
+      }
+      if(d.resumeData&&/^image\//i.test(d.resumeType||'')){
         const m=String(d.resumeData).match(/^data:([^;,]+);base64,(.+)$/);
         if(m) attachment={mime:m[1],b64:m[2]};
       }
       if(!attachment&&!d.cvText){
-        toast(d.resumeName?'That resume is a Word file — AI cannot read it. Paste the text below, or ask for a PDF.'
-          :'No resume attached and no CV text.');
+        toast(d.resumeName
+          ? 'Could not read that file — it may be a scan with no text layer, or a Word file. Paste the text below.'
+          : 'No resume attached and no CV text.');
+        b.textContent='Evaluate against the role'; b.disabled=false;
         return;
       }
       b.textContent='Reading…'; b.disabled=true;
@@ -4912,43 +4983,92 @@ Rules you must follow:
       }catch(e){ toast(e.message); }
       b.textContent='AI screening summary'; b.disabled=false;
     }));
+    host.querySelectorAll('.iv-in').forEach(inp=>inp.addEventListener('input',()=>{
+      const c=cands.find(x=>x.item_id===inp.dataset.id), d=c.data||c;
+      d[inp.dataset.k]=inp.value; c.data=d;
+    }));
     host.querySelectorAll('.cd-invite').forEach(b=>b.addEventListener('click',async()=>{
       const c=cands.find(x=>x.item_id===b.dataset.id), d=c.data||c;
-      const req=reqs.find(r=>r.item_id===d.reqId);
-      const when=prompt('Interview date and time to tell the candidate:','');
-      if(!when) return;
-      const where=prompt('Where should they come? (address or "video call")',
-        companyAddressLines().join(', '))||'';
+      const req=reqs.find(r=>r.item_id===d.reqId), co=CO();
+      if(!d.ivDate){ toast('Pick the interview date first.'); return; }
+      if(!d.email&&!d.phone){ toast('This candidate has no email or phone.'); return; }
       b.textContent='Sending…'; b.disabled=true;
-      const co=CO();
+      const when=new Date(d.ivDate+'T'+(d.ivTime||'10:00'))
+        .toLocaleString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric',
+          hour:'2-digit',minute:'2-digit'});
       const text=`Dear ${d.name},
 
 Thank you for applying for the position of ${req?(req.data||req).title:'the advertised role'} with ${co.legalName||data.brandName}.
 
-We would like to meet you.
+We would like to meet you for an interview.
 
-  Date and time: ${when}
-  Venue: ${where}
+  Date and time : ${when}
+  Venue         : ${d.ivVenue||companyAddressLines().join(', ')}
 
-Please bring your original certificates and a copy of your resume.
-Reply to this message to confirm, or to ask for a different time.
+Please bring your original certificates, a copy of your resume and a photo identity document.
+Reply to this message to confirm, or to request a different time.
 
 Regards,
-${data.quoteSender||'HR'}
+${data.quoteSender||'HR Department'}
 ${co.legalName||data.brandName}
 ${co.phone||co.mobile||''}`;
       const res=await sendMessage_({email:d.email||'',whatsapp:d.phone||'',
         subject:'Interview invitation — '+(req?(req.data||req).title:'your application'),text});
       const st=readResults(res);
-      d.interviewInvitedOn=new Date().toLocaleString();
-      d.interviewDate=d.interviewDate||'';
+      d.interviewDate=d.ivDate; d.interviewInvitedOn=new Date().toLocaleString();
       try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'items',itemId:c.item_id,patch:d,
-        status:'Interview',reason:'interview invitation sent'})}); await loadItems(); }catch(e){}
-      b.textContent='Invite to interview'; b.disabled=false;
+        status:'Interview',reason:'interview invitation sent for '+when})}); await loadItems(); }catch(e){}
+      b.textContent='Send Invitation — email & WhatsApp'; b.disabled=false;
       toast(st.emailOk||st.waOk
         ? ('Invitation sent'+(st.emailOk?' by email':'')+(st.waOk?(st.emailOk?' and WhatsApp':' by WhatsApp'):''))
         : ('Not sent — '+(st.email||st.wa||'check the Setup screen')));
     }));
+
+    /* free-text and template messages to a candidate */
+    async function messageCandidate(c,text,subject,newStatus){
+      const d=c.data||c;
+      if(!d.email&&!d.phone){ toast('This candidate has no email or phone.'); return; }
+      const res=await sendMessage_({email:d.email||'',whatsapp:d.phone||'',subject,text});
+      const st=readResults(res);
+      if(newStatus){
+        try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'items',itemId:c.item_id,
+          status:newStatus,reason:'message sent: '+subject})}); await loadItems(); }catch(e){}
+      }
+      toast(st.emailOk||st.waOk?'Message sent':'Not sent — '+(st.email||st.wa||'check Setup'));
+    }
+    host.querySelectorAll('.cd-send').forEach(b=>b.addEventListener('click',async()=>{
+      const c=cands.find(x=>x.item_id===b.dataset.id);
+      const box=host.querySelector(`.cd-msg[data-id="${CSS.escape(b.dataset.id)}"]`);
+      if(!box||!box.value.trim()){ toast('Type a message first.'); return; }
+      const co=CO();
+      b.textContent='Sending…'; b.disabled=true;
+      await messageCandidate(c,box.value.trim()+`\n\nRegards,\n${data.quoteSender||'HR Department'}\n${co.legalName||data.brandName}`,
+        'A message from '+(co.legalName||data.brandName));
+      box.value=''; b.textContent='Send'; b.disabled=false;
+    }));
+    host.querySelectorAll('.cd-quick').forEach(b=>b.addEventListener('click',async()=>{
+      const c=cands.find(x=>x.item_id===b.dataset.id), d=c.data||c;
+      const req=reqs.find(r=>r.item_id===d.reqId), co=CO();
+      const role=req?(req.data||req).title:'the position';
+      const sign=`\n\nRegards,\n${data.quoteSender||'HR Department'}\n${co.legalName||data.brandName}\n${co.phone||co.mobile||''}`;
+      const T={
+        selected:{s:'You have been selected — '+role,
+          st:'Selected',
+          t:`Dear ${d.name},\n\nWe are pleased to inform you that you have been selected for the position of ${role} with ${co.legalName||data.brandName}.\n\nOur formal offer letter with the full salary structure will follow shortly. Please confirm your acceptance in principle and your earliest possible joining date.`+sign},
+        offer:{s:'Offer letter — '+role,
+          st:'Offer Made',
+          t:`Dear ${d.name},\n\nPlease find our formal offer for the position of ${role} with ${co.legalName||data.brandName}${d.offerCtc?`, at an annual cost to company of ${rupee(d.offerCtc)}`:''}${d.joiningDate?`, with a proposed joining date of ${new Date(d.joiningDate).toLocaleDateString('en-GB')}`:''}.\n\nThe offer letter setting out the salary structure, benefits and terms is attached or will be handed to you separately. Kindly confirm your acceptance within seven days.`+sign},
+        regret:{s:'Your application — '+role,
+          st:'Rejected',
+          t:`Dear ${d.name},\n\nThank you for taking the time to apply for the position of ${role} and for meeting us.\n\nOn this occasion we have decided to proceed with another candidate. We will keep your details on file and will contact you if a suitable vacancy arises.\n\nWe wish you well in your search.`+sign}
+      }[b.dataset.tpl];
+      if(!T) return;
+      if(!confirm('Send the "'+b.dataset.tpl+'" message to '+d.name+'?\nStatus will move to '+T.st+'.')) return;
+      b.disabled=true;
+      await messageCandidate(c,T.t,T.s,T.st);
+      b.disabled=false;
+    }));
+
     host.querySelectorAll('.cd-offer').forEach(b=>b.addEventListener('click',()=>{
       const c=cands.find(x=>x.item_id===b.dataset.id), d=c.data||c;
       printOfferLetter(d,reqs.find(r=>r.item_id===d.reqId));
@@ -5018,6 +5138,10 @@ Rules:
     const pfWage=Math.min(st.basic+st.da,num(stat.pf.wageCeiling));
     const pfEr=Math.round(pfWage*num(stat.pf.employerPct)/100);
     const esiEr=(monthly<=num(stat.esi.grossLimit))?Math.ceil(monthly*num(stat.esi.employerPct)/100):0;
+    const pfEmp=Math.round(pfWage*num(stat.pf.employeePct)/100);
+    const esiEmp=(monthly<=num(stat.esi.grossLimit))?Math.ceil(monthly*num(stat.esi.employeePct)/100):0;
+    const ptSlab=(stat.pt.slabs||[]).slice().sort((a,b)=>num(a.upTo)-num(b.upTo)).find(x=>monthly<=num(x.upTo));
+    const ptAmt=ptSlab?num(ptSlab.amount):0;
     const gratuity=Math.round((st.basic+st.da)*num(stat.gratuity.accrualPct)/100);
     const bonus=Math.round(Math.min(st.basic+st.da,num(stat.bonus.wageCeiling)||(st.basic+st.da))
       *num(stat.bonus.accrualPct)/100);
@@ -5127,8 +5251,17 @@ ${esiEr?`<tr><td>ESI — employer share</td><td class="r">${rupee(esiEr)}</td><t
 <tr class="tot"><td>Total Cost to Company</td><td class="r">${rupee(monthly+pfEr+esiEr+gratuity+bonus)}</td>
   <td class="r">${rupee((monthly+pfEr+esiEr+gratuity+bonus)*12)}</td></tr>
 </tbody></table>
-<p style="font-size:8pt;color:#8894ab;">Gratuity is a provision shown for information. It becomes payable
-under the Payment of Gratuity Act after five years of continuous service.
+<h2>Indicative Monthly Take-Home</h2>
+<table><thead><tr><th>Particulars</th><th class="r">Per Month</th></tr></thead><tbody>
+<tr><td>Gross Salary</td><td class="r">${rupee(monthly)}</td></tr>
+<tr><td>Less: Provident Fund — employee share</td><td class="r">− ${rupee(pfEmp)}</td></tr>
+${esiEmp?`<tr><td>Less: ESI — employee share</td><td class="r">− ${rupee(esiEmp)}</td></tr>`:''}
+${ptAmt?`<tr><td>Less: Professional Tax</td><td class="r">− ${rupee(ptAmt)}</td></tr>`:''}
+<tr class="tot"><td>Indicative Net Take-Home</td><td class="r">${rupee(monthly-pfEmp-esiEmp-ptAmt)}</td></tr>
+</tbody></table>
+<p style="font-size:8pt;color:#8894ab;">Take-home is shown before income tax, which depends on your tax
+regime election and the declarations you submit. Gratuity is a provision shown for information. It becomes
+payable under the Payment of Gratuity Act after five years of continuous service.
 ${esiEr?'':'ESI is not applicable as the gross salary is above the prescribed limit.'}</p>
 
 <h2>Terms &amp; Conditions</h2>
