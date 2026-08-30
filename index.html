@@ -605,6 +605,82 @@
   .admin-grp:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.1);}
   .admin-grp.active{color:var(--navy);background:var(--sky-wash);border-bottom-color:var(--gold);}
   .admin-tabs{display:flex;border-bottom:1px solid var(--line);overflow-x:auto;background:var(--sky-wash);}
+  .hr-groups{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+  .hr-groups button{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+    padding:7px 15px;border-radius:100px;border:1px solid var(--line);background:var(--white);
+    color:var(--ink-soft);cursor:pointer;font-weight:600;transition:.15s;}
+  .hr-groups button:hover{border-color:var(--gold);color:var(--navy);}
+  .hr-groups button.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+  .hr-groups button .n{opacity:.6;margin-left:6px;font-weight:400;}
+  .hr-tabbar{flex-wrap:wrap;overflow-x:visible;}
+
+  /* ============ HR & PPC WORK SCREENS — density and sizing ============
+     These screens are data entry, not marketing. Text is a little larger than the
+     site's small print, padding is tighter, and every field is sized to what it
+     actually holds instead of stretching to the column. */
+  #hr-page,#ppc-page,#staff-page{--fs-micro:11.8px;--fs-label:12px;}
+  #hr-page .staff-body,#ppc-page .staff-body{padding-top:18px;}
+
+  #hr-page .qb,#ppc-page .qb{padding:13px 14px;margin-top:11px;}
+  #hr-page .cs,#ppc-page .cs{padding:13px 14px;margin-top:11px;}
+  #hr-page .qb h4,#ppc-page .qb h4{font-size:12.5px;margin-bottom:9px;}
+  #hr-page .cs-sub,#ppc-page .cs-sub{font-size:10.5px;margin:12px 0 7px;padding-bottom:4px;}
+  #hr-page .cs-row,#ppc-page .cs-row{gap:9px 12px;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));}
+  #hr-page .cs-row.four,#ppc-page .cs-row.four{
+    grid-template-columns:repeat(auto-fit,minmax(185px,1fr));}
+  #hr-page .cs-row label,#ppc-page .cs-row label{font-size:10px;margin-bottom:3px;}
+  #hr-page .cs-row input,#hr-page .cs-row select,
+  #ppc-page .cs-row input,#ppc-page .cs-row select{padding:6px 8px;font-size:12px;}
+  #hr-page .field-hint,#ppc-page .field-hint{font-size:10.5px;line-height:1.45;margin-top:3px;}
+
+  /* field widths by what the field holds */
+  #hr-page .cs-row input[type="date"],#hr-page .cs-row input[type="month"],
+  #hr-page .cs-row input[type="time"]{max-width:158px;}
+  #hr-page .cs-row input.num{max-width:190px;}
+  #hr-page .cs-row input.pct,#hr-page .cs-t input.pct{max-width:88px;}
+  #hr-page .cs-row input.short{max-width:130px;}
+
+  /* tables: numbers right and monospaced, text left, badges centred */
+  #hr-page .cs-t,#ppc-page .cs-t{font-size:11.8px;}
+  #hr-page .cs-t th,#ppc-page .cs-t th{font-size:10px;padding:6px 5px;
+    background:var(--sky-wash);color:var(--ink-mid);}
+  #hr-page .cs-t td,#ppc-page .cs-t td{padding:5px 6px;}
+  #hr-page .cs-t td input,#hr-page .cs-t td select{padding:4px 6px;font-size:11.5px;}
+  #hr-page .cs-t td input.num{text-align:right;font-family:var(--mono);}
+  #hr-page .cs-t td .order-badge{display:inline-block;}
+  #hr-page .cs-t td{vertical-align:middle;}
+  #hr-page .cs-t td.r,#hr-page .cs-t th.r{text-align:right;}
+  #hr-page .cs-t td.c,#hr-page .cs-t th.c{text-align:center;}
+  #hr-page .cs-t td:first-child{white-space:normal;}
+
+  /* collapsible section headings inside a record */
+  /* a settings block that folds away */
+  #hr-page details.fold{padding:0;}
+  #hr-page details.fold>summary{cursor:pointer;list-style:none;padding:12px 14px;
+    display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+  #hr-page details.fold>summary::-webkit-details-marker{display:none;}
+  #hr-page details.fold>summary::before{content:'▸';font-family:var(--mono);color:var(--gold);
+    font-size:11px;margin-right:2px;}
+  #hr-page details.fold[open]>summary::before{content:'▾';}
+  #hr-page details.fold>summary>span:first-of-type{font-family:var(--disp);font-weight:700;
+    font-size:12.5px;color:var(--navy);}
+  #hr-page details.fold>summary .sum{font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);}
+  #hr-page details.fold>*:not(summary){margin-left:14px;margin-right:14px;}
+  #hr-page details.fold[open]{padding-bottom:14px;}
+
+  #hr-page .cs-sub-toggle{cursor:pointer;user-select:none;}
+  #hr-page .cs-sub-toggle:hover{color:var(--navy);}
+  #hr-page .cs-caret{display:inline-block;width:12px;font-family:var(--mono);
+    color:var(--gold);font-size:10px;}
+
+  /* attendance grid: the name column stays put while the days scroll */
+  .att-t td.nm,.att-t th.nm{position:sticky;left:0;z-index:3;background:var(--white);
+    box-shadow:1px 0 0 var(--line);}
+  .att-t th.nm{z-index:5;background:var(--navy);}
+  .att-t th{z-index:4;}
+  .att-t td{font-size:11px;}
+  .att-t th{font-size:10px;}
   .admin-tab{font-family:var(--mono);font-size:var(--fs-micro);letter-spacing:.05em;text-transform:uppercase;padding:14px 12px;color:var(--ink-soft);border:none;background:none;border-bottom:2px solid transparent;white-space:nowrap;}
   .admin-tab.active{color:var(--navy);border-bottom-color:var(--gold);background:var(--white);}
   .setup-card{border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;background:var(--white);box-shadow:var(--shadow-sm);}
@@ -1005,23 +1081,24 @@
     </div>
   </div>
   <div class="staff-body">
-    <div class="admin-tabs" style="margin-bottom:20px;border-radius:var(--radius-sm);">
-      <button class="hr-tab active" data-hrtab="tower">1 · Control Tower</button>
-      <button class="hr-tab" data-hrtab="recruit">2 · Recruit</button>
-      <button class="hr-tab" data-hrtab="people">3 · Employees</button>
-      <button class="hr-tab" data-hrtab="attendance">4 · Attendance</button>
-      <button class="hr-tab" data-hrtab="leave">5 · Leave</button>
-      <button class="hr-tab" data-hrtab="payroll">6 · Payroll</button>
-      <button class="hr-tab" data-hrtab="skills">7 · Competency</button>
-      <button class="hr-tab" data-hrtab="training">8 · Training</button>
-      <button class="hr-tab" data-hrtab="kpi">9 · KPI &amp; Appraisal</button>
-      <button class="hr-tab" data-hrtab="tasks">10 · DWM &amp; Tasks</button>
-      <button class="hr-tab" data-hrtab="engage">11 · Engagement</button>
-      <button class="hr-tab" data-hrtab="policies">12 · Policies</button>
-      <button class="hr-tab" data-hrtab="audit-ready">13 · Audit Readiness</button>
-      <button class="hr-tab" data-hrtab="exit">14 · Exit &amp; F&amp;F</button>
-      <button class="hr-tab" data-hrtab="statutory">⚙ Statutory</button>
-      <button class="hr-tab" data-hrtab="audit">⚙ Audit Trail</button>
+    <div class="hr-groups" id="hr-groups"></div>
+    <div class="admin-tabs hr-tabbar" style="margin-bottom:16px;border-radius:var(--radius-sm);">
+      <button class="hr-tab active" data-hrtab="tower" data-hrgroup="daily">Control Tower</button>
+      <button class="hr-tab" data-hrtab="attendance" data-hrgroup="daily">Attendance</button>
+      <button class="hr-tab" data-hrtab="leave" data-hrgroup="daily">Leave</button>
+      <button class="hr-tab" data-hrtab="tasks" data-hrgroup="daily">DWM &amp; Tasks</button>
+      <button class="hr-tab" data-hrtab="people" data-hrgroup="people">Employees</button>
+      <button class="hr-tab" data-hrtab="recruit" data-hrgroup="people">Recruit</button>
+      <button class="hr-tab" data-hrtab="engage" data-hrgroup="people">Engagement</button>
+      <button class="hr-tab" data-hrtab="exit" data-hrgroup="people">Exit &amp; F&amp;F</button>
+      <button class="hr-tab" data-hrtab="payroll" data-hrgroup="pay">Payroll</button>
+      <button class="hr-tab" data-hrtab="statutory" data-hrgroup="pay">Statutory &amp; Masters</button>
+      <button class="hr-tab" data-hrtab="skills" data-hrgroup="capability">Competency</button>
+      <button class="hr-tab" data-hrtab="training" data-hrgroup="capability">Training</button>
+      <button class="hr-tab" data-hrtab="kpi" data-hrgroup="capability">KPI &amp; Appraisal</button>
+      <button class="hr-tab" data-hrtab="policies" data-hrgroup="compliance">Policies</button>
+      <button class="hr-tab" data-hrtab="audit-ready" data-hrgroup="compliance">Audit Readiness</button>
+      <button class="hr-tab" data-hrtab="audit" data-hrgroup="compliance">Audit Trail</button>
     </div>
 
     <div id="hr-report-bar" style="display:none;text-align:right;margin-bottom:12px;">
@@ -2807,16 +2884,54 @@ I would recommend this company as a place to work</textarea></div></div>
         <div class="core-label">PRECISION ENGINEERED</div></div>`;
     }
   }
+  /* The browser tab icon follows the logo uploaded in the admin panel.
+     A logo is wide and often transparent, which makes a poor favicon, so it is drawn
+     centred on a square white tile first. Every existing icon link is removed rather
+     than another one added — with several <link rel="icon"> tags the browser picks one
+     of its own accord and the bundled file kept winning. */
+  let faviconFor=null;
+  function applyFavicon(href,sizes){
+    document.querySelectorAll('link[rel~="icon"],link[rel="shortcut icon"],link[rel="apple-touch-icon"]')
+      .forEach(l=>l.parentNode.removeChild(l));
+    const link=document.createElement('link');
+    link.id='dynamic-favicon'; link.rel='icon'; link.type='image/png';
+    if(sizes) link.sizes=sizes;
+    link.href=href;
+    document.head.appendChild(link);
+    const touch=document.createElement('link');
+    touch.rel='apple-touch-icon'; touch.href=href;
+    document.head.appendChild(touch);
+  }
+  function restoreBundledFavicon(){
+    document.querySelectorAll('link[rel~="icon"],link[rel="shortcut icon"],link[rel="apple-touch-icon"]')
+      .forEach(l=>l.parentNode.removeChild(l));
+    const l=document.createElement('link');
+    l.rel='icon'; l.href='/favicon.svg'; l.type='image/svg+xml';
+    document.head.appendChild(l);
+  }
   function setDynamicFavicon(src){
-    if(!src) return;
-    let link=document.getElementById('dynamic-favicon');
-    if(!link){
-      link=document.createElement('link');
-      link.id='dynamic-favicon';
-      link.rel='icon';
-      document.head.appendChild(link);
-    }
-    link.href=src;
+    if(faviconFor===(src||'')) return;          // nothing changed, leave the tab alone
+    faviconFor=src||'';
+    if(!src){ restoreBundledFavicon(); return; }
+    const img=new Image();
+    img.crossOrigin='anonymous';
+    img.onload=()=>{
+      try{
+        const S=64, c=document.createElement('canvas');
+        c.width=S; c.height=S;
+        const x=c.getContext('2d');
+        x.fillStyle='#ffffff'; x.fillRect(0,0,S,S);
+        const pad=4, box=S-pad*2;
+        const r=Math.min(box/img.width, box/img.height);
+        const w=Math.max(1,img.width*r), h=Math.max(1,img.height*r);
+        x.drawImage(img,(S-w)/2,(S-h)/2,w,h);
+        applyFavicon(c.toDataURL('image/png'),'64x64');
+      }catch(e){
+        applyFavicon(src);                      // tainted canvas — use the file as it is
+      }
+    };
+    img.onerror=()=>{ restoreBundledFavicon(); };
+    img.src=src;
   }
 
   function render(){
@@ -3182,6 +3297,7 @@ and suggest nothing rather than inventing problems.`;
     const g=(data.labourGrades||[]).find(x=>/operator/i.test(x.grade))||(data.labourGrades||[])[0];
     return g?labourRate(g):0;
   }
+  const inr=n=>num(n).toLocaleString('en-IN',{maximumFractionDigits:0});
   const rupee=n=>(QC().currencySymbol||'₹')+num(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
 
   /* AI replies are JSON but not always valid JSON: a model will happily put a real
@@ -3792,7 +3908,7 @@ Reply with ONLY this JSON, no commentary or code fences:
     const emg=(emp.references||[]).find(x=>x.isEmergency)||(emp.references||[])[0]||null;
     const portal=(data.siteUrl||location.origin+location.pathname).replace(/[#?].*$/,'').replace(/\/+$/,'')
       +'/#me?id='+encodeURIComponent(emp.empId);
-    const qr='https://api.qrserver.com/v1/create-qr-code/?size=500x500&margin=0&data='+encodeURIComponent(portal);
+    const qr='https://api.qrserver.com/v1/create-qr-code/?size=800x800&margin=0&ecc=M&data='+encodeURIComponent(portal);
     const valid=new Date(); valid.setFullYear(valid.getFullYear()+3);
     const navy=data.navy||'#0B2A5B', gold=data.gold||'#C2932E';
 
@@ -3807,42 +3923,46 @@ Reply with ONLY this JSON, no commentary or code fences:
   .card{width:54mm;height:85.6mm;border:0.25mm solid #d5dee9;border-radius:3mm;
     overflow:hidden;page-break-inside:avoid;display:flex;flex-direction:column;background:#fff;}
 
-  /* ---- FRONT : 12 + 30 + 13 + 7 + 15 + 8.6 = 85.6mm ---- */
-  .f-head{height:12mm;background:${navy};display:flex;align-items:center;justify-content:center;
-    flex-direction:column;padding:1.5mm 2mm;flex:0 0 12mm;}
-  .f-head img{max-height:6mm;max-width:30mm;object-fit:contain;}
-  .f-head .fb{color:#fff;font-size:8pt;font-weight:800;letter-spacing:.4pt;}
-  .f-head .cn{color:rgba(255,255,255,.9);font-size:4.6pt;font-weight:600;letter-spacing:.5pt;
-    text-transform:uppercase;margin-top:0.8mm;text-align:center;line-height:1.1;}
+  /* ---- FRONT : 20 + 28 + 12 + 7 + 13.6 + 5 = 85.6mm ---- */
+  .f-head{height:20mm;flex:0 0 20mm;background:${navy};display:flex;align-items:center;
+    gap:1.6mm;padding:1.8mm 2mm;}
+  .f-head .hl{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;gap:1mm;}
+  .f-head .hl img{max-height:8.5mm;max-width:100%;object-fit:contain;}
+  .f-head .fb{color:#fff;font-size:9pt;font-weight:800;letter-spacing:.4pt;line-height:1;}
+  .f-head .cn{color:rgba(255,255,255,.92);font-size:5pt;font-weight:600;letter-spacing:.5pt;
+    text-transform:uppercase;line-height:1.15;}
+  .f-head .hq{flex:0 0 15.5mm;width:15.5mm;height:15.5mm;background:#fff;border-radius:1mm;
+    padding:0.6mm;display:flex;align-items:center;justify-content:center;}
+  .f-head .hq img{width:100%;height:100%;object-fit:contain;display:block;}
 
-  .f-photo{height:30mm;flex:0 0 30mm;display:flex;align-items:center;justify-content:center;
-    background:#f2f5f9;padding:1.5mm;}
-  .f-photo .box{width:23mm;height:27mm;border-radius:1.5mm;overflow:hidden;background:#e3e9f1;
+  .f-photo{height:28mm;flex:0 0 28mm;display:flex;align-items:center;justify-content:center;
+    background:#f2f5f9;padding:1.2mm;}
+  .f-photo .box{width:22mm;height:25.5mm;border-radius:1.5mm;overflow:hidden;background:#e3e9f1;
     border:0.4mm solid #fff;box-shadow:0 0.4mm 1.2mm rgba(11,42,91,.18);
     display:flex;align-items:center;justify-content:center;}
   .f-photo img{width:100%;height:100%;object-fit:cover;}
   .f-photo span{font-size:5pt;color:#9fb0c4;letter-spacing:.4pt;}
 
-  .f-name{height:13mm;flex:0 0 13mm;display:flex;flex-direction:column;align-items:center;
+  .f-name{height:12mm;flex:0 0 12mm;display:flex;flex-direction:column;align-items:center;
     justify-content:center;padding:0 2mm;text-align:center;}
   .f-name .n{font-size:11pt;font-weight:800;color:${navy};line-height:1.1;}
-  .f-name .d{font-size:6.4pt;color:#6b7c95;margin-top:0.6mm;}
+  .f-name .d{font-size:6.6pt;color:#6b7c95;margin-top:0.6mm;}
 
   .f-id{height:7mm;flex:0 0 7mm;background:${gold};color:#fff;display:flex;align-items:center;
     justify-content:center;font-size:10.5pt;font-weight:800;letter-spacing:1.8pt;}
 
-  .f-info{height:15mm;flex:0 0 15mm;padding:1.5mm 3.5mm;display:flex;flex-direction:column;
-    justify-content:center;gap:0.9mm;}
-  .f-info .r{display:flex;justify-content:space-between;align-items:center;font-size:6.4pt;}
+  .f-info{height:13.6mm;flex:0 0 13.6mm;padding:1.2mm 3.5mm;display:flex;flex-direction:column;
+    justify-content:center;gap:0.8mm;}
+  .f-info .r{display:flex;justify-content:space-between;align-items:center;font-size:6.6pt;}
   .f-info .k{color:#93a2b8;}
   .f-info .v{font-weight:700;color:#12233f;}
   .f-info .bg{background:#B03A2E;color:#fff;padding:0.3mm 1.8mm;border-radius:0.8mm;
-    font-size:6.8pt;font-weight:800;letter-spacing:.3pt;}
+    font-size:7pt;font-weight:800;letter-spacing:.3pt;}
 
-  .f-qr{height:8.6mm;flex:0 0 8.6mm;background:${navy};display:flex;align-items:center;
-    justify-content:center;gap:2mm;padding:0 3mm;}
-  .f-qr img{width:7mm;height:7mm;background:#fff;padding:0.3mm;border-radius:0.5mm;}
-  .f-qr div{color:#fff;font-size:4.4pt;letter-spacing:.4pt;text-transform:uppercase;line-height:1.25;}
+  .f-foot{height:5mm;flex:0 0 5mm;background:${navy};display:flex;align-items:center;
+    justify-content:center;padding:0 3mm;}
+  .f-foot div{color:#fff;font-size:4.6pt;letter-spacing:.5pt;text-transform:uppercase;}
 
   /* ---- BACK : 8 + 26 + 43.6 + 8 = 85.6mm ---- */
   .b-head{height:8mm;flex:0 0 8mm;background:${navy};color:#fff;display:flex;align-items:center;
@@ -3877,8 +3997,11 @@ Reply with ONLY this JSON, no commentary or code fences:
 <div class="sheet">
   <div class="card">
     <div class="f-head">
-      ${logo?`<img src="${logo}">`:`<div class="fb">${esc((co.legalName||data.brandName||'').slice(0,16))}</div>`}
-      <div class="cn">${esc(co.legalName||co.displayName||data.brandName||'')}</div>
+      <div class="hl">
+        ${logo?`<img src="${logo}">`:`<div class="fb">${esc((co.legalName||data.brandName||'').slice(0,16))}</div>`}
+        <div class="cn">${esc(co.legalName||co.displayName||data.brandName||'')}</div>
+      </div>
+      <div class="hq"><img src="${qr}" alt=""></div>
     </div>
     <div class="f-photo"><div class="box">
       ${emp.photo?`<img src="${absUrl(emp.photo)}">`:'<span>PHOTO</span>'}</div></div>
@@ -3892,7 +4015,7 @@ Reply with ONLY this JSON, no commentary or code fences:
       <div class="r"><span class="k">DEPARTMENT</span><span class="v">${esc(emp.department||'—')}</span></div>
       <div class="r"><span class="k">DATE OF JOINING</span><span class="v">${emp.doj?new Date(emp.doj).toLocaleDateString('en-GB'):'—'}</span></div>
     </div>
-    <div class="f-qr"><img src="${qr}" alt=""><div>SCAN FOR<br>ATTENDANCE &amp; PAY</div></div>
+    <div class="f-foot"><div>Scan the code for attendance &amp; pay</div></div>
   </div>
 
   <div class="card">
@@ -4294,19 +4417,19 @@ table{width:100%;border-collapse:collapse;font-size:9pt;}
 </table>
 <table class="amt"><thead><tr><th>Earnings</th><th class="r">Amount</th><th>Deductions</th><th class="r">Amount</th></tr></thead>
 <tbody>
-<tr><td>Basic</td><td class="r">${sl.earnings.basic}</td><td>Provident Fund</td><td class="r">${sl.deductions.pf}</td></tr>
-<tr><td>Dearness Allowance</td><td class="r">${sl.earnings.da}</td><td>ESI</td><td class="r">${sl.deductions.esi}</td></tr>
-<tr><td>House Rent Allowance</td><td class="r">${sl.earnings.hra}</td><td>Professional Tax</td><td class="r">${sl.deductions.pt}</td></tr>
-<tr><td>Conveyance</td><td class="r">${sl.earnings.conveyance}</td><td>Income Tax (TDS)</td><td class="r">${sl.deductions.tds}</td></tr>
-<tr><td>Special Allowance</td><td class="r">${sl.earnings.special}</td><td>Other</td><td class="r">${sl.deductions.other}</td></tr>
-<tr><td>Overtime${sl.otHours?` (${sl.otHours} hrs)`:''}</td><td class="r">${sl.earnings.ot}</td><td></td><td></td></tr>
-<tr class="tot"><td>Gross Earnings</td><td class="r">${sl.gross}</td><td>Total Deductions</td><td class="r">${sl.totalDeductions}</td></tr>
+<tr><td>Basic</td><td class="r">${inr(sl.earnings.basic)}</td><td>Provident Fund</td><td class="r">${inr(sl.deductions.pf)}</td></tr>
+<tr><td>Dearness Allowance</td><td class="r">${inr(sl.earnings.da)}</td><td>ESI</td><td class="r">${inr(sl.deductions.esi)}</td></tr>
+<tr><td>House Rent Allowance</td><td class="r">${inr(sl.earnings.hra)}</td><td>Professional Tax</td><td class="r">${inr(sl.deductions.pt)}</td></tr>
+<tr><td>Conveyance</td><td class="r">${inr(sl.earnings.conveyance)}</td><td>Income Tax (TDS)</td><td class="r">${inr(sl.deductions.tds)}</td></tr>
+<tr><td>Special Allowance</td><td class="r">${inr(sl.earnings.special)}</td><td>Other</td><td class="r">${inr(sl.deductions.other)}</td></tr>
+<tr><td>Overtime${sl.otHours?` (${sl.otHours} hrs)`:''}</td><td class="r">${inr(sl.earnings.ot)}</td><td></td><td></td></tr>
+<tr class="tot"><td>Gross Earnings</td><td class="r">${inr(sl.gross)}</td><td>Total Deductions</td><td class="r">${inr(sl.totalDeductions)}</td></tr>
 </tbody></table>
 <div class="net"><span>NET PAY</span><span>₹${sl.net.toLocaleString('en-IN')}</span></div>
 <div class="sealrow">
   <div class="foot">
-    Employer contributions, not deducted from you: PF ₹${sl.employer.pf} · EPS ₹${sl.employer.eps}
-    · EDLI ₹${sl.employer.edli} · ESI ₹${sl.employer.esi}<br>
+    Employer contributions, not deducted from you: PF ₹${inr(sl.employer.pf)} · EPS ₹${inr(sl.employer.eps)}
+    · EDLI ₹${inr(sl.employer.edli)} · ESI ₹${inr(sl.employer.esi)}<br>
     Statutory rates effective from ${esc(sl.rulesEffectiveFrom||'not recorded')}.
     ${sl.tdsBasis?'Income tax basis: '+esc(sl.tdsBasis)+'.':''}
     ${(!sl.deductions.tds&&/regime/.test(sl.tdsBasis||''))?' No tax is payable at this income level after the standard deduction and rebate.':''}<br>
@@ -6960,15 +7083,16 @@ within seven days.</p>
   }
 
   /* ---------- Statutory settings ---------- */
-  let tdsEditRegime='New', tdsTestGross=1200000;
+  let tdsEditRegime='New', tdsTestGross=1200000, tdsBlockOpen=false;
   function renderStatutory(){
     const host=document.getElementById('hr-statutory'); if(!host) return;
     normaliseStatutory();
     const st=ST();
     if(!(st.tds.regimes||{})[tdsEditRegime]) tdsEditRegime=Object.keys(st.tds.regimes||{})[0]||'New';
     const RG=()=>(st.tds.regimes||{})[tdsEditRegime]||{};
+    /* a percentage box does not need the width of a rupee box */
     const f=(label,path,val,hint)=>`<div><label>${label}</label>
-      <input class="st-in num" data-path="${path}" value="${esc(val)}">
+      <input class="st-in num${/%/.test(label)?' pct':''}" data-path="${path}" value="${esc(val)}">
       ${hint?`<div class="field-hint">${hint}</div>`:''}</div>`;
     host.innerHTML=`
       <div class="qb"><h4>Review Record</h4>
@@ -7006,12 +7130,22 @@ within seven days.</p>
           <td><button class="qb-del pt-del" data-si="${si}">×</button></td></tr>`).join('')}</tbody></table>
       <button class="qb-add" id="pt-add">+ Add slab</button></div>
 
-      <div class="qb"><h4>Income Tax (TDS)</h4>
+      <details class="qb fold" ${(st.tds.mode!=='slab'||!st.tds.slabsReviewedBy||tdsBlockOpen)?'open':''} id="tds-block">
+      <summary><span>Income Tax (TDS)</span>
+        <span class="sum">${st.tds.mode==='slab'?'Slab-based':'Manual'} ·
+          default ${esc(st.tds.defaultRegime||'New')} regime ·
+          ${st.tds.slabsReviewedBy?'verified by '+esc(st.tds.slabsReviewedBy):'<b style="color:#B03A2E">not verified</b>'}</span></summary>
       <div class="warn-box" style="margin-bottom:12px;"><b>Read this before changing anything here.</b>
         TDS liability sits with the employer under Section 201(1A). Slabs, rebate and surcharge change with
         each Finance Act and depend on the employee's regime election and declarations. These figures must be
         set and verified by your CA. AI can draft them for checking — it cannot be relied on as the authority,
         and slab-based calculation stays locked until a named person records that they verified it.</div>
+      ${st.tds.mode!=='slab'?`<div class="dx-missing" style="margin-bottom:12px;">
+        <b>No tax is being computed for anybody.</b> The mode below is set to Manual, so payroll deducts
+        only the TDS Override typed on each employee record — which is zero on most of them. The slab
+        tables further down are ignored entirely while this is the case.
+        <div style="margin-top:8px;"><button class="mini-btn green" id="tds-go-slab">Switch to slab-based</button></div>
+        </div>`:''}
       <div class="cs-row four">
         <div><label>Mode</label>
           <select class="st-str" data-path="tds.mode" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
@@ -7068,7 +7202,17 @@ within seven days.</p>
               <td><button class="qb-del trg-udel" data-si="${si}">×</button></td></tr>`).join('')
               ||'<tr><td colspan="3" class="t-micro">No surcharge bands — no surcharge is added.</td></tr>'}</tbody></table>
           <button class="qb-add" id="trg-uadd">+ Add band</button>
+          ${(()=>{const ups=(RG().surcharge||[]).map(x=>num(x.upTo));
+            const dup=ups.filter((v,i)=>ups.indexOf(v)!==i);
+            return dup.length?`<div class="dx-missing" style="margin-top:8px;">
+              <b>Two or more bands share the same limit (${dup.map(x=>esc(x)).join(', ')}).</b>
+              Only the first of them can ever apply — give each band its own upper limit.</div>`:'';})()}
         </div>
+      </div>
+      <div style="margin-top:10px;">
+        <button class="mini-btn" id="trg-reset">Restore the standard ${esc(tdsEditRegime)} table</button>
+        <span class="t-micro" style="margin-left:8px;">Replaces the slabs, surcharge, standard deduction and
+          87A rebate for this regime with the FY 2025-26 figures shipped with the system.</span>
       </div>
 
       <div class="qb" style="margin-top:14px;background:var(--paper);">
@@ -7087,7 +7231,7 @@ within seven days.</p>
       ${st.tds.mode==='slab'&&!st.tds.slabsReviewedBy?`<div class="dx-missing" style="margin-top:10px;">
         <b>Slab mode is computing tax, but nobody has verified these figures.</b> Every payslip carries a
         note saying so until a name and date are recorded above.</div>`:''}
-      </div>
+      </details>
 
       <div class="qb"><h4>Overtime, Gratuity &amp; Bonus</h4><div class="cs-row four">
         ${f('OT Multiplier','ot.multiplier',st.ot.multiplier)}
@@ -7117,8 +7261,26 @@ within seven days.</p>
     const RGset=()=>{ const t=data.statutory.tds;
       t.regimes=t.regimes||{}; t.regimes[tdsEditRegime]=t.regimes[tdsEditRegime]||{};
       return t.regimes[tdsEditRegime]; };
+    const fold=document.getElementById('tds-block');
+    if(fold) fold.addEventListener('toggle',()=>{ tdsBlockOpen=fold.open; });
     const rp=document.getElementById('trg-pick');
     if(rp) rp.addEventListener('change',()=>{ tdsEditRegime=rp.value; renderStatutory(); });
+    const goSlab=document.getElementById('tds-go-slab');
+    if(goSlab) goSlab.addEventListener('click',()=>{
+      data.statutory.tds.mode='slab'; markDirty(); renderStatutory();
+      toast('Slab mode on — press Save Statutory Settings to keep it');
+    });
+    const treset=document.getElementById('trg-reset');
+    if(treset) treset.addEventListener('click',()=>{
+      const d=((DEFAULTS.statutory.tds.regimes||{})[tdsEditRegime]);
+      if(!d){ toast('No standard table is shipped for '+tdsEditRegime); return; }
+      if(!confirm('Replace the '+tdsEditRegime+' regime slabs, surcharge, standard deduction and 87A '
+        +'rebate with the standard FY 2025-26 figures?\n\nAnything you typed for this regime is lost.')) return;
+      data.statutory.tds.regimes[tdsEditRegime]=JSON.parse(JSON.stringify(d));
+      data.statutory.tds.slabsReviewedBy=''; data.statutory.tds.slabsReviewedOn='';
+      markDirty(); renderStatutory();
+      toast('Standard table restored — have it verified, then save');
+    });
     host.querySelectorAll('.trg-in').forEach(inp=>inp.addEventListener('input',()=>{
       RGset()[inp.dataset.k]=num(inp.value); markDirty();
     }));
@@ -7153,17 +7315,17 @@ within seven days.</p>
       const taxable=Math.max(0,tdsTestGross-num(rg.standardDeduction));
       const t=annualTaxBeforeCess(taxable,rg);
       const annual=t.total*(1+cess/100);
-      const beforeRebate=slabTax(taxable,rg.slabs);
-      const rebateUsed=Math.max(0,beforeRebate-t.base);
       document.getElementById('tds-test-out').innerHTML=
         `Taxable <b>${rupee(taxable)}</b> after ${rupee(num(rg.standardDeduction))} standard deduction`
-        +`<br>Tax on the slabs ${rupee(beforeRebate)}`
-        +(rebateUsed?` − 87A rebate ${rupee(rebateUsed)}`:'')
-        +(t.surcharge?` + surcharge ${rupee(t.surcharge)}`:'')
+        +`<br>Tax on the slabs ${rupee(t.grossTax)}`
+        +(t.rebate?` − 87A rebate ${rupee(t.rebate)}`:'')
+        +(t.relief?` − marginal relief ${rupee(t.relief)}`:'')
+        +(t.surcharge?` + ${t.surchargeRate}% surcharge ${rupee(t.surcharge)}`:'')
+        +(t.surchargeRelief?` (after ${rupee(t.surchargeRelief)} marginal relief)`:'')
         +` + ${cess}% cess`
         +`<br><b>${rupee(annual)}</b> a year · <b>${rupee(annual/12)}</b> a month`
         +(annual?'':`<br><span style="color:var(--ok)">Nothing is payable — the 87A rebate covers the tax `
-          +`at this income (rebate applies up to ${rupee(num(rg.rebateLimit))} taxable).</span>`);
+          +`at this income (it applies up to ${rupee(num(rg.rebateLimit))} taxable).</span>`);
     });
 
     const tai=document.getElementById('tds-ai');
@@ -7492,6 +7654,34 @@ Rules:
       style="width:100%;padding:7px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
       <option value="">—</option>${(list||[]).map(x=>`<option ${val===x?'selected':''}>${esc(x)}</option>`).join('')}</select>`;
 
+  /* An employee record is six sections and a long scroll. Each heading becomes a
+     fold; which ones are open is remembered while the page is up, so opening the
+     next person lands on the same section you were working in. */
+  const sectionOpen={};
+  function makeSectionsCollapsible(root,openByDefault){
+    if(!root) return;
+    root.querySelectorAll('.cs-sub').forEach((h,idx)=>{
+      if(h.dataset.coll) return;
+      const body=[];
+      let n=h.nextElementSibling;
+      while(n && !n.classList.contains('cs-sub')){ body.push(n); n=n.nextElementSibling; }
+      if(!body.length) return;
+      h.dataset.coll='1';
+      const key=h.textContent.trim();
+      const open=(key in sectionOpen)?sectionOpen[key]:(idx<num(openByDefault));
+      h.classList.add('cs-sub-toggle');
+      h.innerHTML='<span class="cs-caret"></span>'+h.innerHTML;
+      const apply=v=>{
+        body.forEach(el=>{ el.style.display=v?'':'none'; });
+        h.querySelector('.cs-caret').textContent=v?'▾':'▸';
+      };
+      apply(open);
+      h.addEventListener('click',()=>{
+        const now=!(sectionOpen[key]===undefined?open:sectionOpen[key]);
+        sectionOpen[key]=now; apply(now);
+      });
+    });
+  }
   function renderEmployees(){
     const kpi=document.getElementById('hr-kpi-row'), host=document.getElementById('hr-emp-list');
     if(!host) return;
@@ -7611,11 +7801,11 @@ Rules:
               <div class="field-hint">Leave 0 to let the system compute it. Any value here overrides.</div>
               ${(()=>{
                 const t=calcPayslip(e,{payableDays:30,totalDays:30,otHours:0,incentive:0,advance:0});
+                const d=tdsDiagnosis(e);
                 const shown=num(e.monthlyTds)>0?num(e.monthlyTds):t.tdsComputed;
-                const bad=!t.tdsComputed&&!num(e.monthlyTds);
-                return `<div class="field-hint" style="color:${bad?'#B03A2E':'var(--ok)'};margin-top:4px;">
-                  ${bad?'Not computed — no tax slabs are set for this regime on the Statutory tab.'
-                       :'Computed now: '+esc(rupee(shown))+'/month'}</div>
+                return `<div class="field-hint" style="color:${d.ok?'var(--ok)':'#B03A2E'};margin-top:4px;">
+                  ${d.ok?'Computed now: '+esc(rupee(shown))+'/month'
+                        :'Not computed — '+esc(d.why)}</div>
                   <div class="field-hint" style="margin-top:2px;">${esc(t.tdsBasis||'')}</div>`;})()}</div>
             <div><label>Other Deduction</label><input class="em-in num" data-i="${i}" data-k="otherDeduction" value="${esc(e.otherDeduction)}"></div>
             <div><label>PF Applicable</label>
@@ -7633,6 +7823,7 @@ Rules:
           </div>
         </div></div>`;
     }).join('');
+    makeSectionsCollapsible(host,2);
 
     host.querySelectorAll('[data-toggle-emp]').forEach(r=>r.addEventListener('click',()=>{
       const id=r.dataset.toggleEmp; expandedEmp=(expandedEmp===id)?null:id; renderEmployees();
@@ -7711,6 +7902,25 @@ Rules:
      reviews and approves; it never finalises anything by itself. */
   const ST=()=>data.statutory||{};
 
+  /* Why is this person's TDS the figure it is? One place that answers it, used by the
+     employee record, the payslip note and the statutory screen, so the three can never
+     disagree again. */
+  function tdsDiagnosis(emp){
+    const t=ST().tds||{};
+    const regime=(emp&&emp.taxRegime)||t.defaultRegime||'New';
+    const rg=(t.regimes||{})[regime]||{};
+    const over=num(emp&&emp.monthlyTds);
+    if(t.enabled===false)
+      return {ok:false,why:'Income tax is switched off on the Statutory tab.'};
+    if(t.mode!=='slab')
+      return {ok:false,regime,
+        why:'Mode is set to Manual on the Statutory tab, so payroll deducts only the override typed above. Switch the mode to Slab-based to compute it.'};
+    if(!(rg.slabs||[]).length)
+      return {ok:false,regime,why:'No slab table is set for the '+regime+' regime on the Statutory tab.'};
+    if(over>0) return {ok:true,regime,why:'Overridden by the figure typed above.'};
+    return {ok:true,regime,why:''};
+  }
+
   /* ---- One shape for the tax rules ----
      Earlier versions saved a single flat slab table (tds.slabs, tds.standardDeduction,
      tds.rebate87A, tds.rebateLimit, tds.regime) while the payslip engine reads a table
@@ -7769,29 +7979,34 @@ Rules:
   }
   /* tax after the 87A rebate, surcharge and marginal relief, before cess */
   function annualTaxBeforeCess(taxable,rg){
-    let base=slabTax(taxable,rg.slabs);
+    const grossTax=slabTax(taxable,rg.slabs);
+    let base=grossTax, rebate=0, relief=0;
     const rl=num(rg.rebateLimit), ra=num(rg.rebateAmount);
     if(rl&&ra){
-      if(taxable<=rl) base=Math.max(0,base-ra);
+      if(taxable<=rl){ rebate=Math.min(base,ra); base=base-rebate; }
       else {
-        // marginal relief just above the rebate limit: tax cannot exceed the excess income
+        /* marginal relief just above the rebate limit: the tax cannot exceed the
+           income earned beyond the limit, or a rupee more of income would cost more
+           than a rupee of tax */
         const atLimit=Math.max(0, slabTax(rl,rg.slabs)-ra);
-        base=Math.min(base, atLimit+(taxable-rl));
+        const capped=atLimit+(taxable-rl);
+        if(capped<base){ relief=base-capped; base=capped; }
       }
     }
     const bands=(rg.surcharge||[]).slice().sort((a,b)=>num(a.upTo)-num(b.upTo));
-    let sc=base*surchargeRate(taxable,bands)/100;
+    const rate=surchargeRate(taxable,bands);
+    let sc=base*rate/100, scRelief=0;
     if(sc>0){
-      // marginal relief on surcharge at the limit just crossed
       const crossed=bands.map(b=>num(b.upTo)).filter(x=>x<taxable).sort((a,b)=>b-a);
       if(crossed.length){
         const T=crossed[0];
         const baseT=slabTax(T,rg.slabs);
         const capped=baseT + baseT*surchargeRate(T,bands)/100 + (taxable-T);
-        if(base+sc>capped) sc=Math.max(0, capped-base);
+        if(base+sc>capped){ scRelief=(base+sc)-capped; sc=Math.max(0, capped-base); }
       }
     }
-    return {base,surcharge:sc,total:base+sc};
+    return {grossTax,base,rebate,relief,surcharge:sc,surchargeRate:rate,
+      surchargeRelief:scRelief,total:base+sc};
   }
   let hrEmployees=[], hrPayruns=[], expandedEmp=null, expandedRun=null;
 
@@ -7923,8 +8138,11 @@ Rules:
             +' · taxable '+Math.round(taxable).toLocaleString('en-IN')
             +' after '+num(rg.standardDeduction).toLocaleString('en-IN')+' standard deduction'
             +(num(emp.declaredDeductions)?' and '+num(emp.declaredDeductions).toLocaleString('en-IN')+' declared':'')
-            +' · tax '+Math.round(t.base).toLocaleString('en-IN')
-            +(t.surcharge?' + surcharge '+Math.round(t.surcharge).toLocaleString('en-IN'):'')
+            +' · tax on slabs '+Math.round(t.grossTax).toLocaleString('en-IN')
+            +(t.rebate?' − 87A rebate '+Math.round(t.rebate).toLocaleString('en-IN'):'')
+            +(t.relief?' − marginal relief '+Math.round(t.relief).toLocaleString('en-IN'):'')
+            +(t.surcharge?' + '+t.surchargeRate+'% surcharge '+Math.round(t.surcharge).toLocaleString('en-IN'):'')
+            +(t.surchargeRelief?' (after '+Math.round(t.surchargeRelief).toLocaleString('en-IN')+' marginal relief)':'')
             +' + '+num(tdsCfg.cessPct)+'% cess = '+Math.round(annualTax).toLocaleString('en-IN')+' a year';
           tdsComputed=tds;
           if(num(emp.monthlyTds)>0){
@@ -10501,6 +10719,7 @@ Sign off as: ${data.quoteSender||'Sales Team'}, ${data.brandName}, ${data.contac
     } else if(t==='hr'){
       if(currentRole!=='developer'){ toast('HR records need the developer login.'); return; }
       document.getElementById('hr-page').classList.add('open');
+      renderHrGroups(); showHrGroup();
       document.body.style.overflow='hidden'; await loadHr();
     } else if(t==='ppc'){
       document.getElementById('ppc-page').classList.add('open');
@@ -10631,7 +10850,35 @@ Sign off as: ${data.quoteSender||'Sales Team'}, ${data.brandName}, ${data.contac
     if(location.hash==='#ppc')history.replaceState(null,'',location.pathname);});
 
   /* ---------- HR page wiring ---------- */
+  /* Sixteen tabs on one row meant a horizontal scrollbar and a hunt every time.
+     They are grouped by what someone is actually doing; the group row picks the
+     set, the tab row picks the screen. Nothing about the screens themselves changes. */
+  const HR_GROUPS=[
+    ['daily','Daily'],['people','People'],['pay','Pay'],
+    ['capability','Capability'],['compliance','Compliance']];
+  let hrGroup='daily';
+  function renderHrGroups(){
+    const bar=document.getElementById('hr-groups'); if(!bar) return;
+    bar.innerHTML=HR_GROUPS.map(([k,label])=>{
+      const n=document.querySelectorAll('.hr-tab[data-hrgroup="'+k+'"]').length;
+      return `<button data-g="${k}" class="${hrGroup===k?'active':''}">${label}<span class="n">${n}</span></button>`;
+    }).join('');
+    bar.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+      hrGroup=b.dataset.g;
+      showHrGroup();
+      const first=document.querySelector('.hr-tab[data-hrgroup="'+hrGroup+'"]');
+      if(first) first.click();
+    }));
+  }
+  function showHrGroup(){
+    document.querySelectorAll('.hr-tab').forEach(t=>{
+      t.style.display=(t.dataset.hrgroup===hrGroup)?'':'none';
+    });
+    document.querySelectorAll('#hr-groups button').forEach(b=>
+      b.classList.toggle('active',b.dataset.g===hrGroup));
+  }
   document.querySelectorAll('.hr-tab').forEach(tab=>tab.addEventListener('click',()=>{
+    if(tab.dataset.hrgroup&&tab.dataset.hrgroup!==hrGroup){ hrGroup=tab.dataset.hrgroup; showHrGroup(); }
     document.querySelectorAll('.hr-tab').forEach(t=>t.classList.remove('active'));
     tab.classList.add('active');
     document.querySelectorAll('.hr-panel').forEach(pn=>{
