@@ -2296,11 +2296,16 @@ I would recommend this company as a place to work</textarea></div></div>
             rebateLimit:1200000, rebateAmount:60000,
             slabs:[{upTo:400000,rate:0},{upTo:800000,rate:5},{upTo:1200000,rate:10},
                    {upTo:1600000,rate:15},{upTo:2000000,rate:20},{upTo:2400000,rate:25},
-                   {upTo:999999999,rate:30}] },
+                   {upTo:999999999,rate:30}],
+            /* surcharge on the tax itself, once taxable income crosses each limit */
+            surcharge:[{upTo:5000000,rate:0},{upTo:10000000,rate:10},
+                       {upTo:20000000,rate:15},{upTo:999999999,rate:25}] },
           Old:{ label:"Old Regime (with exemptions)", standardDeduction:50000,
             rebateLimit:500000, rebateAmount:12500,
             slabs:[{upTo:250000,rate:0},{upTo:500000,rate:5},{upTo:1000000,rate:20},
-                   {upTo:999999999,rate:30}] }
+                   {upTo:999999999,rate:30}],
+            surcharge:[{upTo:5000000,rate:0},{upTo:10000000,rate:10},{upTo:20000000,rate:15},
+                       {upTo:50000000,rate:25},{upTo:999999999,rate:37}] }
         },
         note:"Slabs below are as understood for FY 2025-26 and compute immediately. Have your CA confirm them."},
       lwf:{enabled:false, employee:0, employer:0, note:"Labour Welfare Fund, where applicable"},
@@ -2552,6 +2557,7 @@ I would recommend this company as a place to work</textarea></div></div>
         data.materials=j.data.materials||DEFAULTS.materials;
         data.parts=j.data.parts||DEFAULTS.parts;
         data.statutory=Object.assign({},DEFAULTS.statutory,j.data.statutory||{});
+        normaliseStatutory();
         data.leavePolicy=Object.assign({},DEFAULTS.leavePolicy,j.data.leavePolicy||{});
         data.hrMasters=Object.assign({},DEFAULTS.hrMasters,j.data.hrMasters||{});
         data.competencies=j.data.competencies||DEFAULTS.competencies;
@@ -2567,6 +2573,7 @@ I would recommend this company as a place to work</textarea></div></div>
       if(j.updatedAt) setText('content-stamp','Content updated '+new Date(j.updatedAt).toLocaleDateString());
     }catch(e){
       cloudOK=false;
+      normaliseStatutory();
       const bar=document.getElementById('offline-bar');
       bar.textContent='Not connected to the database — showing default content. Changes cannot be published.';
       bar.classList.add('show');
@@ -4278,7 +4285,7 @@ table{width:100%;border-collapse:collapse;font-size:9pt;}
     · EDLI ₹${sl.employer.edli} · ESI ₹${sl.employer.esi}<br>
     Statutory rates effective from ${esc(sl.rulesEffectiveFrom||'not recorded')}.
     ${sl.tdsBasis?'Income tax basis: '+esc(sl.tdsBasis)+'.':''}
-    ${!sl.deductions.tds?' No tax is payable at this income level after the standard deduction and rebate.':''}<br>
+    ${(!sl.deductions.tds&&/regime/.test(sl.tdsBasis||''))?' No tax is payable at this income level after the standard deduction and rebate.':''}<br>
     ${(sl.notes||[]).length?esc(sl.notes.join(' · '))+'<br>':''}
     This is a system-generated payslip and does not require a signature.
   </div>
@@ -4687,7 +4694,7 @@ ${sections}
 
         ${slip.tdsBasis?`<div class="field-hint" style="margin-top:10px;">
           <b>Income tax basis:</b> ${esc(slip.tdsBasis)}.
-          ${!slip.deductions.tds?' No tax is payable at your income level after the standard deduction and rebate.':''}</div>`:''}
+          ${(!slip.deductions.tds&&/regime/.test(slip.tdsBasis||''))?' No tax is payable at your income level after the standard deduction and rebate.':''}</div>`:''}
         <div class="field-hint" style="margin-top:6px;">An indication from attendance recorded so far. Your
           actual payslip is issued after the month closes and may differ.</div>
       </div>
@@ -6930,9 +6937,13 @@ within seven days.</p>
   }
 
   /* ---------- Statutory settings ---------- */
+  let tdsEditRegime='New', tdsTestGross=1200000;
   function renderStatutory(){
     const host=document.getElementById('hr-statutory'); if(!host) return;
+    normaliseStatutory();
     const st=ST();
+    if(!(st.tds.regimes||{})[tdsEditRegime]) tdsEditRegime=Object.keys(st.tds.regimes||{})[0]||'New';
+    const RG=()=>(st.tds.regimes||{})[tdsEditRegime]||{};
     const f=(label,path,val,hint)=>`<div><label>${label}</label>
       <input class="st-in num" data-path="${path}" value="${esc(val)}">
       ${hint?`<div class="field-hint">${hint}</div>`:''}</div>`;
@@ -6982,37 +6993,77 @@ within seven days.</p>
         <div><label>Mode</label>
           <select class="st-str" data-path="tds.mode" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
             <option value="manual" ${st.tds.mode!=='slab'?'selected':''}>Manual — figure per employee from your CA</option>
-            <option value="slab" ${st.tds.mode==='slab'?'selected':''}>Slab-based — computed from the table below</option>
-          </select></div>
-        <div><label>Regime</label>
-          <select class="st-str" data-path="tds.regime" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
-            <option ${st.tds.regime==='New'?'selected':''}>New</option>
-            <option ${st.tds.regime==='Old'?'selected':''}>Old</option></select></div>
-        <div><label>Standard Deduction</label><input class="st-in num" data-path="tds.standardDeduction" value="${esc(st.tds.standardDeduction)}"></div>
+            <option value="slab" ${st.tds.mode==='slab'?'selected':''}>Slab-based — computed from the tables below</option>
+          </select>
+          <div class="field-hint">Slab mode computes tax for every employee from their own regime,
+            gross and declarations. The per-employee TDS Override still wins where one is entered.</div></div>
+        <div><label>Default Regime</label>
+          <select class="st-str" data-path="tds.defaultRegime" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+            ${Object.keys(st.tds.regimes||{}).map(k=>`<option ${st.tds.defaultRegime===k?'selected':''}>${esc(k)}</option>`).join('')}
+          </select>
+          <div class="field-hint">Used where an employee record has no regime of its own.</div></div>
         <div><label>Cess %</label><input class="st-in num" data-path="tds.cessPct" value="${esc(st.tds.cessPct)}"></div>
+        <div><label>Slabs verified by</label><input class="st-in" data-path="tds.slabsReviewedBy" value="${esc(st.tds.slabsReviewedBy)}" placeholder="CA name">
+          <div class="field-hint">Verified on <input type="date" class="st-in" data-path="tds.slabsReviewedOn" value="${esc(st.tds.slabsReviewedOn)}"></div></div>
       </div>
-      <div class="cs-row four" style="margin-top:10px;">
-        <div><label>87A Rebate up to income</label><input class="st-in num" data-path="tds.rebateLimit" value="${esc(st.tds.rebateLimit)}"></div>
-        <div><label>87A Rebate amount</label><input class="st-in num" data-path="tds.rebate87A" value="${esc(st.tds.rebate87A)}"></div>
-        <div><label>Slabs verified by</label><input class="st-in" data-path="tds.slabsReviewedBy" value="${esc(st.tds.slabsReviewedBy)}" placeholder="CA name"></div>
-        <div><label>Verified on</label><input type="date" class="st-in" data-path="tds.slabsReviewedOn" value="${esc(st.tds.slabsReviewedOn)}"></div>
+
+      <div class="cs-sub" style="margin-top:16px;">Rates by regime</div>
+      <div class="field-hint" style="margin-bottom:10px;">Each regime carries its own slabs, standard
+        deduction, 87A rebate and surcharge bands. Payroll reads the regime set on the employee's own
+        record, so both tables matter.</div>
+      <div class="cs-row four">
+        <div><label>Editing regime</label>
+          <select id="trg-pick" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+            ${Object.keys(st.tds.regimes||{}).map(k=>`<option value="${esc(k)}" ${tdsEditRegime===k?'selected':''}>${esc((st.tds.regimes[k]||{}).label||k)}</option>`).join('')}
+          </select></div>
+        <div><label>Standard Deduction</label><input class="trg-in num" data-k="standardDeduction" value="${esc(RG().standardDeduction)}"></div>
+        <div><label>87A Rebate up to taxable income</label><input class="trg-in num" data-k="rebateLimit" value="${esc(RG().rebateLimit)}"></div>
+        <div><label>87A Rebate amount</label><input class="trg-in num" data-k="rebateAmount" value="${esc(RG().rebateAmount)}"></div>
       </div>
-      <div class="field-hint" style="margin:10px 0;">Annual taxable income slabs. Enter each upper limit and
-        the rate that applies up to it.</div>
-      <table class="cs-t"><thead><tr><th class="r">Income up to</th><th class="r">Rate %</th><th></th></tr></thead>
-        <tbody>${(st.tds.slabs||[]).map((sl,si)=>`<tr>
-          <td><input class="tds-slab num" data-si="${si}" data-k="upTo" value="${esc(sl.upTo)}"></td>
-          <td><input class="tds-slab num" data-si="${si}" data-k="rate" value="${esc(sl.rate)}"></td>
-          <td><button class="qb-del tds-del" data-si="${si}">×</button></td></tr>`).join('')
-          ||'<tr><td colspan="3" class="t-micro">No slabs entered — manual mode is in use.</td></tr>'}</tbody></table>
+
+      <div class="cs-row" style="margin-top:14px;">
+        <div>
+          <div class="cs-sub">Slabs — ${esc(tdsEditRegime)} regime</div>
+          <div class="field-hint" style="margin-bottom:8px;">Cumulative upper limits of annual taxable
+            income, with the rate that applies up to each. Use a very large figure for the top band.</div>
+          <table class="cs-t"><thead><tr><th class="r">Taxable income up to</th><th class="r">Rate %</th><th></th></tr></thead>
+            <tbody>${(RG().slabs||[]).map((sl,si)=>`<tr>
+              <td><input class="trg-slab num" data-si="${si}" data-k="upTo" value="${esc(sl.upTo)}"></td>
+              <td><input class="trg-slab num" data-si="${si}" data-k="rate" value="${esc(sl.rate)}"></td>
+              <td><button class="qb-del trg-sdel" data-si="${si}">×</button></td></tr>`).join('')
+              ||'<tr><td colspan="3" class="t-micro">No slabs — nothing can be computed for this regime.</td></tr>'}</tbody></table>
+          <button class="qb-add" id="trg-sadd">+ Add slab</button>
+        </div>
+        <div>
+          <div class="cs-sub">Surcharge — ${esc(tdsEditRegime)} regime</div>
+          <div class="field-hint" style="margin-bottom:8px;">A percentage added to the tax itself once
+            taxable income crosses each limit. Marginal relief is applied automatically.</div>
+          <table class="cs-t"><thead><tr><th class="r">Taxable income up to</th><th class="r">Surcharge %</th><th></th></tr></thead>
+            <tbody>${(RG().surcharge||[]).map((sl,si)=>`<tr>
+              <td><input class="trg-sur num" data-si="${si}" data-k="upTo" value="${esc(sl.upTo)}"></td>
+              <td><input class="trg-sur num" data-si="${si}" data-k="rate" value="${esc(sl.rate)}"></td>
+              <td><button class="qb-del trg-udel" data-si="${si}">×</button></td></tr>`).join('')
+              ||'<tr><td colspan="3" class="t-micro">No surcharge bands — no surcharge is added.</td></tr>'}</tbody></table>
+          <button class="qb-add" id="trg-uadd">+ Add band</button>
+        </div>
+      </div>
+
+      <div class="qb" style="margin-top:14px;background:var(--paper);">
+        <b class="t-micro">Check the rules on a figure</b>
+        <div class="cs-row four" style="margin-top:8px;">
+          <div><label>Annual gross</label><input class="num" id="tds-test" value="${esc(tdsTestGross)}"></div>
+          <div style="align-self:end;"><button class="mini-btn" id="tds-test-go">Compute</button></div>
+          <div style="grid-column:span 2;align-self:end;"><span class="t-micro" id="tds-test-out"></span></div>
+        </div>
+      </div>
+
       <div class="rfq-actions" style="margin-top:10px;">
-        <button class="qb-add" id="tds-add" style="width:auto;">+ Add slab</button>
-        <button class="mini-btn ai" id="tds-ai">Ask AI to draft the slabs</button>
+        <button class="mini-btn ai" id="tds-ai">Ask AI to draft the ${esc(tdsEditRegime)} slabs</button>
       </div>
       <div id="tds-ai-out"></div>
       ${st.tds.mode==='slab'&&!st.tds.slabsReviewedBy?`<div class="dx-missing" style="margin-top:10px;">
-        <b>Slab mode is selected but nobody has verified the slabs.</b> Payroll will keep using the manual
-        per-employee figure until a verifier is recorded above.</div>`:''}
+        <b>Slab mode is computing tax, but nobody has verified these figures.</b> Every payslip carries a
+        note saying so until a name and date are recorded above.</div>`:''}
       </div>
 
       <div class="qb"><h4>Overtime, Gratuity &amp; Bonus</h4><div class="cs-row four">
@@ -7040,45 +7091,82 @@ within seven days.</p>
     host.querySelectorAll('.st-str').forEach(sel=>sel.addEventListener('change',()=>{
       setPath(sel.dataset.path, sel.value); markDirty();
     }));
-    host.querySelectorAll('.tds-slab').forEach(inp=>inp.addEventListener('input',()=>{
-      data.statutory.tds.slabs[+inp.dataset.si][inp.dataset.k]=num(inp.value); markDirty();
+    const RGset=()=>{ const t=data.statutory.tds;
+      t.regimes=t.regimes||{}; t.regimes[tdsEditRegime]=t.regimes[tdsEditRegime]||{};
+      return t.regimes[tdsEditRegime]; };
+    const rp=document.getElementById('trg-pick');
+    if(rp) rp.addEventListener('change',()=>{ tdsEditRegime=rp.value; renderStatutory(); });
+    host.querySelectorAll('.trg-in').forEach(inp=>inp.addEventListener('input',()=>{
+      RGset()[inp.dataset.k]=num(inp.value); markDirty();
     }));
-    host.querySelectorAll('.tds-del').forEach(b=>b.addEventListener('click',()=>{
-      data.statutory.tds.slabs.splice(+b.dataset.si,1); markDirty(); renderStatutory();
+    host.querySelectorAll('.trg-slab').forEach(inp=>inp.addEventListener('input',()=>{
+      RGset().slabs[+inp.dataset.si][inp.dataset.k]=num(inp.value); markDirty();
     }));
-    const ta=document.getElementById('tds-add');
-    if(ta) ta.addEventListener('click',()=>{
-      data.statutory.tds.slabs=data.statutory.tds.slabs||[];
-      data.statutory.tds.slabs.push({upTo:0,rate:0}); markDirty(); renderStatutory();
+    host.querySelectorAll('.trg-sdel').forEach(b=>b.addEventListener('click',()=>{
+      RGset().slabs.splice(+b.dataset.si,1); markDirty(); renderStatutory();
+    }));
+    const sadd=document.getElementById('trg-sadd');
+    if(sadd) sadd.addEventListener('click',()=>{
+      const r=RGset(); r.slabs=r.slabs||[]; r.slabs.push({upTo:0,rate:0}); markDirty(); renderStatutory();
     });
+    host.querySelectorAll('.trg-sur').forEach(inp=>inp.addEventListener('input',()=>{
+      RGset().surcharge[+inp.dataset.si][inp.dataset.k]=num(inp.value); markDirty();
+    }));
+    host.querySelectorAll('.trg-udel').forEach(b=>b.addEventListener('click',()=>{
+      RGset().surcharge.splice(+b.dataset.si,1); markDirty(); renderStatutory();
+    }));
+    const uadd=document.getElementById('trg-uadd');
+    if(uadd) uadd.addEventListener('click',()=>{
+      const r=RGset(); r.surcharge=r.surcharge||[]; r.surcharge.push({upTo:0,rate:0});
+      markDirty(); renderStatutory();
+    });
+
+    /* a plain check: what this rule set does to one annual figure */
+    const tgo=document.getElementById('tds-test-go');
+    if(tgo) tgo.addEventListener('click',()=>{
+      const el=document.getElementById('tds-test');
+      tdsTestGross=num(el.value);
+      const rg=RGset(), cess=num(ST().tds.cessPct);
+      const taxable=Math.max(0,tdsTestGross-num(rg.standardDeduction));
+      const t=annualTaxBeforeCess(taxable,rg);
+      const annual=t.total*(1+cess/100);
+      document.getElementById('tds-test-out').innerHTML=
+        `Taxable <b>${rupee(taxable)}</b> · tax ${rupee(t.base)}`
+        +(t.surcharge?` + surcharge ${rupee(t.surcharge)}`:'')
+        +` + ${cess}% cess = <b>${rupee(annual)}</b> a year, <b>${rupee(annual/12)}</b> a month.`;
+    });
+
     const tai=document.getElementById('tds-ai');
     if(tai) tai.addEventListener('click',async function(){
       const out=document.getElementById('tds-ai-out');
       this.disabled=true; this.textContent='Drafting…';
       const fy=new Date().getMonth()>=3?new Date().getFullYear():new Date().getFullYear()-1;
       const prompt=`Draft the Indian income tax slab table for salaried individuals under the
-${ST().tds.regime||'New'} tax regime for financial year ${fy}-${String(fy+1).slice(2)}.
+${tdsEditRegime} tax regime for financial year ${fy}-${String(fy+1).slice(2)}.
 
 Reply with ONLY this JSON, no commentary or code fences:
-{"slabs":[{"upTo":0,"rate":0}],"standardDeduction":0,"rebate87A":0,"rebateLimit":0,"cessPct":4,
- "confidence":"","caution":""}
+{"slabs":[{"upTo":0,"rate":0}],"surcharge":[{"upTo":0,"rate":0}],"standardDeduction":0,
+ "rebateAmount":0,"rebateLimit":0,"cessPct":4,"confidence":"","caution":""}
 
 Rules:
 - "slabs" must be cumulative upper limits of annual taxable income with the marginal rate up to each.
   Use a very large number for the top band.
+- "surcharge" is the surcharge on the tax, by the same kind of cumulative income limits.
 - State your confidence honestly in "confidence". If you are not certain these are the rates currently in
   force, say so plainly there.
 - In "caution", state what a CA must independently verify before this is used.
 - Do not guess if you are unsure — return empty slabs and explain why in "caution".`;
       try{
-        const txt=await callAI(prompt,{maxTokens:800,surfaceError:true});
+        const txt=await callAI(prompt,{maxTokens:900,surfaceError:true});
         const clean=(txt||'').replace(/```json|```/g,'').trim();
         const j=JSON.parse(clean.slice(clean.indexOf('{'),clean.lastIndexOf('}')+1));
         if((j.slabs||[]).length){
-          data.statutory.tds.slabs=j.slabs.map(x=>({upTo:num(x.upTo),rate:num(x.rate)}));
-          data.statutory.tds.standardDeduction=num(j.standardDeduction);
-          data.statutory.tds.rebate87A=num(j.rebate87A);
-          data.statutory.tds.rebateLimit=num(j.rebateLimit);
+          const r=RGset();
+          r.slabs=j.slabs.map(x=>({upTo:num(x.upTo),rate:num(x.rate)}));
+          if((j.surcharge||[]).length) r.surcharge=j.surcharge.map(x=>({upTo:num(x.upTo),rate:num(x.rate)}));
+          r.standardDeduction=num(j.standardDeduction);
+          r.rebateAmount=num(j.rebateAmount||j.rebate87A);
+          r.rebateLimit=num(j.rebateLimit);
           data.statutory.tds.cessPct=num(j.cessPct)||4;
           data.statutory.tds.slabsReviewedBy=''; data.statutory.tds.slabsReviewedOn='';
           markDirty();
@@ -7086,8 +7174,8 @@ Rules:
         out.innerHTML=`<div class="dx-missing" style="margin-top:10px;">
           <b>Draft only — not verified.</b><br>${esc(j.confidence||'')}<br><br>
           <b>Your CA must check:</b> ${esc(j.caution||'the rates, rebate, surcharge bands and cess against the current Finance Act.')}
-          <br><br>The verified-by field has been cleared. Slab mode stays locked until someone records that
-          they checked these figures.</div>`;
+          <br><br>The verified-by field has been cleared. Every payslip will say the figures are unverified
+          until someone records that they checked them.</div>`;
         renderStatutory();
       }catch(e){ out.innerHTML=`<div class="dx-err" style="margin-top:10px;">${esc(e.message)}</div>`; }
       this.disabled=false; this.textContent='Ask AI to draft the slabs';
@@ -7492,9 +7580,14 @@ Rules:
               <div class="field-hint">80C, 80D, HRA exemption etc. Reduces taxable income.</div></div>
             <div><label>TDS Override (monthly)</label><input class="em-in num" data-i="${i}" data-k="monthlyTds" value="${esc(e.monthlyTds)}">
               <div class="field-hint">Leave 0 to let the system compute it. Any value here overrides.</div>
-              <div class="field-hint" style="color:var(--ok);margin-top:4px;">${(()=>{
+              ${(()=>{
                 const t=calcPayslip(e,{payableDays:30,totalDays:30,otHours:0,incentive:0,advance:0});
-                return 'Computed now: '+rupee(t.deductions.tds)+'/month';})()}</div></div>
+                const shown=num(e.monthlyTds)>0?num(e.monthlyTds):t.tdsComputed;
+                const bad=!t.tdsComputed&&!num(e.monthlyTds);
+                return `<div class="field-hint" style="color:${bad?'#B03A2E':'var(--ok)'};margin-top:4px;">
+                  ${bad?'Not computed — no tax slabs are set for this regime on the Statutory tab.'
+                       :'Computed now: '+esc(rupee(shown))+'/month'}</div>
+                  <div class="field-hint" style="margin-top:2px;">${esc(t.tdsBasis||'')}</div>`;})()}</div>
             <div><label>Other Deduction</label><input class="em-in num" data-i="${i}" data-k="otherDeduction" value="${esc(e.otherDeduction)}"></div>
             <div><label>PF Applicable</label>
               <select class="em-bool" data-i="${i}" data-k="pfApplicable" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
@@ -7588,6 +7681,89 @@ Rules:
      rule is written into this code. The engine produces a DRAFT that a human
      reviews and approves; it never finalises anything by itself. */
   const ST=()=>data.statutory||{};
+
+  /* ---- One shape for the tax rules ----
+     Earlier versions saved a single flat slab table (tds.slabs, tds.standardDeduction,
+     tds.rebate87A, tds.rebateLimit, tds.regime) while the payslip engine reads a table
+     per regime (tds.regimes.New / .Old). Where the two disagreed the engine found no
+     slabs and quietly fell back to the per-employee override — which is why TDS came
+     out as zero. Anything saved in the old shape is moved into the regime it belonged
+     to, and every sub-section is merged against the defaults so a partial save can
+     never wipe a whole rule set again. */
+  function normaliseStatutory(){
+    data.statutory=data.statutory||{};
+    const D=DEFAULTS.statutory, st=data.statutory;
+    ['pf','esi','pt','tds','lwf','ot','gratuity','bonus'].forEach(k=>{
+      st[k]=Object.assign({},D[k],st[k]||{});
+    });
+    const t=st.tds;
+    t.regimes=Object.assign({},D.tds.regimes,t.regimes||{});
+    Object.keys(t.regimes).forEach(k=>{
+      t.regimes[k]=Object.assign({},(D.tds.regimes||{})[k]||{},t.regimes[k]||{});
+      if(!((t.regimes[k].slabs)||[]).length)
+        t.regimes[k].slabs=(((D.tds.regimes||{})[k]||{}).slabs||[]).map(x=>Object.assign({},x));
+      if(!((t.regimes[k].surcharge)||[]).length)
+        t.regimes[k].surcharge=(((D.tds.regimes||{})[k]||{}).surcharge||[]).map(x=>Object.assign({},x));
+    });
+    const target=t.regime||t.defaultRegime||'New';
+    if(!t.regimes[target]) t.regimes[target]=Object.assign({label:target+' Regime'},D.tds.regimes.New);
+    if((t.slabs||[]).length)
+      t.regimes[target].slabs=t.slabs.map(x=>({upTo:num(x.upTo),rate:num(x.rate)}));
+    if(t.standardDeduction!==undefined&&t.standardDeduction!=='')
+      t.regimes[target].standardDeduction=num(t.standardDeduction);
+    if(t.rebateLimit!==undefined&&t.rebateLimit!=='')
+      t.regimes[target].rebateLimit=num(t.rebateLimit);
+    if(t.rebate87A!==undefined&&t.rebate87A!=='')
+      t.regimes[target].rebateAmount=num(t.rebate87A);
+    delete t.slabs; delete t.standardDeduction; delete t.rebate87A;
+    delete t.rebateLimit; delete t.regime;
+    t.defaultRegime=target;
+    if(t.cessPct===undefined||t.cessPct==='') t.cessPct=4;
+    if(!t.mode) t.mode='slab';
+    return st;
+  }
+
+  /* ---- income tax arithmetic, kept separate so it can be read and checked ---- */
+  function slabTax(taxable,slabs){
+    let tax=0, prev=0;
+    (slabs||[]).slice().sort((a,b)=>num(a.upTo)-num(b.upTo)).forEach(sl=>{
+      const band=Math.max(0, Math.min(taxable,num(sl.upTo))-prev);
+      tax += band*num(sl.rate)/100;
+      prev = num(sl.upTo);
+    });
+    return tax;
+  }
+  function surchargeRate(taxable,bands){
+    const b=(bands||[]).slice().sort((x,y)=>num(x.upTo)-num(y.upTo))
+      .find(x=>taxable<=num(x.upTo));
+    return b?num(b.rate):0;
+  }
+  /* tax after the 87A rebate, surcharge and marginal relief, before cess */
+  function annualTaxBeforeCess(taxable,rg){
+    let base=slabTax(taxable,rg.slabs);
+    const rl=num(rg.rebateLimit), ra=num(rg.rebateAmount);
+    if(rl&&ra){
+      if(taxable<=rl) base=Math.max(0,base-ra);
+      else {
+        // marginal relief just above the rebate limit: tax cannot exceed the excess income
+        const atLimit=Math.max(0, slabTax(rl,rg.slabs)-ra);
+        base=Math.min(base, atLimit+(taxable-rl));
+      }
+    }
+    const bands=(rg.surcharge||[]).slice().sort((a,b)=>num(a.upTo)-num(b.upTo));
+    let sc=base*surchargeRate(taxable,bands)/100;
+    if(sc>0){
+      // marginal relief on surcharge at the limit just crossed
+      const crossed=bands.map(b=>num(b.upTo)).filter(x=>x<taxable).sort((a,b)=>b-a);
+      if(crossed.length){
+        const T=crossed[0];
+        const baseT=slabTax(T,rg.slabs);
+        const capped=baseT + baseT*surchargeRate(T,bands)/100 + (taxable-T);
+        if(base+sc>capped) sc=Math.max(0, capped-base);
+      }
+    }
+    return {base,surcharge:sc,total:base+sc};
+  }
   let hrEmployees=[], hrPayruns=[], expandedEmp=null, expandedRun=null;
 
   const HM=()=>data.hrMasters||{};
@@ -7696,7 +7872,8 @@ Rules:
        current month's gross, then divided across twelve months. The slabs are
        editable; a warning is raised until a named person confirms them, but the
        calculation runs regardless so nothing is silently zero. */
-    let tds=0, tdsBasis='';
+    let tds=0, tdsBasis='', tdsComputed=0;
+    const flagsPre=[];
     const tdsCfg=st.tds||{};
     if(tdsCfg.enabled!==false){
       if(tdsCfg.mode==='manual'){
@@ -7706,26 +7883,32 @@ Rules:
         const regimeKey=emp.taxRegime||tdsCfg.defaultRegime||'New';
         const rg=(tdsCfg.regimes||{})[regimeKey];
         if(rg&&(rg.slabs||[]).length){
+          /* annualise this month's gross, tax it, then spread across twelve months */
           const annualGross=gross*12;
           const taxable=Math.max(0, annualGross-num(rg.standardDeduction)-num(emp.declaredDeductions));
-          let tax=0, prev=0;
-          rg.slabs.slice().sort((a,b)=>num(a.upTo)-num(b.upTo)).forEach(sl=>{
-            const band=Math.max(0, Math.min(taxable,num(sl.upTo))-prev);
-            tax += band*num(sl.rate)/100;
-            prev = num(sl.upTo);
-          });
-          if(num(rg.rebateLimit)&&taxable<=num(rg.rebateLimit))
-            tax=Math.max(0, tax-num(rg.rebateAmount));
-          tax = tax*(1+num(tdsCfg.cessPct)/100);
-          tds = Math.round(tax/12);
-          tdsBasis = regimeKey+' regime · taxable '+Math.round(taxable).toLocaleString('en-IN')
+          const t=annualTaxBeforeCess(taxable,rg);
+          const cess=t.total*num(tdsCfg.cessPct)/100;
+          const annualTax=t.total+cess;
+          tds=Math.round(annualTax/12);
+          tdsBasis = regimeKey+' regime · annual gross '+Math.round(annualGross).toLocaleString('en-IN')
+            +' · taxable '+Math.round(taxable).toLocaleString('en-IN')
             +' after '+num(rg.standardDeduction).toLocaleString('en-IN')+' standard deduction'
-            +(num(emp.declaredDeductions)?' and '+num(emp.declaredDeductions).toLocaleString('en-IN')+' declared':'');
-          if(num(emp.monthlyTds)>0){ tds=num(emp.monthlyTds); tdsBasis='Overridden by the figure set on the employee record'; }
+            +(num(emp.declaredDeductions)?' and '+num(emp.declaredDeductions).toLocaleString('en-IN')+' declared':'')
+            +' · tax '+Math.round(t.base).toLocaleString('en-IN')
+            +(t.surcharge?' + surcharge '+Math.round(t.surcharge).toLocaleString('en-IN'):'')
+            +' + '+num(tdsCfg.cessPct)+'% cess = '+Math.round(annualTax).toLocaleString('en-IN')+' a year';
+          tdsComputed=tds;
+          if(num(emp.monthlyTds)>0){
+            tds=num(emp.monthlyTds);
+            tdsBasis='Overridden on the employee record — the computed figure is '
+              +Math.round(tdsComputed).toLocaleString('en-IN')+'/month';
+          }
           if(!tdsCfg.slabsReviewedBy) notes.push('Tax slabs not yet confirmed by your CA');
         } else {
           tds=num(emp.monthlyTds);
-          tdsBasis='No slabs for this regime — using the fixed figure';
+          tdsBasis='No slab table found for the '+regimeKey+' regime — set it on the Statutory tab. '
+            +'Until then only the per-employee figure is deducted';
+          flagsPre.push('No tax slabs for the '+regimeKey+' regime — TDS is not being computed');
         }
       }
     }
@@ -7742,7 +7925,7 @@ Rules:
     const bonusProv=Math.round(Math.min(basic+da,num((st.bonus||{}).wageCeiling)||(basic+da))
       *num((st.bonus||{}).accrualPct)/100);
 
-    const flags=[];
+    const flags=flagsPre.slice();
     if(net<0) flags.push('Net pay is negative — check deductions');
     if(payableDays>totalDays) flags.push('Payable days exceed days in the period');
     if(!emp.structure||grossMonthly(emp)<=0) flags.push('No salary structure set');
@@ -7758,7 +7941,7 @@ Rules:
       totalDeductions,net,
       employer:{pf:pfEr,eps,edli,admin:pfAdmin,esi:esiEr,lwf:lwfEr},
       ctcCost, provisions:{gratuity:gratuityProv,bonus:bonusProv},
-      otHours:num(att.otHours), notes, flags, tdsBasis,
+      otHours:num(att.otHours), notes, flags, tdsBasis, tdsComputed,
       rulesEffectiveFrom:st.effectiveFrom||''};
   }
 
