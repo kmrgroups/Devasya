@@ -899,6 +899,7 @@
       <button class="hr-tab" data-hrtab="people">Employees</button>
       <button class="hr-tab" data-hrtab="attendance">Attendance</button>
       <button class="hr-tab" data-hrtab="leave">Leave</button>
+      <button class="hr-tab" data-hrtab="recruit">Recruitment</button>
       <button class="hr-tab" data-hrtab="payroll">Payroll</button>
       <button class="hr-tab" data-hrtab="skills">Skill Matrix</button>
       <button class="hr-tab" data-hrtab="training">Training</button>
@@ -937,6 +938,60 @@
         <div class="field-hint" id="ne-msg" style="margin-top:8px;"></div>
       </div>
       <div id="hr-emp-list"></div>
+    </div>
+
+    <div class="hr-panel" data-hrpanel="recruit" style="display:none;">
+      <div class="info-box">Requisition → candidates → interview → CTC → offer → joining. When a candidate
+        joins, their record is converted into an employee automatically rather than typed again.
+        <b>AI assists with screening only</b> — it summarises and flags what a CV does and does not evidence
+        against the role. It never scores or ranks people, and the hiring decision stays entirely with you.</div>
+      <div class="kpi-row" id="rec-kpi"></div>
+
+      <div class="qb" style="margin-bottom:16px;">
+        <h4>Manpower Requisition (§3B)</h4>
+        <div class="cs-row four">
+          <div><label>Position</label><input type="text" id="rq-title" placeholder="CNC Operator"></div>
+          <div><label>Department</label><input type="text" id="rq-dept"></div>
+          <div><label>Positions</label><input type="text" id="rq-count" class="num" value="1"></div>
+          <div><label>Needed By</label><input type="date" id="rq-by"></div>
+        </div>
+        <div class="cs-row four" style="margin-top:10px;">
+          <div><label>Grade</label><input type="text" id="rq-grade"></div>
+          <div><label>CTC Range</label><input type="text" id="rq-ctc" placeholder="2.4 – 3.0 LPA"></div>
+          <div><label>Reason</label><select id="rq-reason" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+            <option>Replacement</option><option>Expansion</option><option>New line</option><option>Temporary</option></select></div>
+          <div><label>Raised By</label><input type="text" id="rq-by-who"></div>
+        </div>
+        <div class="cs-row" style="margin-top:10px;"><div style="grid-column:1/-1;">
+          <label>Job description — responsibilities, qualification, experience, competencies</label>
+          <textarea id="rq-jd" rows="4"></textarea>
+          <div class="rfq-actions" style="margin-top:8px;">
+            <button class="mini-btn ai" id="rq-jd-ai">Draft JD with AI</button></div></div></div>
+        <button class="mini-btn gold" id="rq-create" style="margin-top:12px;">Raise Requisition</button>
+        <div class="field-hint" id="rq-msg" style="margin-top:8px;"></div>
+      </div>
+      <div id="req-list"></div>
+
+      <div class="qb" style="margin-top:20px;">
+        <h4>Add Candidate</h4>
+        <div class="cs-row four">
+          <div><label>Requisition</label><select id="cd-req" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);"></select></div>
+          <div><label>Name</label><input type="text" id="cd-name"></div>
+          <div><label>Phone</label><input type="text" id="cd-phone"></div>
+          <div><label>Email</label><input type="text" id="cd-email"></div>
+        </div>
+        <div class="cs-row four" style="margin-top:10px;">
+          <div><label>Qualification</label><input type="text" id="cd-qual"></div>
+          <div><label>Experience (yrs)</label><input type="text" id="cd-exp" class="num"></div>
+          <div><label>Current CTC</label><input type="text" id="cd-cctc" class="num"></div>
+          <div><label>Expected CTC</label><input type="text" id="cd-ectc" class="num"></div>
+        </div>
+        <div class="cs-row" style="margin-top:10px;"><div style="grid-column:1/-1;">
+          <label>CV text — paste it here for AI screening</label><textarea id="cd-cv" rows="4"></textarea></div></div>
+        <button class="mini-btn gold" id="cd-add" style="margin-top:12px;">Add Candidate</button>
+        <div class="field-hint" id="cd-msg" style="margin-top:8px;"></div>
+      </div>
+      <div id="cand-list"></div>
     </div>
 
     <div class="hr-panel" data-hrpanel="attendance" style="display:none;">
@@ -2226,7 +2281,7 @@
   }
   async function loadContent(){
     try{
-      const j=await api('/api/content?_='+Date.now());
+      const j=await api('/api/content');
       cloudOK=true;
       if(j.data && Object.keys(j.data).length){
         data=Object.assign({},DEFAULTS,j.data);
@@ -2274,10 +2329,8 @@
     }
     btn.textContent='Publishing…'; btn.disabled=true;
     try{
-      const saved=await api('/api/content',{method:'POST',body:JSON.stringify({data})});
-      dirty=false;
-      if(saved && saved.savedAt) setText('content-stamp','Content updated '+new Date(saved.savedAt).toLocaleString());
-      toast('Published — database saved successfully');
+      await api('/api/content',{method:'POST',body:JSON.stringify({data})});
+      dirty=false; toast('Published — everyone sees this now');
     }catch(e){
       toast(/413/.test(e.message)
         ? 'Too large to publish. Replace your biggest photos with smaller ones and try again.'
@@ -3158,6 +3211,249 @@ Reply with ONLY this JSON, no commentary or code fences:
     w.document.close();
   }
 
+  /* ================= RECRUITMENT (§3B, §4, §5) =================
+     AI is used for screening assistance only: it summarises what a CV does and
+     does not evidence against the role. It deliberately does not score, rank or
+     recommend — §40 of the spec forbids uncontrolled hiring decisions, and a
+     numeric score invites exactly that. The judgement stays with a person. */
+  const CAND_STAGES=['Applied','Screened','Interview','Selected','Offer Made','Joined','Rejected'];
+
+  function renderRequisitions(){
+    const kpi=document.getElementById('rec-kpi'), host=document.getElementById('req-list');
+    if(!host) return;
+    const reqs=itemsOf('requisition'), cands=itemsOf('candidate');
+    const open=reqs.filter(r=>r.status!=='Closed');
+    const joined=cands.filter(c=>c.status==='Joined');
+    const inProcess=cands.filter(c=>!['Joined','Rejected'].includes(c.status));
+    const offers=cands.filter(c=>c.status==='Offer Made');
+
+    if(kpi) kpi.innerHTML=`<div class="kpi"><b>${open.length}</b><span>Open Positions</span></div>
+      <div class="kpi"><b>${inProcess.length}</b><span>Candidates in Process</span></div>
+      <div class="kpi"><b style="color:var(--gold-deep)">${offers.length}</b><span>Offers Pending</span></div>
+      <div class="kpi"><b style="color:var(--ok)">${joined.length}</b><span>Joined</span></div>`;
+
+    const sel=document.getElementById('cd-req');
+    if(sel) sel.innerHTML=open.map(r=>`<option value="${esc(r.item_id)}">${esc((r.data||r).title)} — ${esc((r.data||r).department||'')}</option>`).join('')
+      ||'<option value="">Raise a requisition first</option>';
+
+    host.innerHTML=reqs.length?`<table class="cs-t"><thead><tr><th>Position</th><th>Department</th>
+      <th class="r">Positions</th><th class="r">Candidates</th><th>Needed By</th><th>Status</th><th></th></tr></thead>
+      <tbody>${reqs.map(r=>{const d=r.data||r;
+        const mine=cands.filter(c=>(c.data||c).reqId===r.item_id);
+        const late=d.neededBy&&new Date(d.neededBy)<new Date()&&r.status!=='Closed';
+        return `<tr><td>${esc(d.title)}<div class="t-micro">${esc(d.reason||'')}</div></td>
+        <td>${esc(d.department||'')}</td><td class="r">${esc(d.count||1)}</td>
+        <td class="r">${mine.length}</td>
+        <td style="${late?'color:#B03A2E;font-weight:700;':''}">${fmtDate(d.neededBy)}</td>
+        <td><span class="order-badge ${r.status==='Closed'?'go':'unk'}">${esc(r.status)}</span></td>
+        <td>${r.status!=='Closed'?`<button class="mini-btn rq-close" data-id="${esc(r.item_id)}">Close</button>`:''}
+          <button class="qb-del rq-del" data-id="${esc(r.item_id)}">×</button></td></tr>`;}).join('')}</tbody></table>`
+      :'<p class="empty-note">No requisitions raised.</p>';
+
+    host.querySelectorAll('.rq-close').forEach(b=>b.addEventListener('click',async()=>{
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'items',itemId:b.dataset.id,
+        status:'Closed',reason:'position filled or withdrawn'})}); await loadItems(); }catch(e){ toast(e.message); }
+    }));
+    host.querySelectorAll('.rq-del').forEach(b=>b.addEventListener('click',async()=>{
+      if(!confirm('Delete this requisition?')) return;
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'items',itemId:b.dataset.id,remove:true,reason:'deleted'})});
+        await loadItems(); }catch(e){ toast(e.message); }
+    }));
+  }
+
+  function renderCandidates(){
+    const host=document.getElementById('cand-list'); if(!host) return;
+    const cands=itemsOf('candidate'), reqs=itemsOf('requisition');
+    host.innerHTML=cands.length?cands.map(c=>{
+      const d=c.data||c;
+      const req=reqs.find(r=>r.item_id===d.reqId);
+      const open=expandedCandidate===c.item_id;
+      const badge=c.status==='Joined'?'go':(c.status==='Rejected'?'no':'unk');
+      return `<div class="rfq-card ${open?'open':''}">
+        <div class="list-item-head rfq-summary" data-cand="${esc(c.item_id)}">
+          <div><div class="rfq-ref">${esc(d.name)}</div>
+          <div class="rfq-when">${esc(req?(req.data||req).title:'—')} · ${esc(d.experience||0)} yrs ·
+            ${d.expectedCtc?'expects '+rupee(d.expectedCtc):'CTC not stated'}</div></div>
+          <div class="rfq-summary-right"><span class="order-badge ${badge}">${esc(c.status)}</span>
+          <span class="rfq-chevron">${open?'▾':'▸'}</span></div></div>
+        <div class="rfq-body" style="display:${open?'block':'none'};">
+          <div class="feas-line">${esc(d.phone||'')} ${d.email?' · '+esc(d.email):''} ·
+            ${esc(d.qualification||'qualification not recorded')}</div>
+
+          <div class="rfq-actions" style="margin-top:10px;">
+            <button class="mini-btn ai cd-screen" data-id="${esc(c.item_id)}">AI screening summary</button>
+          </div>
+          <div id="scr-${esc(c.item_id)}">${d.screening?`<div class="dx" style="margin-top:10px;">
+            <div class="dx-head"><b>Screening summary</b><span class="t-micro">${esc(d.screenedOn||'')}</span></div>
+            <div class="feas-line" style="white-space:pre-wrap;">${esc(d.screening)}</div>
+            <div class="t-micro" style="margin-top:8px;color:var(--ink-soft);">A summary of what the CV states.
+              It is not a score or a recommendation — assess the person yourself.</div></div>`:''}</div>
+
+          <div class="cs-sub">Interview &amp; Assessment</div>
+          <div class="cs-row four">
+            <div><label>Interview Date</label><input type="date" class="cd-in" data-id="${esc(c.item_id)}" data-k="interviewDate" value="${esc(d.interviewDate||'')}"></div>
+            <div><label>Technical</label><input class="cd-in num" data-id="${esc(c.item_id)}" data-k="techScore" value="${esc(d.techScore||'')}" placeholder="/10"></div>
+            <div><label>HR</label><input class="cd-in num" data-id="${esc(c.item_id)}" data-k="hrScore" value="${esc(d.hrScore||'')}" placeholder="/10"></div>
+            <div><label>Interviewed By</label><input class="cd-in" data-id="${esc(c.item_id)}" data-k="interviewer" value="${esc(d.interviewer||'')}"></div>
+          </div>
+          <div class="cs-row" style="margin-top:10px;"><div style="grid-column:1/-1;">
+            <label>Interview notes</label><textarea class="cd-in" data-id="${esc(c.item_id)}" data-k="notes" rows="2">${esc(d.notes||'')}</textarea></div></div>
+
+          <div class="cs-sub">Offer (§4)</div>
+          <div class="cs-row four">
+            <div><label>Offered CTC (annual)</label><input class="cd-in num" data-id="${esc(c.item_id)}" data-k="offerCtc" value="${esc(d.offerCtc||'')}"></div>
+            <div><label>Designation</label><input class="cd-in" data-id="${esc(c.item_id)}" data-k="designation" value="${esc(d.designation||(req?(req.data||req).title:''))}"></div>
+            <div><label>Grade</label><input class="cd-in" data-id="${esc(c.item_id)}" data-k="grade" value="${esc(d.grade||'')}"></div>
+            <div><label>Joining Date</label><input type="date" class="cd-in" data-id="${esc(c.item_id)}" data-k="joiningDate" value="${esc(d.joiningDate||'')}"></div>
+          </div>
+          ${d.offerCtc?`<div class="feas-line" style="margin-top:8px;">Monthly structure this would produce:
+            ${(()=>{const st=structureFromCtc(d.offerCtc);
+              return `Basic ${rupee(st.basic)} · HRA ${rupee(st.hra)} · Conveyance ${rupee(st.conveyance)} ·
+                Special ${rupee(st.special)} — gross ${rupee(st.basic+st.da+st.hra+st.conveyance+st.special)}`;})()}</div>`:''}
+
+          <div class="cs-row four" style="margin-top:12px;">
+            <div><label>Stage</label><select class="cd-stage" data-id="${esc(c.item_id)}" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+              ${CAND_STAGES.map(x=>`<option ${c.status===x?'selected':''}>${x}</option>`).join('')}</select></div>
+          </div>
+          <div class="rfq-actions" style="margin-top:12px;">
+            <button class="mini-btn gold cd-save" data-id="${esc(c.item_id)}">Save</button>
+            ${d.offerCtc?`<button class="mini-btn cd-offer" data-id="${esc(c.item_id)}">Print Offer Letter</button>`:''}
+            ${c.status==='Offer Made'?`<button class="mini-btn green cd-join" data-id="${esc(c.item_id)}">Convert to Employee</button>`:''}
+            <button class="item-delete cd-del" data-id="${esc(c.item_id)}">Delete</button>
+          </div></div></div>`;
+    }).join(''):'<p class="empty-note">No candidates yet.</p>';
+
+    host.querySelectorAll('[data-cand]').forEach(r=>r.addEventListener('click',e=>{
+      if(e.target.closest('button')||e.target.closest('select')||e.target.closest('input')||e.target.closest('textarea')) return;
+      const id=r.dataset.cand; expandedCandidate=(expandedCandidate===id)?null:id; renderCandidates();
+    }));
+    host.querySelectorAll('.cd-in').forEach(inp=>inp.addEventListener('input',()=>{
+      const c=cands.find(x=>x.item_id===inp.dataset.id), d=c.data||c;
+      d[inp.dataset.k]=inp.value; c.data=d;
+    }));
+    host.querySelectorAll('.cd-stage').forEach(sel=>sel.addEventListener('change',async()=>{
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'items',itemId:sel.dataset.id,
+        status:sel.value,reason:'stage → '+sel.value})}); await loadItems(); }catch(e){ toast(e.message); }
+    }));
+    host.querySelectorAll('.cd-save').forEach(b=>b.addEventListener('click',async()=>{
+      const c=cands.find(x=>x.item_id===b.dataset.id), d=c.data||c;
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'items',itemId:c.item_id,patch:d,
+        reason:'candidate updated'})}); await loadItems(); toast('Saved'); }catch(e){ toast(e.message); }
+    }));
+    host.querySelectorAll('.cd-screen').forEach(b=>b.addEventListener('click',async()=>{
+      const c=cands.find(x=>x.item_id===b.dataset.id), d=c.data||c;
+      const req=reqs.find(r=>r.item_id===d.reqId);
+      if(!d.cvText){ toast('Paste the CV text first.'); return; }
+      b.textContent='Reading…'; b.disabled=true;
+      const prompt=`You are helping an HR officer screen a CV against a role. Summarise factually.
+
+ROLE: ${req?(req.data||req).title:'not specified'}
+REQUIREMENTS:
+${req?((req.data||req).jd||'not specified'):'not specified'}
+
+CV TEXT:
+${d.cvText}
+
+Write four short sections, no scores and no recommendation:
+1. What the CV evidences against the role requirements
+2. What the role asks for that the CV does not evidence
+3. Factual gaps or ambiguities worth asking about at interview
+4. Three specific questions to ask this candidate
+
+Rules you must follow:
+- Do NOT rate, score, rank or recommend hiring or rejecting. That decision is the employer's.
+- Do NOT comment on or infer age, sex, marital status, religion, caste, region, community or health.
+- Report only what the document states. If something is absent, say it is absent rather than guessing.`;
+      try{
+        const txt=await callAI(prompt,{maxTokens:900,surfaceError:true});
+        d.screening=txt||''; d.screenedOn=new Date().toLocaleString();
+        await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'items',itemId:c.item_id,patch:d,
+          status:c.status==='Applied'?'Screened':c.status,reason:'AI screening summary generated'})});
+        await loadItems();
+      }catch(e){ toast(e.message); }
+      b.textContent='AI screening summary'; b.disabled=false;
+    }));
+    host.querySelectorAll('.cd-offer').forEach(b=>b.addEventListener('click',()=>{
+      const c=cands.find(x=>x.item_id===b.dataset.id);
+      printOfferLetter(c.data||c);
+    }));
+    host.querySelectorAll('.cd-join').forEach(b=>b.addEventListener('click',async()=>{
+      const c=cands.find(x=>x.item_id===b.dataset.id), d=c.data||c;
+      const empId=prompt('Employee ID for '+d.name+':');
+      if(!empId) return;
+      const e=blankEmployee();
+      Object.assign(e,{empId:empId.trim(),name:d.name,phone:d.phone,email:d.email,
+        designation:d.designation||'',grade:d.grade||'',doj:d.joiningDate||'',
+        department:(reqs.find(r=>r.item_id===d.reqId)||{data:{}}).data.department||'',
+        ctcAnnual:num(d.offerCtc),status:'Probation'});
+      if(num(d.offerCtc)) e.structure=structureFromCtc(d.offerCtc);
+      try{
+        await api('/api/hr',{method:'POST',body:JSON.stringify({what:'employees',employee:e,
+          reason:'converted from candidate '+c.item_id})});
+        await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'items',itemId:c.item_id,
+          patch:Object.assign(d,{empId:e.empId}),status:'Joined',reason:'joined as '+e.empId})});
+        await loadHr(); await loadItems();
+        toast(d.name+' added as employee '+e.empId);
+      }catch(err){ toast(err.message); }
+    }));
+    host.querySelectorAll('.cd-del').forEach(b=>b.addEventListener('click',async()=>{
+      if(!confirm('Delete this candidate?')) return;
+      try{ await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'items',itemId:b.dataset.id,remove:true,reason:'deleted'})});
+        await loadItems(); }catch(e){ toast(e.message); }
+    }));
+  }
+
+  /* §5 offer letter, built from the approved figures rather than retyped */
+  function printOfferLetter(d){
+    const co=CO(), logo=documentLogo();
+    const st=structureFromCtc(d.offerCtc);
+    const w=window.open('','_blank');
+    if(!w){ toast('Allow pop-ups for this site.'); return; }
+    w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Offer — ${esc(d.name)}</title>
+    <style>@page{size:A4;margin:18mm;}body{font-family:Arial,sans-serif;font-size:10pt;color:#12233f;line-height:1.6;margin:0;}
+    .lh{display:flex;gap:14px;align-items:center;border-bottom:2pt solid #0B2A5B;padding-bottom:10px;margin-bottom:20px;}
+    .lh img{max-height:52px;max-width:130px;object-fit:contain;}
+    .co{font-size:14pt;font-weight:800;color:#0B2A5B;}.ad{font-size:8pt;color:#41567E;}
+    h2{text-align:center;font-size:12pt;letter-spacing:2pt;color:#0B2A5B;margin:18px 0;}
+    table{width:100%;border-collapse:collapse;margin:14px 0;font-size:9.5pt;}
+    th{background:#0B2A5B;color:#fff;text-align:left;padding:6px;font-size:8pt;text-transform:uppercase;}
+    td{padding:5px 6px;border-bottom:.6pt solid #e2e9f2;}.r{text-align:right;}
+    .sign{margin-top:40px;display:flex;justify-content:space-between;}
+    .sign div{width:45%;border-top:.8pt solid #0B2A5B;padding-top:6px;font-size:9pt;}
+    .noprint{text-align:center;padding:14px;background:#0B2A5B;color:#fff;}
+    .noprint button{background:#E0B44E;color:#0B2A5B;border:none;padding:10px 24px;border-radius:100px;font-weight:700;cursor:pointer;}
+    @media print{.noprint{display:none;}}</style></head><body>
+    <div class="noprint"><button onclick="window.print()">Save as PDF / Print</button></div>
+    <div class="lh">${logo?`<img src="${logo}">`:''}<div><div class="co">${esc(co.legalName||data.brandName)}</div>
+      <div class="ad">${esc(companyAddressLines().join(', '))}</div></div></div>
+    <div style="text-align:right;font-size:9pt;">Date: ${new Date().toLocaleDateString()}</div>
+    <h2>LETTER OF OFFER</h2>
+    <p>Dear ${esc(d.name)},</p>
+    <p>Further to our discussions, we are pleased to offer you the position of
+      <b>${esc(d.designation||'')}</b>${d.grade?` (Grade ${esc(d.grade)})`:''} with
+      ${esc(co.legalName||data.brandName)}${d.joiningDate?`, with effect from <b>${new Date(d.joiningDate).toLocaleDateString()}</b>`:''}.</p>
+    <p>Your annual cost to company will be <b>${rupee(d.offerCtc)}</b>, made up as follows:</p>
+    <table><thead><tr><th>Component</th><th class="r">Per Month</th><th class="r">Per Annum</th></tr></thead><tbody>
+      <tr><td>Basic</td><td class="r">${rupee(st.basic)}</td><td class="r">${rupee(st.basic*12)}</td></tr>
+      <tr><td>House Rent Allowance</td><td class="r">${rupee(st.hra)}</td><td class="r">${rupee(st.hra*12)}</td></tr>
+      <tr><td>Conveyance</td><td class="r">${rupee(st.conveyance)}</td><td class="r">${rupee(st.conveyance*12)}</td></tr>
+      <tr><td>Special Allowance</td><td class="r">${rupee(st.special)}</td><td class="r">${rupee(st.special*12)}</td></tr>
+      <tr><td><b>Total</b></td><td class="r"><b>${rupee(num(d.offerCtc)/12)}</b></td><td class="r"><b>${rupee(d.offerCtc)}</b></td></tr>
+    </tbody></table>
+    <p>Statutory deductions and employer contributions will apply in accordance with the law and with
+      company policy in force from time to time.</p>
+    <p>This offer is subject to verification of your documents and references, and to your acceptance of the
+      company's terms of employment and policies.</p>
+    <p>Please confirm your acceptance by signing and returning a copy of this letter.</p>
+    <div class="sign"><div>For ${esc(co.legalName||data.brandName)}<br><br>
+      ${esc(co.signatoryName||'Authorised Signatory')}<br>
+      <span style="font-size:8pt;color:#41567E;">${esc(co.signatoryTitle||'')}</span></div>
+      <div>Accepted by<br><br>${esc(d.name)}<br>
+      <span style="font-size:8pt;color:#41567E;">Signature &amp; date</span></div></div>
+    </body></html>`);
+    w.document.close();
+  }
+
   /* ================= CONTROL TOWER & ALERTS (§31, §32) =================
      Management sees status first, not a table of employees. Every number is
      read live from records elsewhere in the system — nothing is stored here,
@@ -3709,7 +4005,7 @@ Reply with ONLY this JSON, no commentary or code fences:
 
   async function loadItems(){
     try{ const j=await api('/api/hr?what=items'); hrItems=j.items||[]; }catch(e){ hrItems=[]; }
-    renderPolicies(); renderTasks(); renderKpis(); renderAppraisals();
+    renderPolicies(); renderTasks(); renderKpis(); renderAppraisals(); renderRequisitions(); renderCandidates();
   }
 
   function renderPolicies(){
@@ -3863,7 +4159,7 @@ Reply with ONLY this JSON, no commentary or code fences:
   }
 
   /* ---------- Skill matrix UI (§15, §16) ---------- */
-  let expandedAssess=null, expandedPolicy=null, expandedAppraisal=null;
+  let expandedAssess=null, expandedPolicy=null, expandedAppraisal=null, expandedCandidate=null;
   function refreshCompDropdowns(){
     const c=document.getElementById('rc-comp'), l=document.getElementById('rc-level'),
           d=document.getElementById('sm-dept');
@@ -7532,6 +7828,7 @@ Sign off as: ${data.quoteSender||'Sales Team'}, ${data.brandName}, ${data.contac
     if(tab.dataset.hrtab==='policies'){ loadItems(); }
     if(tab.dataset.hrtab==='tasks'){ refreshTaskDropdowns(); loadItems(); }
     if(tab.dataset.hrtab==='tower'){ renderTower(); }
+    if(tab.dataset.hrtab==='recruit'){ loadItems(); }
     if(tab.dataset.hrtab==='kpi'){
       const e=document.getElementById('ap-emp');
       if(e) e.innerHTML=hrEmployees.filter(x=>x.status!=='Exited')
@@ -7570,6 +7867,70 @@ Sign off as: ${data.quoteSender||'Sales Team'}, ${data.brandName}, ${data.contac
   document.getElementById('lv-emp').addEventListener('change',renderLeave);
   document.getElementById('sm-dept').addEventListener('change',renderSkillMatrix);
   document.getElementById('tk-filter').addEventListener('change',renderTasks);
+  document.getElementById('rq-jd-ai').addEventListener('click',async function(){
+    const title=document.getElementById('rq-title').value.trim();
+    const dept=document.getElementById('rq-dept').value.trim();
+    if(!title){ toast('Enter the position first'); return; }
+    this.disabled=true; this.textContent='Drafting…';
+    const prompt=`Draft a job description for a manufacturing company.
+
+POSITION: ${title}
+DEPARTMENT: ${dept||'not specified'}
+COMPETENCIES TRACKED HERE: ${(data.competencies||[]).map(c=>c.name).join(', ')||'none defined'}
+
+Cover, briefly and in plain language: job purpose; key responsibilities; authority;
+qualification; experience; technical skills; behavioural competencies; safety
+responsibilities; quality responsibilities; and the KPIs this role is measured on.
+
+Keep it under 350 words. Write it as a draft for HR to edit — do not invent
+company-specific policies, salary figures or reporting lines.`;
+    try{ const txt=await callAI(prompt,{maxTokens:900,surfaceError:true});
+      if(txt) document.getElementById('rq-jd').value=txt;
+      toast('Draft added — edit it before raising'); }
+    catch(e){ toast(e.message); }
+    this.disabled=false; this.textContent='Draft JD with AI';
+  });
+  document.getElementById('rq-create').addEventListener('click',async function(){
+    const title=document.getElementById('rq-title').value.trim();
+    const msg=document.getElementById('rq-msg');
+    if(!title){ msg.textContent='Enter the position.'; msg.style.color='#B03A2E'; return; }
+    const item={itemId:'REQ-'+Date.now().toString(36).toUpperCase(),kind:'requisition',status:'Open',
+      title, department:document.getElementById('rq-dept').value.trim(),
+      count:num(document.getElementById('rq-count').value)||1,
+      neededBy:document.getElementById('rq-by').value||null,
+      grade:document.getElementById('rq-grade').value.trim(),
+      ctcRange:document.getElementById('rq-ctc').value.trim(),
+      reason:document.getElementById('rq-reason').value,
+      raisedBy:document.getElementById('rq-by-who').value.trim(),
+      jd:document.getElementById('rq-jd').value.trim()};
+    this.disabled=true; this.textContent='Raising…';
+    try{ await api('/api/hr',{method:'POST',body:JSON.stringify({what:'items',item,reason:'requisition raised'})});
+      await loadItems(); ['rq-title','rq-dept','rq-grade','rq-ctc','rq-jd'].forEach(id=>document.getElementById(id).value='');
+      msg.textContent='Requisition raised.'; msg.style.color='var(--ok)'; }
+    catch(e){ msg.textContent=e.message; msg.style.color='#B03A2E'; }
+    this.disabled=false; this.textContent='Raise Requisition';
+  });
+  document.getElementById('cd-add').addEventListener('click',async function(){
+    const name=document.getElementById('cd-name').value.trim();
+    const reqId=document.getElementById('cd-req').value;
+    const msg=document.getElementById('cd-msg');
+    if(!name||!reqId){ msg.textContent='Choose a requisition and enter a name.'; msg.style.color='#B03A2E'; return; }
+    const item={itemId:'CAND-'+Date.now().toString(36).toUpperCase(),kind:'candidate',status:'Applied',
+      name, reqId, phone:document.getElementById('cd-phone').value.trim(),
+      email:document.getElementById('cd-email').value.trim(),
+      qualification:document.getElementById('cd-qual').value.trim(),
+      experience:num(document.getElementById('cd-exp').value),
+      currentCtc:num(document.getElementById('cd-cctc').value),
+      expectedCtc:num(document.getElementById('cd-ectc').value),
+      cvText:document.getElementById('cd-cv').value.trim()};
+    this.disabled=true; this.textContent='Adding…';
+    try{ await api('/api/hr',{method:'POST',body:JSON.stringify({what:'items',item,reason:'candidate added'})});
+      await loadItems(); ['cd-name','cd-phone','cd-email','cd-qual','cd-exp','cd-cctc','cd-ectc','cd-cv']
+        .forEach(id=>document.getElementById(id).value='');
+      msg.textContent='Candidate added.'; msg.style.color='var(--ok)'; }
+    catch(e){ msg.textContent=e.message; msg.style.color='#B03A2E'; }
+    this.disabled=false; this.textContent='Add Candidate';
+  });
   document.getElementById('kp-add').addEventListener('click',async function(){
     const name=document.getElementById('kp-name').value.trim();
     const msg=document.getElementById('kp-msg');
