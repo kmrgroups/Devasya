@@ -7,63 +7,6 @@ export const sql = neon(process.env.DATABASE_URL);
 export const hash = s => crypto.createHash('sha256').update(String(s)).digest('hex');
 
 let ready = false;
-let contentReady = false;
-let authReady = false;
-
-export async function ensureContentTable() {
-  if (contentReady) return;
-  await sql`CREATE TABLE IF NOT EXISTS site_content (
-    id INT PRIMARY KEY DEFAULT 1,
-    data JSONB NOT NULL DEFAULT '{}'::jsonb,
-    updated_at TIMESTAMPTZ DEFAULT now()
-  )`;
-  contentReady = true;
-}
-
-export async function ensureAuthTables() {
-  if (authReady) return;
-  await sql`CREATE TABLE IF NOT EXISTS auth (
-    id INT PRIMARY KEY DEFAULT 1,
-    user_name TEXT NOT NULL,
-    pass_hash TEXT NOT NULL
-  )`;
-  await sql`CREATE TABLE IF NOT EXISTS users (
-    username TEXT PRIMARY KEY,
-    pass_hash TEXT NOT NULL,
-    role TEXT NOT NULL DEFAULT 'staff',
-    email TEXT DEFAULT '',
-    whatsapp TEXT DEFAULT '',
-    twofa BOOLEAN DEFAULT false,
-    created_at TIMESTAMPTZ DEFAULT now()
-  )`;
-  await sql`CREATE TABLE IF NOT EXISTS login_codes (
-    username TEXT PRIMARY KEY,
-    code_hash TEXT NOT NULL,
-    expires_at TIMESTAMPTZ NOT NULL,
-    tries INT DEFAULT 0
-  )`;
-
-  const rows = await sql`SELECT id, user_name, pass_hash FROM auth WHERE id = 1`;
-  if (!rows.length) {
-    const u = process.env.ADMIN_USER || 'admin';
-    const p = process.env.ADMIN_PASS || 'changeme123';
-    await sql`INSERT INTO auth (id, user_name, pass_hash) VALUES (1, ${u}, ${hash(p)})`;
-  }
-  const uCount = await sql`SELECT count(*)::int AS n FROM users`;
-  if (!uCount[0] || uCount[0].n === 0) {
-    const legacy = (await sql`SELECT user_name, pass_hash FROM auth WHERE id = 1`)[0];
-    if (legacy) {
-      await sql`INSERT INTO users (username, pass_hash, role, twofa)
-                VALUES (${legacy.user_name}, ${legacy.pass_hash}, 'developer', false)
-                ON CONFLICT (username) DO NOTHING`;
-    }
-    const sp = process.env.STAFF_PASS || 'pipeline123';
-    await sql`INSERT INTO users (username, pass_hash, role, twofa)
-              VALUES ('staff', ${hash(sp)}, 'staff', false)
-              ON CONFLICT (username) DO NOTHING`;
-  }
-  authReady = true;
-}
 export async function ensureTables() {
   if (ready) return;
   await sql`CREATE TABLE IF NOT EXISTS site_content (
@@ -186,13 +129,11 @@ export async function ensureTables() {
               ON CONFLICT (username) DO NOTHING`;
   }
   ready = true;
-  contentReady = true;
-  authReady = true;
 }
 
 export async function tokenUser(token) {
   if (!token) return null;
-  await ensureAuthTables();
+  await ensureTables();
   const rows = await sql`SELECT username, role FROM users WHERE pass_hash = ${token}`;
   if (rows.length) return rows[0];
   // legacy single-login fallback
