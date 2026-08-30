@@ -127,6 +127,9 @@
   .me-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px;}
   .me-tile{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;text-align:center;}
   .me-tile b{display:block;font-family:var(--mono);font-size:22px;color:var(--navy);}
+  .net-strip{background:var(--navy);color:#fff;border-radius:var(--radius-sm);padding:14px 18px;
+    display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);
+    font-size:var(--fs-section-title);font-weight:700;margin-bottom:16px;}
   .me-tile span{font-family:var(--mono);font-size:var(--fs-micro);color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;}
   .job-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;}
   .job-item{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;
@@ -2251,10 +2254,21 @@ I would recommend this company as a place to work</textarea></div></div>
       esi:{enabled:true, employeePct:0.75, employerPct:3.25, grossLimit:21000, note:"ESI Act"},
       pt:{enabled:true, state:"Karnataka",
           slabs:[{upTo:24999, amount:0},{upTo:999999999, amount:200}], note:"State professional tax"},
-      tds:{enabled:true, mode:"manual", regime:"New",
-        slabs:[], standardDeduction:0, rebate87A:0, rebateLimit:0, cessPct:4,
+      tds:{enabled:true, mode:"slab", defaultRegime:"New",
+        cessPct:4, surchargeEnabled:false,
         slabsReviewedBy:"", slabsReviewedOn:"",
-        note:"Slabs must be verified by your CA before the mode is switched to slab-based."},
+        regimes:{
+          New:{ label:"New Regime (default)", standardDeduction:75000,
+            rebateLimit:1200000, rebateAmount:60000,
+            slabs:[{upTo:400000,rate:0},{upTo:800000,rate:5},{upTo:1200000,rate:10},
+                   {upTo:1600000,rate:15},{upTo:2000000,rate:20},{upTo:2400000,rate:25},
+                   {upTo:999999999,rate:30}] },
+          Old:{ label:"Old Regime (with exemptions)", standardDeduction:50000,
+            rebateLimit:500000, rebateAmount:12500,
+            slabs:[{upTo:250000,rate:0},{upTo:500000,rate:5},{upTo:1000000,rate:20},
+                   {upTo:999999999,rate:30}] }
+        },
+        note:"Slabs below are as understood for FY 2025-26 and compute immediately. Have your CA confirm them."},
       lwf:{enabled:false, employee:0, employer:0, note:"Labour Welfare Fund, where applicable"},
       ot:{multiplier:2, basisComponents:"basic+da", note:"Factories Act overtime multiplier"},
       gratuity:{accrualPct:4.81, note:"Provision only — payable per Gratuity Act on exit"},
@@ -4207,8 +4221,8 @@ table{width:100%;border-collapse:collapse;font-size:9pt;}
     Employer contributions, not deducted from you: PF ₹${sl.employer.pf} · EPS ₹${sl.employer.eps}
     · EDLI ₹${sl.employer.edli} · ESI ₹${sl.employer.esi}<br>
     Statutory rates effective from ${esc(sl.rulesEffectiveFrom||'not recorded')}.
-    ${sl.deductions.tds?'TDS as computed under the configured tax table.'
-      :'No TDS deducted this month — either below the taxable threshold or no figure has been set for this employee.'}<br>
+    ${sl.tdsBasis?'Income tax basis: '+esc(sl.tdsBasis)+'.':''}
+    ${!sl.deductions.tds?' No tax is payable at this income level after the standard deduction and rebate.':''}<br>
     ${(sl.notes||[]).length?esc(sl.notes.join(' · '))+'<br>':''}
     This is a system-generated payslip and does not require a signature.
   </div>
@@ -4505,24 +4519,59 @@ ${sections}
       </div>
 
       <div class="qb" style="margin-bottom:18px;">
-        <h4>Earnings so far this month — ${esc(period)}</h4>
-        <div class="cs-break">
-          <div><span>Basic</span><span>${rupee(slip.earnings.basic)}</span></div>
-          <div><span>HRA</span><span>${rupee(slip.earnings.hra)}</span></div>
-          <div><span>Conveyance</span><span>${rupee(slip.earnings.conveyance)}</span></div>
-          <div><span>Special allowance</span><span>${rupee(slip.earnings.special)}</span></div>
-          ${slip.earnings.ot?`<div><span>Overtime (${ot} hrs)</span><span>${rupee(slip.earnings.ot)}</span></div>`:''}
-          <div class="sep"><span>Gross to date</span><span>${rupee(slip.gross)}</span></div>
-          <div><span>Provident Fund</span><span>− ${rupee(slip.deductions.pf)}</span></div>
-          ${slip.deductions.esi?`<div><span>ESI</span><span>− ${rupee(slip.deductions.esi)}</span></div>`:''}
-          ${slip.deductions.pt?`<div><span>Professional Tax</span><span>− ${rupee(slip.deductions.pt)}</span></div>`:''}
-          ${slip.deductions.tds?`<div><span>Income Tax (TDS)</span><span>− ${rupee(slip.deductions.tds)}</span></div>`:''}
-          ${slip.deductions.other?`<div><span>Other deductions</span><span>− ${rupee(slip.deductions.other)}</span></div>`:''}
-          <div class="grand"><span>Take-home to date</span><span>${rupee(slip.net)}</span></div>
-          <div class="minp"><span>Based on ${payableSoFar} payable of ${elapsed} days elapsed</span><span></span></div>
-        </div>
-        <div class="field-hint" style="margin-top:10px;">An indication only, from attendance recorded so far.
-          Your actual payslip is issued after the month closes and may differ.</div>
+        <h4>Salary position — ${esc(period)}</h4>
+        <div class="field-hint" style="margin-bottom:12px;">Calculated on ${payableSoFar} payable days
+          of ${elapsed} elapsed, exactly as payroll will compute it at month end.</div>
+        <table class="cs-t" style="margin-bottom:14px;">
+          <thead><tr><th>Earnings</th><th class="r">Amount</th><th>Deductions</th><th class="r">Amount</th></tr></thead>
+          <tbody>
+            <tr><td>Basic</td><td class="r">${rupee(slip.earnings.basic)}</td>
+                <td>Provident Fund</td><td class="r">${rupee(slip.deductions.pf)}</td></tr>
+            <tr><td>Dearness Allowance</td><td class="r">${rupee(slip.earnings.da)}</td>
+                <td>ESI</td><td class="r">${rupee(slip.deductions.esi)}</td></tr>
+            <tr><td>House Rent Allowance</td><td class="r">${rupee(slip.earnings.hra)}</td>
+                <td>Professional Tax</td><td class="r">${rupee(slip.deductions.pt)}</td></tr>
+            <tr><td>Conveyance</td><td class="r">${rupee(slip.earnings.conveyance)}</td>
+                <td>Income Tax (TDS)</td><td class="r">${rupee(slip.deductions.tds)}</td></tr>
+            <tr><td>Special Allowance</td><td class="r">${rupee(slip.earnings.special)}</td>
+                <td>Other</td><td class="r">${rupee(slip.deductions.other)}</td></tr>
+            <tr><td>Overtime${ot?' ('+ot+' hrs)':''}</td><td class="r">${rupee(slip.earnings.ot)}</td>
+                <td></td><td></td></tr>
+            <tr style="background:var(--paper);font-weight:700;">
+                <td>Gross Earnings</td><td class="r">${rupee(slip.gross)}</td>
+                <td>Total Deductions</td><td class="r">${rupee(slip.totalDeductions)}</td></tr>
+          </tbody></table>
+
+        <div class="net-strip"><span>NET PAY TO DATE</span><span>${rupee(slip.net)}</span></div>
+
+        <div class="cs-sub">Employer contributions — paid by the company, not deducted from you</div>
+        <table class="cs-t"><tbody>
+          <tr><td>Provident Fund — employer share</td><td class="r">${rupee(slip.employer.pf)}</td>
+              <td>Pension (EPS)</td><td class="r">${rupee(slip.employer.eps)}</td></tr>
+          <tr><td>EDLI</td><td class="r">${rupee(slip.employer.edli)}</td>
+              <td>ESI — employer share</td><td class="r">${rupee(slip.employer.esi)}</td></tr>
+          <tr style="background:var(--paper);font-weight:700;">
+              <td>Total cost to company</td><td class="r">${rupee(slip.ctcCost)}</td>
+              <td>Gratuity provision</td><td class="r">${rupee(slip.provisions.gratuity)}</td></tr>
+        </tbody></table>
+
+        ${slip.tdsBasis?`<div class="field-hint" style="margin-top:10px;">
+          <b>Income tax basis:</b> ${esc(slip.tdsBasis)}.
+          ${!slip.deductions.tds?' No tax is payable at your income level after the standard deduction and rebate.':''}</div>`:''}
+        <div class="field-hint" style="margin-top:6px;">An indication from attendance recorded so far. Your
+          actual payslip is issued after the month closes and may differ.</div>
+      </div>
+
+      <div class="qb" style="margin-bottom:18px;">
+        <h4>My details on record</h4>
+        <table class="cs-t"><tbody>
+          <tr><td>Employee ID</td><td><b>${esc(e.empId)}</b></td><td>UAN</td><td><b>${esc(e.uan||'—')}</b></td></tr>
+          <tr><td>PF Number</td><td><b>${esc(e.pfNumber||'—')}</b></td><td>ESI Number</td><td><b>${esc(e.esiNumber||'—')}</b></td></tr>
+          <tr><td>PAN</td><td><b>${esc(e.pan||'—')}</b></td><td>Tax Regime</td><td><b>${esc(e.taxRegime||'New')}</b></td></tr>
+          <tr><td>Bank</td><td><b>${esc(e.bankName||'—')}</b></td><td>Account</td><td><b>${esc(e.bankAcc||'—')}</b></td></tr>
+          <tr><td>IFSC</td><td><b>${esc(e.ifsc||'—')}</b></td><td>Date of Joining</td><td><b>${e.doj?new Date(e.doj).toLocaleDateString('en-GB'):'—'}</b></td></tr>
+        </tbody></table>
+        <div class="field-hint" style="margin-top:8px;">If anything here is wrong, tell HR — you cannot change it yourself.</div>
       </div>
 
       ${bal.length?`<div class="qb" style="margin-bottom:18px;"><h4>Leave balance</h4>
@@ -5280,7 +5329,6 @@ within seven days.</p>
     <span style="font-size:7.5pt;color:#41567E;">Signature &amp; date</span></div></div>
 </div>
 
-<div class="foot">${esc(co.legalName||data.brandName)}${companyAddressLines().length?' · '+esc(companyAddressLines().join(', ')):''}</div>
 </body></html>`);
     w.document.close();
   }
@@ -7066,8 +7114,17 @@ Rules:
 
           <div class="cs-sub">Deductions &amp; Applicability</div>
           <div class="cs-row four">
-            <div><label>Monthly TDS</label><input class="em-in num" data-i="${i}" data-k="monthlyTds" value="${esc(e.monthlyTds)}">
-              <div class="field-hint">From your CA — not computed here.</div></div>
+            <div><label>Tax Regime</label>
+              <select class="em-in" data-i="${i}" data-k="taxRegime" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
+                <option value="New" ${(e.taxRegime||'New')==='New'?'selected':''}>New Regime</option>
+                <option value="Old" ${e.taxRegime==='Old'?'selected':''}>Old Regime</option></select></div>
+            <div><label>Declared Deductions (annual)</label><input class="em-in num" data-i="${i}" data-k="declaredDeductions" value="${esc(e.declaredDeductions||0)}">
+              <div class="field-hint">80C, 80D, HRA exemption etc. Reduces taxable income.</div></div>
+            <div><label>TDS Override (monthly)</label><input class="em-in num" data-i="${i}" data-k="monthlyTds" value="${esc(e.monthlyTds)}">
+              <div class="field-hint">Leave 0 to let the system compute it. Any value here overrides.</div>
+              <div class="field-hint" style="color:var(--ok);margin-top:4px;">${(()=>{
+                const t=calcPayslip(e,{payableDays:30,totalDays:30,otHours:0,incentive:0,advance:0});
+                return 'Computed now: '+rupee(t.deductions.tds)+'/month';})()}</div></div>
             <div><label>Other Deduction</label><input class="em-in num" data-i="${i}" data-k="otherDeduction" value="${esc(e.otherDeduction)}"></div>
             <div><label>PF Applicable</label>
               <select class="em-bool" data-i="${i}" data-k="pfApplicable" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
@@ -7184,7 +7241,7 @@ Rules:
       ctcAnnual:0,
       structure:{basic:0, da:0, hra:0, conveyance:0, special:0, otherAllow:0},
       pfApplicable:true, esiApplicable:true, ptApplicable:true,
-      monthlyTds:0, otherDeduction:0,
+      taxRegime:'New', declaredDeductions:0, monthlyTds:0, otherDeduction:0,
       competencies:[], trainings:[], notes:''
     };
   }
@@ -7264,27 +7321,42 @@ Rules:
       pt=slab?num(slab.amount):0;
     }
 
-    /* Slab-based TDS is used only when the slabs have a recorded verifier.
-       Without that, the manual per-employee figure applies — an unverified
-       slab table must never silently drive a deduction. */
-    let tds=0;
+    /* ---- Income tax (TDS) ----
+       Computed from the slab table for the employee's regime, annualised on the
+       current month's gross, then divided across twelve months. The slabs are
+       editable; a warning is raised until a named person confirms them, but the
+       calculation runs regardless so nothing is silently zero. */
+    let tds=0, tdsBasis='';
     const tdsCfg=st.tds||{};
     if(tdsCfg.enabled!==false){
-      const slabsUsable=tdsCfg.mode==='slab'&&(tdsCfg.slabs||[]).length&&tdsCfg.slabsReviewedBy;
-      if(slabsUsable){
-        const annual=Math.max(0,(gross*12)-num(tdsCfg.standardDeduction));
-        let tax=0,prev=0;
-        (tdsCfg.slabs||[]).slice().sort((a,b)=>num(a.upTo)-num(b.upTo)).forEach(sl=>{
-          const band=Math.max(0,Math.min(annual,num(sl.upTo))-prev);
-          tax+=band*num(sl.rate)/100; prev=num(sl.upTo);
-        });
-        if(num(tdsCfg.rebateLimit)&&annual<=num(tdsCfg.rebateLimit)) tax=Math.max(0,tax-num(tdsCfg.rebate87A));
-        tax=tax*(1+num(tdsCfg.cessPct)/100);
-        tds=Math.round(tax/12);
-        notes.push('TDS from verified slab table');
-      } else {
+      if(tdsCfg.mode==='manual'){
         tds=num(emp.monthlyTds);
-        if(tdsCfg.mode==='slab') notes.push('Slab mode selected but unverified — manual TDS figure used');
+        tdsBasis='Fixed monthly figure';
+      } else {
+        const regimeKey=emp.taxRegime||tdsCfg.defaultRegime||'New';
+        const rg=(tdsCfg.regimes||{})[regimeKey];
+        if(rg&&(rg.slabs||[]).length){
+          const annualGross=gross*12;
+          const taxable=Math.max(0, annualGross-num(rg.standardDeduction)-num(emp.declaredDeductions));
+          let tax=0, prev=0;
+          rg.slabs.slice().sort((a,b)=>num(a.upTo)-num(b.upTo)).forEach(sl=>{
+            const band=Math.max(0, Math.min(taxable,num(sl.upTo))-prev);
+            tax += band*num(sl.rate)/100;
+            prev = num(sl.upTo);
+          });
+          if(num(rg.rebateLimit)&&taxable<=num(rg.rebateLimit))
+            tax=Math.max(0, tax-num(rg.rebateAmount));
+          tax = tax*(1+num(tdsCfg.cessPct)/100);
+          tds = Math.round(tax/12);
+          tdsBasis = regimeKey+' regime · taxable '+Math.round(taxable).toLocaleString('en-IN')
+            +' after '+num(rg.standardDeduction).toLocaleString('en-IN')+' standard deduction'
+            +(num(emp.declaredDeductions)?' and '+num(emp.declaredDeductions).toLocaleString('en-IN')+' declared':'');
+          if(num(emp.monthlyTds)>0){ tds=num(emp.monthlyTds); tdsBasis='Overridden by the figure set on the employee record'; }
+          if(!tdsCfg.slabsReviewedBy) notes.push('Tax slabs not yet confirmed by your CA');
+        } else {
+          tds=num(emp.monthlyTds);
+          tdsBasis='No slabs for this regime — using the fixed figure';
+        }
       }
     }
     const lwfEmp=(st.lwf||{}).enabled?num(st.lwf.employee):0;
@@ -7316,7 +7388,7 @@ Rules:
       totalDeductions,net,
       employer:{pf:pfEr,eps,edli,admin:pfAdmin,esi:esiEr,lwf:lwfEr},
       ctcCost, provisions:{gratuity:gratuityProv,bonus:bonusProv},
-      otHours:num(att.otHours), notes, flags,
+      otHours:num(att.otHours), notes, flags, tdsBasis,
       rulesEffectiveFrom:st.effectiveFrom||''};
   }
 

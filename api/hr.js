@@ -81,6 +81,9 @@ export default async function handler(req, res) {
           bloodGroup: emp.bloodGroup || '', shift: emp.shift || '',
           structure: emp.structure || {}, monthlyTds: emp.monthlyTds || 0,
           otherDeduction: emp.otherDeduction || 0,
+          taxRegime: emp.taxRegime || 'New', declaredDeductions: emp.declaredDeductions || 0,
+          uan: emp.uan || '', pfNumber: emp.pfNumber || '', esiNumber: emp.esiNumber || '',
+          pan: emp.pan || '', bankName: emp.bankName || '', bankAcc: emp.bankAcc || '', ifsc: emp.ifsc || '',
           pfApplicable: emp.pfApplicable !== false, esiApplicable: emp.esiApplicable !== false
         },
         attendance: att.map(r => r.data),
