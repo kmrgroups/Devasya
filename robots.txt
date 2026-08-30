@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.elixirtec.com/sitemap.xml
+Sitemap: https://devasyaudyoga.com/sitemap.xml
