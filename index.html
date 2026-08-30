@@ -5453,10 +5453,14 @@ Rules:
     }));
     host.querySelectorAll('.cd-join').forEach(b=>b.addEventListener('click',async()=>{
       const c=cands.find(x=>x.item_id===b.dataset.id), d=c.data||c;
-      const empId=prompt('Employee ID for '+d.name+':');
-      if(!empId) return;
+      /* The ID is generated, never asked for — the next free number in the series set
+         on the Statutory & Masters tab. The employee list is refreshed first so two
+         people converted in the same session cannot be handed the same ID. */
+      b.disabled=true; b.textContent='Adding…';
+      try{ const j=await api('/api/hr?what=employees'); hrEmployees=j.employees||[]; }catch(err){}
+      const empId=nextEmpId();
       const e=blankEmployee();
-      Object.assign(e,{empId:empId.trim(),name:d.name,phone:d.phone,email:d.email,
+      Object.assign(e,{empId,name:d.name,phone:d.phone,email:d.email,
         designation:d.designation||'',grade:d.grade||'',doj:d.joiningDate||'',
         department:(reqs.find(r=>r.item_id===d.reqId)||{data:{}}).data.department||'',
         ctcAnnual:num(d.offerCtc),status:'Probation'});
@@ -5469,6 +5473,7 @@ Rules:
         await loadHr(); await loadItems();
         toast(d.name+' added as employee '+e.empId);
       }catch(err){ toast(err.message); }
+      b.disabled=false; b.textContent='Convert to Employee';
     }));
     host.querySelectorAll('.cd-del').forEach(b=>b.addEventListener('click',async()=>{
       if(!confirm('Delete this candidate?')) return;
