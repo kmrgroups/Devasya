@@ -944,6 +944,20 @@
     </div>
 
     <div class="hr-panel" data-hrpanel="tower">
+      <div class="qb" style="margin-bottom:16px;">
+        <h4>Ask the system</h4>
+        <div class="cs-row"><div style="grid-column:1/-1;">
+          <input type="text" id="hrq-q" placeholder="Which employees have competency gaps? · Who has not acknowledged the safety policy? · Whose probation ends this month?">
+        </div></div>
+        <div class="rfq-actions" style="margin-top:10px;">
+          <button class="mini-btn ai" id="hrq-ask">Ask</button>
+          <button class="mini-btn" id="demo-load">Load demonstration data</button>
+          <button class="mini-btn" id="demo-clear">Clear demonstration data</button>
+        </div>
+        <div id="hrq-out"></div>
+        <div class="field-hint" style="margin-top:8px;">Answers are drawn from the records in this system only.
+          Where something is not recorded, it says so rather than guessing.</div>
+      </div>
       <div id="tower-alerts"></div>
       <div id="tower-grid"></div>
       <div class="field-hint" style="margin-top:16px;">Every figure here is read live from the records in this
@@ -3574,6 +3588,338 @@ Reply with ONLY this JSON, no commentary or code fences:
     w.document.close();
   }
 
+  /* ================= EMPLOYEE ID CARD (§7) ================= */
+  function printIdCard(emp){
+    const co=CO(), logo=documentLogo(), w=window.open('','_blank');
+    if(!w){ toast('Allow pop-ups for this site.'); return; }
+    /* the QR carries only the employee ID — nothing personal travels on the card */
+    const qr='https://api.qrserver.com/v1/create-qr-code/?size=180x180&data='+
+      encodeURIComponent(emp.empId);
+    const valid=new Date(); valid.setFullYear(valid.getFullYear()+3);
+    w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>ID Card — ${esc(emp.name)}</title>
+    <style>@page{size:A4;margin:16mm;}body{font-family:Arial,sans-serif;margin:0;color:#12233f;}
+    .sheet{display:flex;gap:14px;flex-wrap:wrap;}
+    .card{width:54mm;height:86mm;border:1pt solid #ccd6e5;border-radius:4mm;overflow:hidden;
+      display:flex;flex-direction:column;page-break-inside:avoid;}
+    .top{background:#0B2A5B;color:#fff;padding:5mm 4mm;text-align:center;}
+    .top img{max-height:9mm;max-width:32mm;object-fit:contain;filter:brightness(0) invert(1);}
+    .top .cn{font-size:8pt;font-weight:800;letter-spacing:.4pt;margin-top:2mm;}
+    .photo{width:24mm;height:30mm;margin:4mm auto 2mm;border:1pt solid #ccd6e5;border-radius:2mm;
+      background:#eef1f6;display:flex;align-items:center;justify-content:center;font-size:7pt;color:#8894ab;overflow:hidden;}
+    .photo img{width:100%;height:100%;object-fit:cover;}
+    .nm{text-align:center;font-size:10pt;font-weight:800;color:#0B2A5B;padding:0 3mm;}
+    .dg{text-align:center;font-size:7.5pt;color:#41567E;margin-bottom:2mm;}
+    .rows{padding:0 4mm;font-size:7pt;flex:1;}
+    .rows div{display:flex;justify-content:space-between;padding:1mm 0;border-bottom:.4pt solid #eef2f7;}
+    .rows span:first-child{color:#8894ab;}
+    .qr{text-align:center;padding:2mm;}.qr img{width:17mm;height:17mm;}
+    .bar{background:#C2932E;color:#fff;text-align:center;font-size:6pt;padding:1.5mm;letter-spacing:.4pt;}
+    .back{padding:5mm 4mm;font-size:6.5pt;color:#41567E;line-height:1.6;}
+    .back h4{font-size:7pt;color:#0B2A5B;margin-bottom:2mm;}
+    .noprint{text-align:center;padding:14px;background:#0B2A5B;color:#fff;}
+    .noprint button{background:#E0B44E;color:#0B2A5B;border:none;padding:10px 24px;border-radius:100px;font-weight:700;cursor:pointer;}
+    @media print{.noprint{display:none;}}</style></head><body>
+    <div class="noprint"><button onclick="window.print()">Save as PDF / Print</button>
+      <div style="font-size:11px;opacity:.85;margin-top:8px;">Front and back print side by side — cut and laminate back to back.</div></div>
+    <div class="sheet">
+      <div class="card">
+        <div class="top">${logo?`<img src="${logo}">`:''}<div class="cn">${esc(co.legalName||data.brandName)}</div></div>
+        <div class="photo">${emp.photo?`<img src="${emp.photo}">`:'PHOTO'}</div>
+        <div class="nm">${esc(emp.name)}</div>
+        <div class="dg">${esc(emp.designation||'')}</div>
+        <div class="rows">
+          <div><span>ID</span><b>${esc(emp.empId)}</b></div>
+          <div><span>Dept</span><b>${esc(emp.department||'—')}</b></div>
+          <div><span>Joined</span><b>${emp.doj?new Date(emp.doj).toLocaleDateString():'—'}</b></div>
+          <div><span>Blood Gp</span><b>${esc(emp.bloodGroup||'—')}</b></div>
+        </div>
+        <div class="qr"><img src="${qr}" alt=""></div>
+        <div class="bar">VALID TO ${valid.toLocaleDateString()}</div>
+      </div>
+      <div class="card">
+        <div class="top"><div class="cn">IF FOUND, PLEASE RETURN TO</div></div>
+        <div class="back">
+          <h4>${esc(co.legalName||data.brandName)}</h4>
+          ${esc(companyAddressLines().join(', '))}<br>
+          ${co.phone||co.mobile?('Tel: '+esc(co.phone||co.mobile)):''}<br>
+          ${co.email?esc(co.email):''}
+          <h4 style="margin-top:4mm;">Conditions</h4>
+          1. This card remains company property.<br>
+          2. It must be worn and visible on the premises.<br>
+          3. It is not transferable.<br>
+          4. Report loss to HR immediately.<br>
+          5. Return it on the last working day.
+          <h4 style="margin-top:4mm;">Emergency</h4>
+          ${esc(emp.emergencyContact||'Not recorded')}
+        </div>
+        <div class="bar">${esc(emp.empId)}</div>
+      </div>
+    </div></body></html>`);
+    w.document.close();
+  }
+
+  /* ================= AI HR AGENT (§29) =================
+     Answers only from the records loaded in this session. The context handed to
+     the model is assembled here, so it cannot invent an employee, a policy or a
+     legal requirement — if something is not in the context it must say so. */
+  function hrContext(){
+    const active=hrEmployees.filter(e=>e.status!=='Exited');
+    const period=new Date().toISOString().slice(0,7);
+    const L=[];
+    L.push('EMPLOYEES ('+active.length+' active):');
+    active.forEach(e=>{
+      const g=competencyGaps(e), a=attendanceSummary(e.empId,period);
+      L.push(`- ${e.empId} ${e.name} | ${e.designation||'no role'} | ${e.department||'no dept'} | status ${e.status||'Active'} | joined ${e.doj||'?'}`
+        +` | competency ${g.filter(x=>x.gap===0).length}/${g.length} met`
+        +(g.filter(x=>x.gap>0).length?` | gaps: ${g.filter(x=>x.gap>0).map(x=>x.name+' (has '+x.have+', needs '+x.need+')').join('; ')}`:'')
+        +` | this month payable ${a.payableDays}/${a.totalDays}, LOP ${a.lop}, OT ${a.otHours}h`);
+    });
+    const pols=itemsOf('policy').filter(p=>p.status==='Published');
+    L.push('\nPOLICIES:');
+    pols.forEach(p=>{const d=p.data||p;
+      const ackd=(d.acknowledgements||[]).map(a=>a.empId);
+      L.push(`- ${d.title} v${d.version} effective ${d.effectiveFrom||'?'} review ${d.reviewOn||'none'}`
+        +` | acknowledged by ${ackd.length}: ${ackd.join(', ')||'nobody'}`
+        +` | NOT acknowledged: ${active.filter(e=>!ackd.includes(e.empId)).map(e=>e.name).join(', ')||'none'}`);});
+    L.push('\nTRAINING:');
+    hrTraining.filter(r=>r.kind==='session').forEach(r=>{const d=r.data||r;
+      L.push(`- ${d.title} on ${d.date||'?'} | ${(d.participants||[]).length} participants`
+        +` | completed ${d.completedOn||'no'} | effectiveness ${d.effectivenessDone?(d.effective?'effective':'not effective'):'PENDING'}`);});
+    L.push('\nTASKS:');
+    itemsOf('task').forEach(t=>{const d=t.data||t;
+      L.push(`- ${d.description} | owner ${d.owner||'?'} | ${t.status} | due ${t.due||'none'} | priority ${d.priority}`);});
+    L.push('\nRECRUITMENT:');
+    itemsOf('requisition').forEach(r=>{const d=r.data||r;
+      L.push(`- ${d.title} (${r.status}) ${d.count} position(s), needed by ${d.neededBy||'?'}`);});
+    itemsOf('candidate').forEach(c=>{const d=c.data||c;
+      L.push(`- candidate ${d.name} for ${d.positionTitle||d.reqId} | stage ${c.status}`
+        +(d.matchPct!==undefined&&d.matchPct!==null?` | ${d.matchPct}% requirement match`:''));});
+    L.push('\nKPIs:');
+    itemsOf('kpi').forEach(k=>{const d=k.data||k;
+      const auto=d.source&&d.source!=='manual'?autoKpiValue(d.source):null;
+      const act=auto?auto.value:d.actual;
+      L.push(`- ${d.name}: target ${d.target}${d.unit||''}, actual ${act===''||act===undefined?'not recorded':act}${d.unit||''} (${d.direction} is better)`);});
+    L.push('\nLEAVE REQUESTS:');
+    hrLeave.forEach(l=>{const d=l.data||l;
+      L.push(`- ${d.empId} ${d.type} ${d.from} to ${d.to} — ${l.status}`);});
+    L.push('\nSTATUTORY: rules effective from '+(ST().effectiveFrom||'not set')
+      +', last reviewed by '+(ST().lastReviewedBy||'NOBODY'));
+    return L.join('\n');
+  }
+
+  async function askHr(question){
+    const out=document.getElementById('hrq-out');
+    out.innerHTML='<div class="field-hint">Reading the records…</div>';
+    const prompt=`You are an HR assistant for a manufacturing company. Answer the question using ONLY the
+records below. This is the whole of what you know.
+
+${hrContext()}
+
+QUESTION: ${question}
+
+Rules you must follow:
+- Answer only from the records above. If the answer is not in them, say plainly what is missing and where
+  it would be recorded. Never guess or fill in a plausible number.
+- Never invent an employee, a policy, a training record or a legal requirement.
+- Do not give legal advice on employment law, statutory dues or termination. Say it needs HR or legal review.
+- Be brief and specific. Name people and figures from the records. Use short lines, not paragraphs.
+- If the question asks you to judge a person's worth, potential or suitability, decline and give the
+  recorded facts instead.`;
+    try{
+      const txt=await callAI(prompt,{maxTokens:900,surfaceError:true});
+      out.innerHTML=`<div class="dx" style="margin-top:12px;">
+        <div class="dx-head"><b>Answer</b><span class="t-micro">${new Date().toLocaleString()}</span></div>
+        <div class="feas-line" style="white-space:pre-wrap;">${esc(txt||'No answer returned.')}</div>
+        <div class="t-micro" style="margin-top:8px;color:var(--ink-soft);">Drawn from the records shown in this
+          module. Check anything you intend to act on.</div></div>`;
+    }catch(e){ out.innerHTML=`<div class="dx-err" style="margin-top:10px;">${esc(e.message)}</div>`; }
+  }
+
+  /* ================= DEMONSTRATION DATA =================
+     Everything created here is tagged demo:true so it can be removed in one
+     click. Use it to see how the module behaves, then clear it before real use. */
+  async function seedDemoData(btn){
+    const say=t=>{ if(btn) btn.textContent=t; };
+    const today=new Date();
+    const iso=d=>d.toISOString().slice(0,10);
+    const ago=n=>{const d=new Date(today); d.setDate(d.getDate()-n); return iso(d);};
+    const ahead=n=>{const d=new Date(today); d.setDate(d.getDate()+n); return iso(d);};
+
+    const emps=[
+      {empId:'ET001',name:'Ramesh Kumar',designation:'CNC Operator',department:'Machining',grade:'W3',
+       doj:ago(1100),ctcAnnual:264000,shift:'Shift A',status:'Active',uan:'101234567890',esiNumber:'3112345678',
+       phone:'9880012301',reportsTo:'Suresh Babu'},
+      {empId:'ET002',name:'Anitha R',designation:'Quality Inspector',department:'Quality',grade:'S2',
+       doj:ago(820),ctcAnnual:312000,shift:'General',status:'Active',uan:'101234567891',esiNumber:'3112345679',
+       phone:'9880012302',reportsTo:'Suresh Babu'},
+      {empId:'ET003',name:'Suresh Babu',designation:'Production Supervisor',department:'Machining',grade:'S4',
+       doj:ago(2200),ctcAnnual:540000,shift:'General',status:'Active',uan:'101234567892',
+       phone:'9880012303',reportsTo:'Vijay Kumar D P'},
+      {empId:'ET004',name:'Prakash M',designation:'CNC Operator',department:'Machining',grade:'W2',
+       doj:ago(140),ctcAnnual:228000,shift:'Shift B',status:'Probation',uan:'101234567893',esiNumber:'3112345680',
+       phone:'9880012304',reportsTo:'Suresh Babu'},
+      {empId:'ET005',name:'Lakshmi N',designation:'Setter',department:'Machining',grade:'W4',
+       doj:ago(1560),ctcAnnual:348000,shift:'Shift A',status:'Active',uan:'101234567894',esiNumber:'3112345681',
+       phone:'9880012305',reportsTo:'Suresh Babu'}
+    ];
+    say('Employees…');
+    for(const e of emps){
+      const emp=Object.assign(blankEmployee(),e,{demo:true});
+      emp.structure=structureFromCtc(e.ctcAnnual);
+      emp.competencies=[];
+      await api('/api/hr',{method:'POST',body:JSON.stringify({what:'employees',employee:emp,reason:'demo data'})});
+    }
+
+    /* role standards, so the skill matrix has something to measure against */
+    data.roleCompetency=[
+      {role:'CNC Operator',competencyId:'cmp1',requiredLevel:3},
+      {role:'CNC Operator',competencyId:'cmp3',requiredLevel:2},
+      {role:'CNC Operator',competencyId:'cmp6',requiredLevel:3},
+      {role:'Quality Inspector',competencyId:'cmp4',requiredLevel:4},
+      {role:'Quality Inspector',competencyId:'cmp5',requiredLevel:3},
+      {role:'Quality Inspector',competencyId:'cmp3',requiredLevel:3},
+      {role:'Setter',competencyId:'cmp1',requiredLevel:4},
+      {role:'Setter',competencyId:'cmp2',requiredLevel:3},
+      {role:'Production Supervisor',competencyId:'cmp8',requiredLevel:3},
+      {role:'Production Supervisor',competencyId:'cmp7',requiredLevel:4}
+    ];
+    data.holidays=[{date:ahead(20),name:'Gandhi Jayanti'},{date:ahead(48),name:'Deepavali'}];
+    markDirty();
+
+    /* assessments — deliberately mixed so gaps and training need show up */
+    say('Assessments…');
+    const levels={ET001:{cmp1:3,cmp3:2,cmp6:3},ET002:{cmp4:3,cmp5:3,cmp3:2},
+      ET003:{cmp8:2,cmp7:4},ET004:{cmp1:1,cmp3:1,cmp6:2},ET005:{cmp1:4,cmp2:2}};
+    await loadHr();
+    for(const e of hrEmployees.filter(x=>levels[x.empId])){
+      e.competencies=Object.entries(levels[e.empId]).map(([cid,lv])=>
+        ({competencyId:cid,level:lv,assessedBy:'Suresh Babu',assessedOn:ago(45)}));
+      await api('/api/hr',{method:'POST',body:JSON.stringify({what:'employees',employee:e,reason:'demo assessment'})});
+    }
+
+    say('Recruitment…');
+    const items=[
+      {itemId:'REQ-DEMO1',kind:'requisition',status:'Open',demo:true,title:'CNC Turner — Night Shift',
+       department:'Machining',count:2,neededBy:ahead(35),grade:'W3',ctcRange:'2.4 – 3.0 LPA',
+       reason:'Expansion',raisedBy:'Suresh Babu',
+       jd:'PURPOSE\nOperate CNC turning centres to produce precision components to drawing.\n\nRESPONSIBILITIES\n- Set up and operate CNC turning centres\n- Read engineering drawings and interpret GD&T\n- Carry out first-off and in-process inspection\n- Record production and rejection data\n- Maintain 5S and machine cleanliness\n\nQUALIFICATION\nITI in Turner or Machinist, or Diploma in Mechanical Engineering.\n\nEXPERIENCE\nMinimum 2 years operating CNC turning centres in a machining environment.\n\nTECHNICAL SKILLS\n- CNC turning setting and operation (Fanuc or Siemens control)\n- Drawing reading and GD&T\n- Use of micrometer, vernier, bore gauge and height gauge\n\nSAFETY\nFollow machine safety and lockout/tagout procedures without exception.\n\nMEASURED ON\nProduction achievement, rejection rate, adherence to cycle time, safety incidents.'},
+      {itemId:'REQ-DEMO2',kind:'requisition',status:'Open',demo:true,title:'Quality Engineer',
+       department:'Quality',count:1,neededBy:ahead(60),grade:'S3',ctcRange:'4.2 – 5.5 LPA',
+       reason:'Replacement',raisedBy:'Vijay Kumar D P',
+       jd:'PURPOSE\nOwn in-process and final quality for machined components.\n\nRESPONSIBILITIES\n- Prepare and maintain control plans and inspection standards\n- Investigate customer complaints using 8D\n- Conduct layout inspection and gauge calibration control\n- Support IATF 16949 internal audits\n\nQUALIFICATION\nDiploma or BE in Mechanical Engineering.\n\nEXPERIENCE\n3 years in quality within automotive machining.\n\nTECHNICAL SKILLS\n- GD&T interpretation\n- Measuring instruments and gauges\n- Problem solving / 8D methodology\n- Knowledge of IATF 16949 requirements'},
+      {itemId:'POL-DEMO1',kind:'policy',status:'Published',demo:true,title:'Attendance & Punctuality Policy',
+       category:'HR',version:'2.0',effectiveFrom:ago(90),appliesTo:'All employees',owner:'HR',
+       reviewOn:ahead(275),acknowledgements:[{empId:'ET001',on:ago(80)},{empId:'ET003',on:ago(78)}],
+       body:'1. Working hours are as per the shift assigned.\n2. A grace period of 10 minutes applies. Arrival after this is recorded as late.\n3. Three late arrivals in a month are treated as half a day of loss of pay.\n4. Absence without prior approval is loss of pay and may attract disciplinary action.\n5. Leave must be applied for in advance except in a genuine emergency.'},
+      {itemId:'POL-DEMO2',kind:'policy',status:'Published',demo:true,title:'Machine Safety Policy',
+       category:'Safety',version:'1.0',effectiveFrom:ago(400),appliesTo:'All shop floor employees',
+       owner:'Safety Officer',reviewOn:ago(35),acknowledgements:[{empId:'ET001',on:ago(390)}],
+       body:'1. Personal protective equipment is mandatory on the shop floor.\n2. Machine guards must never be removed or bypassed.\n3. Lockout/tagout must be applied before any maintenance.\n4. Report every near miss, however minor.\n5. Only trained and authorised persons may operate a machine.'},
+      {itemId:'KPI-DEMO1',kind:'kpi',status:'Active',demo:true,name:'Competency achievement',level:'Company',
+       category:'HR',target:90,unit:'%',direction:'higher',source:'competency',actual:''},
+      {itemId:'KPI-DEMO2',kind:'kpi',status:'Active',demo:true,name:'Absenteeism',level:'Company',
+       category:'HR',target:3,unit:'%',direction:'lower',source:'absentee',actual:''},
+      {itemId:'KPI-DEMO3',kind:'kpi',status:'Active',demo:true,name:'Training closed out',level:'Company',
+       category:'HR',target:100,unit:'%',direction:'higher',source:'training',actual:''},
+      {itemId:'KPI-DEMO4',kind:'kpi',status:'Active',demo:true,name:'Internal rejection',level:'Department',
+       owner:'Machining',category:'Quality',target:1.5,unit:'%',direction:'lower',source:'manual',actual:2.4},
+      {itemId:'TSK-DEMO1',kind:'task',status:'In Progress',demo:true,description:'Calibrate bore gauges — annual due',
+       owner:'ET002',priority:'High',due:ahead(6),source:'Audit finding',department:'Quality',evidence:''},
+      {itemId:'TSK-DEMO2',kind:'task',status:'Not Started',demo:true,description:'Retrain Prakash on drawing reading',
+       owner:'ET003',priority:'Normal',due:ago(3),source:'KPI gap',department:'Machining',evidence:''},
+      {itemId:'TSK-DEMO3',kind:'task',status:'Blocked',demo:true,description:'Fit guard interlock on VMC-01',
+       owner:'ET003',priority:'Critical',due:ahead(2),source:'Audit finding',department:'Machining',
+       evidence:'Waiting for the interlock switch from supplier'},
+      {itemId:'RWD-DEMO1',kind:'reward',status:'Recorded',demo:true,empId:'ET005',type:'Best Kaizen',
+       period:'Aug 2026',note:'Reduced setup time on the turning line by 18 minutes with a simple stop block',
+       recordedOn:ago(12)}
+    ];
+    for(const it of items){
+      await api('/api/hr',{method:'POST',body:JSON.stringify({what:'items',item:it,reason:'demo data'})});
+    }
+
+    say('Candidates…');
+    const cands=[
+      {itemId:'CAND-DEMO1',kind:'candidate',status:'Applied',demo:true,reqId:'REQ-DEMO1',
+       name:'Mohan Raj',phone:'9900112233',email:'mohanraj.demo@example.com',qualification:'ITI Turner',
+       experience:4,currentCtc:240000,expectedCtc:300000,source:'Careers page',appliedOn:ago(4),
+       cvText:'ITI Turner, 2018. Four years operating Fanuc CNC turning centres at a Tier-2 automotive supplier. Setting, first-off inspection, in-process checks with micrometer and bore gauge. Familiar with drawing reading and basic GD&T. Trained in machine safety and LOTO.'},
+      {itemId:'CAND-DEMO2',kind:'candidate',status:'Applied',demo:true,reqId:'REQ-DEMO1',
+       name:'Karthik S',phone:'9900112244',email:'karthik.demo@example.com',qualification:'Diploma Mechanical',
+       experience:1,currentCtc:180000,expectedCtc:260000,source:'Careers page',appliedOn:ago(2),
+       cvText:'Diploma in Mechanical Engineering, 2024. One year as a trainee on manual lathes. Exposure to CNC during college project. Keen to learn CNC turning. No independent setting experience yet.'},
+      {itemId:'CAND-DEMO3',kind:'candidate',status:'Interview',demo:true,reqId:'REQ-DEMO2',
+       name:'Divya Prasad',phone:'9900112255',email:'divya.demo@example.com',qualification:'BE Mechanical',
+       experience:5,currentCtc:480000,expectedCtc:600000,source:'Referral',appliedOn:ago(11),
+       interviewDate:ahead(3),interviewer:'Vijay Kumar D P',techScore:8,hrScore:7,
+       cvText:'BE Mechanical, 2019. Five years in quality at an automotive machining company. Prepared control plans and PFMEA. Led 8D investigations for customer complaints. Internal auditor for IATF 16949. Proficient with CMM, gauges and GD&T.'}
+    ];
+    for(const c of cands){
+      await api('/api/hr',{method:'POST',body:JSON.stringify({what:'items',item:c,reason:'demo data'})});
+    }
+
+    say('Training…');
+    await api('/api/hr',{method:'POST',body:JSON.stringify({what:'training',reason:'demo data',record:{
+      recId:'TR-DEMO1',kind:'session',demo:true,courseId:'trn3',title:'Machine Safety & Lockout/Tagout',
+      trainer:'Safety Officer',date:ago(38),evaluateAfterDays:30,
+      participants:[{empId:'ET001',attended:true,score:9,onJobOk:true},
+        {empId:'ET004',attended:true,score:6,onJobOk:false},
+        {empId:'ET005',attended:true,score:8,onJobOk:true}],
+      completedOn:ago(38),assessmentDone:true,method:'Practical demonstration',
+      effectivenessDone:false,effective:false,status:'Scheduled'}})});
+    await api('/api/hr',{method:'POST',body:JSON.stringify({what:'training',reason:'demo data',record:{
+      recId:'TR-DEMO2',kind:'session',demo:true,courseId:'trn2',title:'GD&T and Drawing Interpretation',
+      trainer:'External — Mr Iyer',date:ahead(9),evaluateAfterDays:30,
+      participants:[{empId:'ET004',attended:false,score:0,onJobOk:false}],
+      completedOn:'',assessmentDone:false,effectivenessDone:false,effective:false,status:'Scheduled'}})});
+
+    say('Attendance…');
+    const period=iso(today).slice(0,7);
+    const days=daysInPeriod(period).filter(d=>d<=today);
+    const recs=[];
+    hrEmployees.filter(e=>e.demo||emps.some(x=>x.empId===e.empId)).forEach((e,ei)=>{
+      days.forEach((d,di)=>{
+        if(isWeekOff(d)||isHoliday(d)) return;
+        const absent=(ei===3&&di%9===0);          // one person with a couple of absences
+        recs.push({empId:e.empId,day:dayKey(d),status:absent?'Absent':'Present',
+          dayFraction:1,otHours:(ei===0&&di%7===0)?2:0,demo:true});
+      });
+    });
+    if(recs.length) await api('/api/hr',{method:'POST',
+      body:JSON.stringify({what:'attendance',records:recs,manual:false,reason:'demo attendance'})});
+
+    say('Leave…');
+    await api('/api/hr',{method:'POST',body:JSON.stringify({what:'leave',reason:'demo data',leave:{
+      leaveId:'LV-DEMO1',empId:'ET002',type:'SL',from:ago(6),to:ago(5),
+      reason:'Fever',status:'Approved',demo:true}})});
+    await api('/api/hr',{method:'POST',body:JSON.stringify({what:'leave',reason:'demo data',leave:{
+      leaveId:'LV-DEMO2',empId:'ET005',type:'EL',from:ahead(12),to:ahead(16),
+      reason:'Family function',status:'Pending',demo:true}})});
+
+    try{ await api('/api/content',{method:'POST',body:JSON.stringify({data})}); dirty=false; }catch(e){}
+    await loadHr(); await loadItems(); await loadTraining(); await loadJobs();
+    say('Load demonstration data');
+  }
+
+  async function clearDemoData(btn){
+    const say=t=>{ if(btn) btn.textContent=t; };
+    say('Removing…');
+    await loadHr(); await loadItems(); await loadTraining();
+    for(const e of hrEmployees.filter(x=>x.demo))
+      await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'employees',empId:e.empId,remove:true,reason:'demo data cleared'})});
+    for(const i of hrItems.filter(x=>(x.data||x).demo))
+      await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'items',itemId:i.item_id,remove:true,reason:'demo data cleared'})});
+    for(const t of hrTraining.filter(x=>(x.data||x).demo))
+      await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'training',recId:t.rec_id,remove:true,reason:'demo data cleared'})});
+    for(const l of hrLeave.filter(x=>(x.data||x).demo))
+      await api('/api/hr',{method:'PATCH',body:JSON.stringify({what:'leave',leaveId:l.leave_id,remove:true,reason:'demo data cleared'})});
+    data.roleCompetency=[]; data.holidays=[];
+    try{ await api('/api/content',{method:'POST',body:JSON.stringify({data})}); dirty=false; }catch(e){}
+    await loadHr(); await loadItems(); await loadTraining(); await loadJobs();
+    say('Clear demonstration data');
+    toast('Demonstration data removed');
+  }
+
   /* ================= PUBLIC CAREERS PAGE =================
      Open requisitions are published here. Applying creates a candidate record
      that lands directly in HR & People — nothing is retyped. */
@@ -5506,6 +5852,7 @@ ${co.phone||co.mobile||''}`;
 
           <div class="rfq-actions" style="margin-top:16px;">
             <button class="mini-btn gold em-save" data-i="${i}">Save Employee</button>
+            <button class="mini-btn em-idcard" data-i="${i}">Print ID Card</button>
             <button class="item-delete em-del" data-i="${i}">Delete</button>
           </div>
         </div></div>`;
@@ -5536,6 +5883,9 @@ ${co.phone||co.mobile||''}`;
       try{ await api('/api/hr',{method:'POST',body:JSON.stringify({what:'employees',employee:e,reason:'edited in HR screen'})});
         toast('Employee saved'); }catch(err){ toast(err.message); }
       b.textContent='Save Employee'; b.disabled=false;
+    }));
+    host.querySelectorAll('.em-idcard').forEach(b=>b.addEventListener('click',()=>{
+      printIdCard(hrEmployees[+b.dataset.i]);
     }));
     host.querySelectorAll('.em-del').forEach(b=>b.addEventListener('click',async()=>{
       const e=hrEmployees[+b.dataset.i];
@@ -8391,6 +8741,30 @@ Sign off as: ${data.quoteSender||'Sales Team'}, ${data.brandName}, ${data.contac
   document.getElementById('lv-emp').addEventListener('change',renderLeave);
   document.getElementById('sm-dept').addEventListener('change',renderSkillMatrix);
   document.getElementById('tk-filter').addEventListener('change',renderTasks);
+  document.getElementById('hrq-ask').addEventListener('click',async function(){
+    const q=document.getElementById('hrq-q').value.trim();
+    if(!q){ toast('Type a question'); return; }
+    this.disabled=true; this.textContent='Thinking…';
+    await askHr(q);
+    this.disabled=false; this.textContent='Ask';
+  });
+  document.getElementById('hrq-q').addEventListener('keydown',e=>{
+    if(e.key==='Enter') document.getElementById('hrq-ask').click();
+  });
+  document.getElementById('demo-load').addEventListener('click',async function(){
+    if(!confirm('Load demonstration data?\n\nThis creates 5 employees, 2 job openings, 3 candidates, policies,\ntasks, KPIs, training and a month of attendance — all removable in one click.')) return;
+    this.disabled=true;
+    try{ await seedDemoData(this); renderTower(); toast('Demonstration data loaded'); }
+    catch(e){ toast('Failed: '+e.message); this.textContent='Load demonstration data'; }
+    this.disabled=false;
+  });
+  document.getElementById('demo-clear').addEventListener('click',async function(){
+    if(!confirm('Remove every demonstration record?\n\nOnly items marked as demonstration data are deleted.\nAnything you created yourself is untouched.')) return;
+    this.disabled=true;
+    try{ await clearDemoData(this); renderTower(); }
+    catch(e){ toast('Failed: '+e.message); this.textContent='Clear demonstration data'; }
+    this.disabled=false;
+  });
   document.getElementById('rw-add').addEventListener('click',async function(){
     const empId=document.getElementById('rw-emp').value;
     const msg=document.getElementById('rw-msg');
