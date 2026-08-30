@@ -3184,6 +3184,32 @@ and suggest nothing rather than inventing problems.`;
   }
   const rupee=n=>(QC().currencySymbol||'₹')+num(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
 
+  /* AI replies are JSON but not always valid JSON: a model will happily put a real
+     line break inside a quoted string, which JSON.parse rejects outright with
+     "bad control character". Strip any fences, take the outermost object, then escape
+     control characters that are sitting inside a string before parsing. */
+  function parseAiJson(text){
+    let t=String(text==null?'':text).replace(/```json|```/g,'').trim();
+    const a=t.indexOf('{'), b=t.lastIndexOf('}');
+    if(a<0||b<a) throw new Error('The reply was not JSON.');
+    t=t.slice(a,b+1);
+    let out='', inStr=false, escNext=false;
+    for(let i=0;i<t.length;i++){
+      const c=t[i], code=t.charCodeAt(i);
+      if(escNext){ out+=c; escNext=false; continue; }
+      if(c==='\\'){ out+=c; escNext=true; continue; }
+      if(c==='"'){ inStr=!inStr; out+=c; continue; }
+      if(inStr&&code<0x20){
+        out += c==='\n'?'\\n' : c==='\r'?'\\r' : c==='\t'?'\\t' : ' ';
+        continue;
+      }
+      out+=c;
+    }
+    // a trailing comma before a closing brace or bracket is the other common slip
+    out=out.replace(/,(\s*[}\]])/g,'$1');
+    return JSON.parse(out);
+  }
+
   function renderRateSummary(){
     const el=document.getElementById('rate-summary'); if(!el) return;
     const hrs=availableHours();
@@ -3273,8 +3299,7 @@ Reply with ONLY a JSON object, no commentary and no code fences:
     if(!text) return {error:'The AI did not return a reading. Check the AI settings in Vercel.'};
 
     try{
-      const clean=text.replace(/```json|```/g,'').trim();
-      const parsed=JSON.parse(clean.slice(clean.indexOf('{'),clean.lastIndexOf('}')+1));
+      const parsed=parseAiJson(text);
       parsed.readAt=new Date().toLocaleString();
       return parsed;
     }catch(e){ return {error:'Could not understand the AI response.',raw:text}; }
@@ -3422,8 +3447,7 @@ Reply with ONLY this JSON, no commentary or code fences:
     catch(e){ toast('AI draft failed: '+e.message); return; }
     if(!text){ toast('No response from AI.'); return; }
     try{
-      const clean=text.replace(/```json|```/g,'').trim();
-      const p=JSON.parse(clean.slice(clean.indexOf('{'),clean.lastIndexOf('}')+1));
+      const p=parseAiJson(text);
       part.bom=(p.bom||[]).map(b=>({material:b.material||'',qtyPerPart:num(b.qtyPerPart),unit:b.unit||'kg',scrapPct:num(b.scrapPct)}));
       part.routing=(p.routing||[]).map((o,i)=>{
         const m=bestMachineFor(o.machineType);
@@ -5173,8 +5197,7 @@ Rules you must follow:
       try{
         const txt=await callAI(prompt,{maxTokens:1100,attachment,surfaceError:true});
         try{
-          const clean=(txt||'').replace(/```json|```/g,'').trim();
-          const j=JSON.parse(clean.slice(clean.indexOf('{'),clean.lastIndexOf('}')+1));
+          const j=parseAiJson(txt);
           d.matchPct=(j.matchPct===null||j.matchPct===undefined)?null:Math.round(num(j.matchPct));
           d.recommendation=j.recommendation||'';
           d.screening=j.detail||txt||'';
@@ -7130,10 +7153,17 @@ within seven days.</p>
       const taxable=Math.max(0,tdsTestGross-num(rg.standardDeduction));
       const t=annualTaxBeforeCess(taxable,rg);
       const annual=t.total*(1+cess/100);
+      const beforeRebate=slabTax(taxable,rg.slabs);
+      const rebateUsed=Math.max(0,beforeRebate-t.base);
       document.getElementById('tds-test-out').innerHTML=
-        `Taxable <b>${rupee(taxable)}</b> · tax ${rupee(t.base)}`
+        `Taxable <b>${rupee(taxable)}</b> after ${rupee(num(rg.standardDeduction))} standard deduction`
+        +`<br>Tax on the slabs ${rupee(beforeRebate)}`
+        +(rebateUsed?` − 87A rebate ${rupee(rebateUsed)}`:'')
         +(t.surcharge?` + surcharge ${rupee(t.surcharge)}`:'')
-        +` + ${cess}% cess = <b>${rupee(annual)}</b> a year, <b>${rupee(annual/12)}</b> a month.`;
+        +` + ${cess}% cess`
+        +`<br><b>${rupee(annual)}</b> a year · <b>${rupee(annual/12)}</b> a month`
+        +(annual?'':`<br><span style="color:var(--ok)">Nothing is payable — the 87A rebate covers the tax `
+          +`at this income (rebate applies up to ${rupee(num(rg.rebateLimit))} taxable).</span>`);
     });
 
     const tai=document.getElementById('tds-ai');
@@ -7158,8 +7188,7 @@ Rules:
 - Do not guess if you are unsure — return empty slabs and explain why in "caution".`;
       try{
         const txt=await callAI(prompt,{maxTokens:900,surfaceError:true});
-        const clean=(txt||'').replace(/```json|```/g,'').trim();
-        const j=JSON.parse(clean.slice(clean.indexOf('{'),clean.lastIndexOf('}')+1));
+        const j=parseAiJson(txt);
         if((j.slabs||[]).length){
           const r=RGset();
           r.slabs=j.slabs.map(x=>({upTo:num(x.upTo),rate:num(x.rate)}));
@@ -8520,8 +8549,7 @@ Reply with ONLY this JSON, no commentary or code fences:
 
     let p;
     try{
-      const clean=text.replace(/```json|```/g,'').trim();
-      p=JSON.parse(clean.slice(clean.indexOf('{'),clean.lastIndexOf('}')+1));
+      p=parseAiJson(text);
     }catch(e){ return {error:'Could not understand the AI route plan.'}; }
 
     const c=blankCosting(r);
