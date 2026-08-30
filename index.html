@@ -3,13 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Devasya Udyoga — precision manufacturing and engineering solutions. Explore our capabilities, quality systems, industries and RFQ services.">
-<link rel="canonical" href="https://devasyaudyoga.com/">
-<meta property="og:title" content="Devasya Udyoga — Precision Manufacturing">
-<meta property="og:description" content="Precision manufacturing and engineering solutions from Devasya Udyoga.">
-<meta property="og:url" content="https://devasyaudyoga.com/">
-<meta name="twitter:card" content="summary_large_image">
-<title>Devasya Udyoga — Precision Manufacturing</title>
+<title>IRONVALE — Precision Manufacturing</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico" type="image/x-icon">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#0B2A5B">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -2767,6 +2768,18 @@ I would recommend this company as a place to work</textarea></div></div>
         <div class="core-label">PRECISION ENGINEERED</div></div>`;
     }
   }
+  function setDynamicFavicon(src){
+    if(!src) return;
+    let link=document.getElementById('dynamic-favicon');
+    if(!link){
+      link=document.createElement('link');
+      link.id='dynamic-favicon';
+      link.rel='icon';
+      document.head.appendChild(link);
+    }
+    link.href=src;
+  }
+
   function render(){
     applyVars();
     setText('d-brand-name',data.brandName); setText('d-brand-name-2',data.brandName);
@@ -2780,6 +2793,9 @@ I would recommend this company as a place to work</textarea></div></div>
     lw.classList.toggle('logo-glow',!!data.logoGlow);
     lw.innerHTML=data.logoDataUrl?`<img src="${data.logoDataUrl}" alt="logo" decoding="async" draggable="false">`
       :`<div class="logo-fallback">${esc(data.brandName.charAt(0))}</div>`;
+    // Use the uploaded company logo as the browser tab icon when available;
+    // the bundled favicon remains the instant-loading fallback.
+    setDynamicFavicon(data.logoDataUrl||'');
     document.getElementById('brand-text').style.display=data.showBrandText?'':'none';
     document.getElementById('hero-bg').style.backgroundImage=data.heroBannerDataUrl?`url('${data.heroBannerDataUrl}')`:'none';
     renderHeroVisual();
