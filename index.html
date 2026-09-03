@@ -7659,30 +7659,35 @@ Rules:
       style="width:100%;padding:7px;border:1px solid var(--line);border-radius:6px;font-size:var(--fs-micro);">
       <option value="">—</option>${(list||[]).map(x=>`<option ${val===x?'selected':''}>${esc(x)}</option>`).join('')}</select>`;
 
-  /* An employee record is six sections and a long scroll. Each heading becomes a
-     fold; which ones are open is remembered while the page is up, so opening the
-     next person lands on the same section you were working in. */
+  /* An employee record is six sections and a long scroll, so each heading folds.
+     Two rules that cost me a bug: the walk must stop before the Save / Print / Delete
+     row, or collapsing the last section takes the Save button with it; and every
+     section starts OPEN, because hiding a field the user did not choose to hide is
+     worse than a long page. What they fold is remembered, so once Statutory
+     Identifiers is folded it stays folded on every record. */
   const sectionOpen={};
-  function makeSectionsCollapsible(root,openByDefault){
+  const NEVER_FOLD='rfq-actions';
+  function makeSectionsCollapsible(root){
     if(!root) return;
-    root.querySelectorAll('.cs-sub').forEach((h,idx)=>{
+    root.querySelectorAll('.cs-sub').forEach(h=>{
       if(h.dataset.coll) return;
       const body=[];
       let n=h.nextElementSibling;
-      while(n && !n.classList.contains('cs-sub')){ body.push(n); n=n.nextElementSibling; }
+      while(n && !n.classList.contains('cs-sub') && !n.classList.contains(NEVER_FOLD)){
+        body.push(n); n=n.nextElementSibling;
+      }
       if(!body.length) return;
       h.dataset.coll='1';
       const key=h.textContent.trim();
-      const open=(key in sectionOpen)?sectionOpen[key]:(idx<num(openByDefault));
       h.classList.add('cs-sub-toggle');
       h.innerHTML='<span class="cs-caret"></span>'+h.innerHTML;
       const apply=v=>{
         body.forEach(el=>{ el.style.display=v?'':'none'; });
         h.querySelector('.cs-caret').textContent=v?'▾':'▸';
       };
-      apply(open);
+      apply(sectionOpen[key]!==false);
       h.addEventListener('click',()=>{
-        const now=!(sectionOpen[key]===undefined?open:sectionOpen[key]);
+        const now=(sectionOpen[key]===false);   // currently folded -> open it
         sectionOpen[key]=now; apply(now);
       });
     });
@@ -7828,7 +7833,7 @@ Rules:
           </div>
         </div></div>`;
     }).join('');
-    makeSectionsCollapsible(host,2);
+    makeSectionsCollapsible(host);
 
     host.querySelectorAll('[data-toggle-emp]').forEach(r=>r.addEventListener('click',()=>{
       const id=r.dataset.toggleEmp; expandedEmp=(expandedEmp===id)?null:id; renderEmployees();
